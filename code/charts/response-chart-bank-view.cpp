@@ -3,7 +3,6 @@
 #include <algorithm>
 
 namespace {
-
 void set_panel_updates(ChartPanel* panel, bool on) {
     if (!panel || !panel->view())
         return;
@@ -17,7 +16,6 @@ void fit_panel(ChartPanel* panel, const BoundsSet& b, bool nice_x, bool nice_y) 
         return;
     panel->fitAxes(b.min_x(), b.max_x(), b.min_y(), b.max_y(), nice_x, nice_y);
 }
-
 } // namespace
 
 void ResponseChartBank::set_panel_updates_all(bool on) {

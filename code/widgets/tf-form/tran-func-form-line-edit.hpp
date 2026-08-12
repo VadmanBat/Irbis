@@ -65,7 +65,6 @@ protected:
 };
 
 namespace tf_form_style {
-
 inline void apply_coeff_sign(QLineEdit* line_edit, double value) {
     const char* sign = "zero";
     if (value > 0)
@@ -78,5 +77,4 @@ inline void apply_coeff_sign(QLineEdit* line_edit, double value) {
 inline void apply_power_active(QLabel* label, bool active) {
     style_util::setProperty(label, "powerActive", active ? QByteArray("true") : QByteArray("false"));
 }
-
 } // namespace tf_form_style

@@ -8,7 +8,6 @@
 /// Muted secondary text that stays readable on light and dark themes.
 /// `palette(mid)` is a bevel fill and often vanishes on dark backgrounds.
 namespace secondary_text {
-
 inline QColor colorFor(const QPalette& pal) {
     const QColor bg = pal.color(QPalette::Window);
     const QColor fg = pal.color(QPalette::WindowText);
@@ -45,5 +44,4 @@ inline void applyAll(std::initializer_list<QLabel*> labels) {
     for (QLabel* label : labels)
         apply(label);
 }
-
 } // namespace secondary_text

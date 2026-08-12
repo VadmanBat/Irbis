@@ -12,7 +12,6 @@
 #include <QToolTip>
 
 namespace {
-
 std::vector<double> parse_coeff_list(QString line) {
     line.replace(',', ' ');
     line.replace(';', ' ');
@@ -26,7 +25,6 @@ std::vector<double> parse_coeff_list(QString line) {
     }
     return out;
 }
-
 } // namespace
 
 QString TranFuncForm::exportText() const {

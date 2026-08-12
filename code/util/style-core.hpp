@@ -6,7 +6,6 @@
 
 /// Dynamic-property helpers for QSS (no hardcoded colors in C++).
 namespace style_util {
-
 inline void setProperty(QWidget* widget, const char* name, const QVariant& value) {
     if (!widget)
         return;
@@ -17,5 +16,4 @@ inline void setProperty(QWidget* widget, const char* name, const QVariant& value
     }
     widget->update();
 }
-
 } // namespace style_util

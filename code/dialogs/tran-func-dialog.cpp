@@ -17,7 +17,6 @@
 #include <QToolTip>
 
 namespace {
-
 enum class SolutionFormat { Html, Plain, Latex };
 
 QString solution_text(const numina::LaplaceSolution& sol, SolutionFormat format) {
@@ -31,7 +30,6 @@ QString solution_text(const numina::LaplaceSolution& sol, SolutionFormat format)
     }
     return {};
 }
-
 } // namespace
 
 TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* parent)

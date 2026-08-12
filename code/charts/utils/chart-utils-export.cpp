@@ -11,7 +11,6 @@
 
 namespace chart_utils {
 namespace {
-
 enum class ExportFormat { Png, Svg, Txt };
 
 ExportFormat format_from_suffix(const QString& path) {
@@ -72,7 +71,6 @@ bool save_svg(QChartView* view, const QString& path) {
     view->render(&painter);
     return true;
 }
-
 } // namespace
 
 bool saveChartExport(QChartView* view, const QString& path) {
@@ -111,5 +109,4 @@ bool saveChartAsDialog(QWidget* parent, QChartView* view, const QString& suggest
     }
     return true;
 }
-
 } // namespace chart_utils

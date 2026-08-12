@@ -8,7 +8,6 @@
 #include <QWheelEvent>
 
 namespace {
-
 void apply_axis_grid(QChart* chart, bool on) {
     if (!chart)
         return;
@@ -21,11 +20,9 @@ void apply_axis_grid(QChart* chart, bool on) {
         ay->setMinorGridLineVisible(on);
     }
 }
-
 } // namespace
 
 namespace chart_viewer {
-
 QValueAxis* InteractiveChartView::axis_x() const {
     return chart() ? qobject_cast<QValueAxis*>(chart()->axes(Qt::Horizontal).value(0, nullptr)) : nullptr;
 }
@@ -223,5 +220,4 @@ void InteractiveChartView::keyPressEvent(QKeyEvent* event) {
     }
     QChartView::keyPressEvent(event);
 }
-
 } // namespace chart_viewer

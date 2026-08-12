@@ -14,7 +14,6 @@
 /// Window icons for small dialogs (Windows title bar / Alt-Tab).
 /// Prefer Font Awesome (loaded in MainWindow); fall back to painted shapes.
 namespace dialog_icons {
-
 enum class Kind {
     IdSettings,       // structure / identification
     ModelParams,      // time & frequency ranges
@@ -25,7 +24,6 @@ enum class Kind {
 };
 
 namespace detail {
-
 inline QFont awesome_font(int pixel_size) {
     QFont f;
     // Family after QFontDatabase::addApplicationFont on FA6 Free Solid.
@@ -287,7 +285,6 @@ inline QPixmap paint(Kind kind, int size) {
     }
     return pm;
 }
-
 } // namespace detail
 
 [[nodiscard]] inline QIcon icon(Kind kind) {
@@ -301,5 +298,4 @@ inline void apply(QWidget* widget, Kind kind) {
     if (widget)
         widget->setWindowIcon(icon(kind));
 }
-
 } // namespace dialog_icons

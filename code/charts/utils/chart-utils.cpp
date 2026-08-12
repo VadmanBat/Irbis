@@ -9,7 +9,6 @@
 #include <QValueAxis>
 
 namespace chart_utils {
-
 void applyAxisTheme(QValueAxis* axis, const ChartTheme& theme) {
     if (!axis)
         return;
@@ -124,5 +123,4 @@ QChart* cloneChart(QChart* src) {
     applyChartTheme(dst, nullptr);
     return dst;
 }
-
 } // namespace chart_utils

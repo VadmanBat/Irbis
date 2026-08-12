@@ -11,7 +11,6 @@
 
 namespace chart_utils {
 namespace detail {
-
 struct PointsWithBounds {
     QList<QPointF> points;
     AxisBounds bounds;
@@ -96,6 +95,5 @@ inline void attachToAxes(QChart* chart, QAbstractSeries* series) {
     if (axis_y && !series->attachedAxes().contains(axis_y))
         series->attachAxis(axis_y);
 }
-
 } // namespace detail
 } // namespace chart_utils

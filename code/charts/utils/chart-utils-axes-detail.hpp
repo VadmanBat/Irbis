@@ -10,7 +10,6 @@
 
 namespace chart_utils {
 namespace axes_detail {
-
 inline void ensure_minor_ticks(QValueAxis* axis) {
     if (axis->minorTickCount() != 1)
         axis->setMinorTickCount(1);
@@ -134,6 +133,5 @@ inline void attach_all_series(QChart* chart, QValueAxis* axis_x, QValueAxis* axi
             series->attachAxis(axis_y);
     }
 }
-
 } // namespace axes_detail
 } // namespace chart_utils

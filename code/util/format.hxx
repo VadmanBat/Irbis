@@ -9,7 +9,6 @@
 #include <vector>
 
 namespace num_format {
-
 /// Display significant digits (C++ iostream defaultfloat style).
 inline constexpr int SIGNIFICANT_DIGITS = 6;
 /// Stored user precision: keep 16 significant digits, round the 17th.
@@ -147,5 +146,4 @@ inline constexpr int FULL_DIGITS = std::numeric_limits<double>::max_digits10; //
     html.replace(QStringLiteral("</sup>"), QString());
     return html;
 }
-
 } // namespace num_format

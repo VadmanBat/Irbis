@@ -17,7 +17,6 @@
 
 namespace chart_utils {
 namespace {
-
 /// Menu icon from emoji (same visual language as chart viewer toolbar).
 QIcon menu_icon(const QString& emoji) {
     constexpr int size = 18;
@@ -31,7 +30,6 @@ QIcon menu_icon(const QString& emoji) {
     painter.drawText(QRect(0, 0, size, size), Qt::AlignCenter, emoji);
     return QIcon(pm);
 }
-
 } // namespace
 
 void openChartViewer(QChart* chart, QWidget* parent) {
@@ -91,5 +89,4 @@ void createChartContextMenu(QChartView* chart_view) {
     };
     new DblOpen(chart_view);
 }
-
 } // namespace chart_utils

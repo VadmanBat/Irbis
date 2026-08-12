@@ -5,7 +5,6 @@
 #include <utility>
 
 namespace chart_utils {
-
 /// Heckbert «Nice Numbers for Graph Labels» (Graphics Gems, 1990).
 /// 1 / 2 / 5 × 10^k.
 /// round=true → nearest; false → ceiling (для оценки span).
@@ -42,7 +41,6 @@ namespace chart_utils {
 }
 
 namespace detail {
-
 [[nodiscard]] inline double snap_tick(double v, double step) noexcept {
     if (!std::isfinite(v))
         return 0.0;
@@ -68,7 +66,6 @@ inline void suppress_sign_noise(double& min_v, double& max_v) noexcept {
     else if (max_v <= thr_hi)
         max_v = 0.0;
 }
-
 } // namespace detail
 
 /// Bounds from data only (no 1–2–5 snap, no % pad). For independent X (t, ω).
@@ -183,5 +180,4 @@ inline void suppress_sign_noise(double& min_v, double& max_v) noexcept {
         step = 1.0;
     return step;
 }
-
 } // namespace chart_utils

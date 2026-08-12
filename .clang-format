@@ -7,7 +7,11 @@ Standard: Latest                      # C++23+ (concepts, ranges, …)
 MaxEmptyLinesToKeep: 1                # a;\n\nb;  — не больше одной пустой
 ColumnLimit: 120                      # перенос, если строка > 120
 FixNamespaceComments: false           # }   а не  }  // namespace foo
-AccessModifierOffset: -4              # class A {\npublic:\n····int x;\n};
+
+KeepEmptyLines:
+  AtStartOfBlock: false                 # убрать пустую строку сразу после {
+WrapNamespaceBodyWithEmptyLines: Never  # убрать пустую строку сразу после { для namespace
+AccessModifierOffset: -4                # class A {\npublic:\n····int x;\n};
 
 # === Includes ===
 SortIncludes: CaseInsensitive         # <Vector> и <vector> — один порядок

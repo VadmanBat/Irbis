@@ -12,7 +12,6 @@ class QWheelEvent;
 class QValueAxis;
 
 namespace chart_viewer {
-
 /// Detached / fullscreen chart interaction: pan, zoom, world grid (anchor 0).
 /// Owns no chart data — operates on the QChart given to QChartView.
 class InteractiveChartView : public QChartView {
@@ -62,5 +61,4 @@ signals:
     void cursorMoved(double x, double y, bool inside);
     void viewChanged();
 };
-
 } // namespace chart_viewer

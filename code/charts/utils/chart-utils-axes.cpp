@@ -8,7 +8,6 @@
 
 namespace chart_utils {
 namespace {
-
 QLineSeries* find_series_by_name(QChart* chart, const char* name) {
     for (auto* s : chart->series()) {
         if (s->name() == QLatin1String(name))
@@ -23,7 +22,6 @@ void hide_legend_marker(QChart* chart, QAbstractSeries* series) {
     for (auto* marker : chart->legend()->markers(series))
         marker->setVisible(false);
 }
-
 } // namespace
 
 void updateOriginGuides(QChart* chart, const Pair& range_x, const Pair& range_y) {
@@ -103,5 +101,4 @@ void updateAxes(QChart* chart, const Pair& range_x, const Pair& range_y, GridMod
     updateOriginGuides(chart, {axis_x->min(), axis_x->max()}, {axis_y->min(), axis_y->max()});
     axes_detail::attach_all_series(chart, axis_x, axis_y);
 }
-
 } // namespace chart_utils

@@ -17,7 +17,6 @@ class QValueAxis;
 /// Stateless helpers for QChart (shared by ChartPanel, InteractiveChartView, clone).
 /// Stateful UI lives in ChartPanel / InteractiveChartView / ResponseChartBank — not here.
 namespace chart_utils {
-
 using Pair    = std::pair<double, double>;
 using VecPair = std::vector<Pair>;
 using VecComp = std::vector<std::complex<double>>;
@@ -75,5 +74,4 @@ QChartView* makeChartView(QChart* chart, QWidget* parent, const QString& title, 
                           const QString& titleY);
 
 [[nodiscard]] QChart* cloneChart(QChart* src);
-
 } // namespace chart_utils

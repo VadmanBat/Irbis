@@ -14,7 +14,6 @@
 #include <vector>
 
 namespace tf_builder {
-
 using VecPair = numina::ResponseLab::VecPair;
 using VecComp = numina::ResponseLab::VecComp;
 
@@ -166,5 +165,4 @@ inline bool validInput(const std::vector<double>& num, const std::vector<double>
         return false;
     return true;
 }
-
 } // namespace tf_builder

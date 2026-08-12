@@ -7,7 +7,6 @@
 #include <QWidget>
 
 namespace tab_ui {
-
 /// Shared charts-visibility tool button for Analysis / Synthesis / Id tabs.
 [[nodiscard]] inline QToolButton* makeChartsButton(QWidget* parent, ResponseChartBank* charts, QMenu* menu) {
     QObject::connect(menu, &QMenu::aboutToShow, parent, [charts, menu] { charts->populateMenu(menu); });
@@ -21,5 +20,4 @@ namespace tab_ui {
     btn->setFixedSize(40, 40);
     return btn;
 }
-
 } // namespace tab_ui

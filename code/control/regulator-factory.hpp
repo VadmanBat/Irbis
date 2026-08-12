@@ -6,7 +6,6 @@
 
 /// Фабрика классических непрерывных регуляторов (остаётся в RegValve, не в numina).
 namespace regulator_factory {
-
 struct Result {
     std::vector<double> num; // high → low
     std::vector<double> den; // high → low
@@ -71,5 +70,4 @@ inline Result make(bool P, bool I, bool D, double Kp, double Tu, double Td) {
     r.title = stream.str();
     return r;
 }
-
 } // namespace regulator_factory

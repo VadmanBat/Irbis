@@ -8,7 +8,6 @@
 #include <utility>
 
 namespace chart_utils {
-
 SeriesWrite addRealSeries(QChart* chart, const VecPair& points, const QString& title, std::size_t index) {
     if (!chart || points.empty())
         return {};
@@ -92,5 +91,4 @@ bool saveChartToFile(const QString& fileName, QChart* chart) {
     }
     return true;
 }
-
 } // namespace chart_utils

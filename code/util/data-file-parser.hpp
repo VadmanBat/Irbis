@@ -8,7 +8,6 @@
 #include <vector>
 
 namespace data_file_parser {
-
 using Pair    = std::pair<double, double>;
 using VecPair = std::vector<Pair>;
 using Vec     = std::vector<double>;
@@ -148,5 +147,4 @@ inline std::optional<VecPair> readStepResponse(const QString& filePath) {
         return std::nullopt;
     return pairs;
 }
-
 } // namespace data_file_parser

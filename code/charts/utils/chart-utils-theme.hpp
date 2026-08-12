@@ -10,7 +10,6 @@ class QChartView;
 class QValueAxis;
 
 namespace chart_utils {
-
 /// Chrome colors for QChart derived from the application palette (light / dark).
 struct ChartTheme {
     bool dark{false};
@@ -93,5 +92,4 @@ struct ChartTheme {
 void applyAxisTheme(QValueAxis* axis, const ChartTheme& theme);
 /// Background, axes, legend, guides, and default series colors for light/dark.
 void applyChartTheme(QChart* chart, QChartView* view = nullptr);
-
 } // namespace chart_utils

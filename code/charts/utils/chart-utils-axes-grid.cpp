@@ -3,7 +3,6 @@
 #include <QValueAxis>
 
 namespace chart_utils {
-
 void applyViewerGrid(QValueAxis* axis) {
     if (axis)
         axes_detail::apply_viewer_grid(axis);
@@ -29,5 +28,4 @@ void createAxes(QChart* chart, const QString& titleX, const QString& titleY) {
     chart->addAxis(axis_x, Qt::AlignBottom);
     chart->addAxis(axis_y, Qt::AlignLeft);
 }
-
 } // namespace chart_utils

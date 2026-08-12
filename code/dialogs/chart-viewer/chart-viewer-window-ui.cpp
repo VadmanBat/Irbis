@@ -16,13 +16,11 @@
 #include <QWidget>
 
 namespace {
-
 /// Toolbar action: emoji + label (emoji must be in Segoe UI Emoji / color font).
 QAction* add_tb_action(QToolBar* tb, const QString& emoji, const QString& label) {
     const QString text = label.isEmpty() ? emoji : (emoji + QStringLiteral("  ") + label);
     return tb->addAction(text);
 }
-
 } // namespace
 
 void ChartViewerWindow::build_toolbar() {
