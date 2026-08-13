@@ -94,8 +94,8 @@ QColor TranFuncDialog::root_color(double value) {
 void TranFuncDialog::fill_poles() {
     ui->polesTable->setRowCount(0);
 
-    const auto& reals = tf_.getPoles().first;
-    const auto& comps = tf_.getPoles().second;
+    const auto& reals = tf_.poles().first;
+    const auto& comps = tf_.poles().second;
 
     bool any_multi = false;
     for (const auto& e : reals) {

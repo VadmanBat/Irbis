@@ -30,7 +30,7 @@ Single-file classes stay flat in the domain folder.
 ## Math vs UI
 
 - **numina** = transfer functions, responses, identification, (future) regulator design  
-- **RegValve** = Qt UI + thin adapters (`tf_builder`, `regulator_factory`, charts)
+- **RegValve** = Qt UI + thin adapters (`tf_builder`, charts)
 
 Do not reimplement poly/TF math in the app.
 

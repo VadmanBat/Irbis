@@ -3,6 +3,7 @@
 #include "code/util/format.hxx"
 
 #include <algorithm>
+#include <cmath>
 #include <QAbstractSpinBox>
 #include <QCheckBox>
 #include <QDoubleSpinBox>
@@ -132,6 +133,14 @@ double RegParameter::value() const {
     return slider_->value();
 }
 
+double RegParameter::rangeMin() const {
+    return min_spin_->value();
+}
+
+double RegParameter::rangeMax() const {
+    return max_spin_->value();
+}
+
 void RegParameter::setEnabled(bool on) {
     check_box_->setChecked(on);
 }
@@ -149,6 +158,26 @@ void RegParameter::setRange(double min, double max) {
     min_spin_->setValue(min);
     max_spin_->setValue(max);
     update_slider_range();
+}
+
+void RegParameter::ensureValueInRange(double v) {
+    if (!std::isfinite(v))
+        return;
+    double lo = min_spin_->value();
+    double hi = max_spin_->value();
+    if (!(hi > lo)) {
+        setRange(std::min(v, lo), std::max(v, hi) + 1.0);
+        return;
+    }
+    if (v >= lo && v <= hi)
+        return;
+    if (v < lo)
+        lo = v - 0.05 * std::max(1.0, hi - v);
+    if (v > hi)
+        hi = v + 0.05 * std::max(1.0, v - lo);
+    if (!(hi > lo))
+        hi = lo + 1.0;
+    setRange(lo, hi);
 }
 
 void RegParameter::setLimits(double hard_min, double hard_max) {

@@ -39,8 +39,8 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 │    InteractiveChartView (viewer zoom/pan)               │
 ├─────────────────────────────────────────────────────────┤
 │  Adapters (header-mostly)                                │
-│    tf_builder | regulator_factory | data_file_parser    │
-│    num_format | nice_axis | BoundsSet                   │
+│    tf_builder | data_file_parser | num_format | nice_axis│
+│    BoundsSet                                              │
 ├─────────────────────────────────────────────────────────┤
 │  numina (TransferFunction, ResponseLab, Simoyu, …)      │
 └─────────────────────────────────────────────────────────┘
@@ -65,7 +65,7 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 | `code/charts/utils/` | **Module:** `chart_utils`, nice axes, clone |
 | `code/series/` | Axis bounds aggregation (`AxisBounds`, `BoundsSet`) |
 | `code/model/` | POD settings (`ModelParam`, `IdSettings`) |
-| `code/control/` | Regulator coefficient factory (not in numina) |
+| `code/control/` | (reserved; regulator coeffs → numina `makeRegulator`) |
 | `code/util/` | Parsing, formatting, TF builders |
 | `ui/` | Qt Designer forms (kebab-case), parallel to `code/` |
 | `data/` | QSS, fonts (copied next to exe on build) |
@@ -118,8 +118,8 @@ UI coefficients (TranFuncForm)
 Closed loop (synthesis):
 
 ```
-plant + regulator_factory::make(P,I,D,Kp,Tu,Td)
-    → tf_builder::closedLoop(...)
+plant + TransferFunction::makeRegulator(Kp,Tu,Td)
+    → tf_builder::closedLoop(...) / TransferFunction::closed
 ```
 
 ### 4.3 Identification
@@ -175,7 +175,8 @@ Per **cpp-my-style**: class implementations split into **~100–150 line** `.cpp
 | `InteractiveChartView` | `charts/interactive-chart-view.h/.cpp` |
 | `chart_utils` | `charts/utils/chart-utils.cpp` (+ `-axes`, `-series`, `-menu`, `*-detail.hpp`, `nice-axis`) |
 | `ResponseChartBank` | `charts/response-chart-bank.cpp` (+ `-data.cpp`) |
-| `IdTab` | `tabs/id-tab.cpp` (+ `id-tab-run.cpp`) |
+| `C0C1Chart` | `charts/c0-c1-chart.h/.cpp` (РКЧХ locus + click) |
+| `IdTab` / `SynthesisTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`) |
 
 When adding a large method: **new cpp unit**, not grow past ~150 lines.
 
@@ -207,12 +208,12 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | Task | Touch |
 |------|--------|
 | New simulation parameter | `ModelParam`, `mod-par-dialog.ui` + `.cpp`, `tf_builder` |
-| New regulator type | `regulator-factory.hpp`, synthesis UI |
+| New regulator type | numina `TransferFunction::makeRegulator`, synthesis UI |
 | New chart type | `ResponseChartBank`, `ChartVisibility`, menu labels |
 | Axis styling / nice limits | `nice-axis.hpp`, `chart-utils` guides |
 | TF clipboard format | `widgets/tf-form/*` IO (`RegValve-TF-v1`) |
 | Identification algorithm | prefer **numina**; UI only in `id-tab-run` |
-| Auto-synthesis | `SynthesisTab::autoSynthesize` (numina `RegulatorDesigner` still TODO) |
+| Auto-synthesis PI/PID (РКЧХ / Γ) | `SynthesisTab::autoSynthesize` + numina `RegulatorDesigner`; UI: `C0C1Chart`, φ, criterion, law, region |
 | Global chrome / buttons | `data/styles/app.qss` |
 | Window shell / tabs list | `mainwindow.cpp` |
 | Chart zoom window | `dialogs/chart-viewer/*`, `charts/interactive-chart-view.*` |
@@ -234,7 +235,7 @@ Tests (optional): `REGVALVE_BUILD_TESTS` → `nice_axis_test` (pure math, no Qt 
 
 1. **No shared session model** — each tab holds its own `ModelParam` / TF; UX doc recommends a session `PlantModel`.
 2. **RimTab / RKCH** — placeholder; keep modes under Synthesis when implementing.
-3. **numina RegulatorDesigner** — stub; UI auto-synth is heuristic only.
+3. **ПИ / ПИД / Авто** — `designPi` / `designPid` / `design()` (закон не подменяется); ПИД на `C₂*(ω)`; Γ — сектор только для ПИ. СКО настройки — H₂, не `QualityReport::sigma`.
 4. **UI polish** — see `docs/ux-ui-recommendations.md` (cards, TF read/edit modes).
 
 ---

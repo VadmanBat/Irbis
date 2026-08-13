@@ -19,6 +19,144 @@
    <item>
     <layout class="QHBoxLayout" name="buttonLayout">
      <item>
+      <widget class="QLabel" name="criterionLabel">
+       <property name="text">
+        <string>Критерий:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="criterionCombo">
+       <property name="objectName">
+        <string notr="true">criterionCombo</string>
+       </property>
+       <property name="toolTip">
+        <string>Критерий автонастройки: ЛИК (IAE), ИКК (ISE шага), СКО (H₂ при белом шуме нагрузки)</string>
+       </property>
+       <property name="minimumWidth">
+        <number>100</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>ЛИК</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ИКК</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>СКО</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="lawLabel">
+       <property name="text">
+        <string>Закон:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="lawCombo">
+       <property name="objectName">
+        <string notr="true">lawCombo</string>
+       </property>
+       <property name="toolTip">
+        <string>ПИ — только Ω_доп. ПИД — только грань C₂*&gt;0 (без отката в ПИ). Авто — ПИ, иначе ПИД.</string>
+       </property>
+       <property name="minimumWidth">
+        <number>90</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>ПИ</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>ПИД</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Авто</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="regionLabel">
+       <property name="text">
+        <string>Область:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="regionCombo">
+       <property name="objectName">
+        <string notr="true">regionCombo</string>
+       </property>
+       <property name="toolTip">
+        <string>РКЧХ — луч; Γ — сектор для ПИ (ЛИК = ИКК). ПИД всегда на грани C₂*(ω), в теле Γ минимума ИКК нет.</string>
+       </property>
+       <property name="minimumWidth">
+        <number>80</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>РКЧХ</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>Γ</string>
+        </property>
+       </item>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="phiLabel">
+       <property name="text">
+        <string>φ:</string>
+       </property>
+       <property name="toolTip">
+        <string>Показатель колебательности φ ∈ (0, 1)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="phiSpin">
+       <property name="objectName">
+        <string notr="true">phiSpin</string>
+       </property>
+       <property name="toolTip">
+        <string>Показатель колебательности φ</string>
+       </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
+       <property name="minimum">
+        <double>0.010000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>0.990000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.050000000000000</double>
+       </property>
+       <property name="value">
+        <double>0.750000000000000</double>
+       </property>
+       <property name="minimumWidth">
+        <number>90</number>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="buttonSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -75,7 +213,7 @@
         <string notr="true">autoSynthButton</string>
        </property>
        <property name="toolTip">
-        <string>Автосинтез регулятора (PI по переходной ОУ)</string>
+        <string>Автонастройка ПИ/ПИД (критерий + закон + область + φ): C₀–C₁ и оптимумы</string>
        </property>
        <property name="text">
         <string>✨</string>

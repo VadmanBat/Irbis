@@ -41,7 +41,6 @@ code/dialogs/       # dialogs
 code/widgets/       # tran-func-form, tf-display-widget, …
 code/series/        # Series, ComplexSeries, SetSeries
 code/charts/        # chart-utils, chart-panel, response-chart-bank
-code/control/       # regulator-factory
 code/util/          # tf-builder, format.hxx, data-file-parser
 ```
 

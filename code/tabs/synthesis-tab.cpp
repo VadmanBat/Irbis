@@ -8,6 +8,7 @@
 #include <QCheckBox>
 #include <QMenu>
 #include <QMessageBox>
+#include <QHBoxLayout>
 #include <QVBoxLayout>
 
 SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::SynthesisTab) {
@@ -17,7 +18,9 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
 
     charts_ = new ResponseChartBank(this);
     charts_->setTransientTitle(tr("Переходный процесс"));
-    ui->chartsLayout->addWidget(charts_);
+    c0c1_chart_ = new C0C1Chart(this);
+    ui->chartsLayout->addWidget(charts_, /*stretch=*/3);
+    ui->chartsLayout->addWidget(c0c1_chart_, /*stretch=*/2);
 
     ui->verticalLayout->setStretch(0, 0);
     ui->verticalLayout->setStretch(1, 0);
@@ -35,6 +38,7 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
     connect(ui->autoSynthButton, &QPushButton::clicked, this, &SynthesisTab::autoSynthesize);
     connect(ui->addButton, &QPushButton::clicked, this, &SynthesisTab::addTransferFunction);
     connect(ui->clearButton, &QPushButton::clicked, this, &SynthesisTab::clearCharts);
+    connect(c0c1_chart_, &C0C1Chart::samplePicked, this, &SynthesisTab::on_c0c1_sample_picked);
 }
 
 SynthesisTab::~SynthesisTab() {
@@ -63,8 +67,14 @@ void SynthesisTab::install_custom_widgets() {
     ui->paramsLayout->setSizeConstraint(QLayout::SetMinimumSize);
     for (auto* p : parameters_) {
         ui->paramsLayout->addLayout(p->layout());
-        connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) { replaceTransferFunction(); });
-        connect(p->slider(), &DoubleSlider::doubleValueChanged, this, [this](double) { replaceTransferFunction(); });
+        connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) {
+            sync_c0c1_selection_from_params();
+            replaceTransferFunction();
+        });
+        connect(p->slider(), &DoubleSlider::doubleValueChanged, this, [this](double) {
+            sync_c0c1_selection_from_params();
+            replaceTransferFunction();
+        });
     }
 }
 
@@ -96,7 +106,7 @@ void SynthesisTab::setup_metrics() {
             tr("Время пика, с"),
             tr("Коэффициент демпфирования, %"),
             tr("Перерегулирование, %"),
-            tr("Среднеквадратичное отклонение ошибки (СКО)"),
+            tr("RMS ошибки разгона на [0, tр] (не стохастическое СКО настройки)"),
         });
     metrics_->setColors(
         {{1, 2}, {0, 0}, {0, 0}, {1, 2}, {1, 2}, {0, 0}, {0, 0}, {1, 2}, {1, 2}, {2, 1}, {1, 2}, {1, 2}});
@@ -124,4 +134,6 @@ void SynthesisTab::replaceTransferFunction() {
 void SynthesisTab::clearCharts() {
     charts_->clearAll();
     metrics_->updateValues({});
+    if (c0c1_chart_)
+        c0c1_chart_->clear();
 }

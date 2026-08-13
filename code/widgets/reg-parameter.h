@@ -41,9 +41,13 @@ public:
     [[nodiscard]] DoubleSlider* slider() const { return slider_; }
     [[nodiscard]] bool enabled() const;
     [[nodiscard]] double value() const;
+    [[nodiscard]] double rangeMin() const;
+    [[nodiscard]] double rangeMax() const;
 
     void setEnabled(bool on);
     void setValue(double v);
     void setRange(double min, double max);
     void setLimits(double hard_min, double hard_max);
+    /// Expand [min,max] only if needed so `v` is inside; never shrinks the range.
+    void ensureValueInRange(double v);
 };

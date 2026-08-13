@@ -114,7 +114,7 @@ void IdTab::runIdentification() {
                 fit.plant = simoyu.identify(experimental_h, den_n, num_m);
         }
 
-        if (!fit.ok()) {
+        if (!fit.isOk()) {
             show_error(tr("Идентификация не дала модели (deg D < 1).\n"
                           "Точек h(t): %1. Проверьте данные и метод.")
                            .arg(experimental_h.size()));

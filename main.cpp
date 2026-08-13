@@ -24,3 +24,12 @@ int main(int argc, char* argv[]) {
     window.show();
     return QApplication::exec();
 }
+/*
+RegValve-TF-v1
+num: 2.5
+den: 12000 1600 70 1
+tau: 7
+
+W(p) = (2.5) / (1 + 70·p + 1600·p^2 + 12000·p^3) · e^(-7 p)
+
+ */

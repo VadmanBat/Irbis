@@ -111,7 +111,7 @@ void TfDisplayWidget::set_polys(const Vec& num, const Vec& den, double tau) {
 }
 
 void TfDisplayWidget::setTransferFunction(const numina::TransferFunction& tf, double tau) {
-    set_polys(tf.getNumerator().vector(), tf.getDenominator().vector(), tau);
+    set_polys(tf.numerator().coeffs(), tf.denominator().coeffs(), tau);
 }
 
 void TfDisplayWidget::clear() {

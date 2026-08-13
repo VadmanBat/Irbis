@@ -41,6 +41,7 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-form/tran-func-form-name.cpp
 
         ${CMAKE_SOURCE_DIR}/code/charts/chart-panel.cpp
+        ${CMAKE_SOURCE_DIR}/code/charts/c0-c1-chart.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/response-chart-bank.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/response-chart-bank-data.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/response-chart-bank-channels.cpp

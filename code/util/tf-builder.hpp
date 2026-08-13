@@ -43,14 +43,18 @@ inline numina::TransferFunction plant(std::vector<double> num, std::vector<doubl
 inline numina::TransferFunction closedLoop(std::vector<double> plantNum, std::vector<double> plantDen,
                                            std::vector<double> regNum, std::vector<double> regDen, double tau = 0.0,
                                            int order = 6) {
-    numina::TransferFunction open{
-        numina::TransferFunction(poly(std::move(plantNum)), poly(std::move(plantDen))),
-        numina::TransferFunction(poly(std::move(regNum)), poly(std::move(regDen))),
-    };
-    if (tau != 0.0)
-        open *= numina::TransferFunction::makeDelay(tau, static_cast<std::uint8_t>(order));
-    open.closeLoop();
-    return open;
+    const auto pade = static_cast<std::uint8_t>(order);
+    if (tau != 0.0) {
+        return numina::TransferFunction::closed({
+            {poly(std::move(plantNum)), poly(std::move(plantDen))},
+            {poly(std::move(regNum)), poly(std::move(regDen))},
+            numina::TransferFunction::makeDelayPair(tau, pade),
+        });
+    }
+    return numina::TransferFunction::closed({
+        {poly(std::move(plantNum)), poly(std::move(plantDen))},
+        {poly(std::move(regNum)), poly(std::move(regDen))},
+    });
 }
 
 inline std::pair<double, double> timeRange(const ModelParam& p) {
@@ -93,13 +97,13 @@ inline VecPair impulse(const numina::TransferFunction& tf, const ModelParam& p) 
 
 /// True when free term of denominator is ~0 (pole at s=0 / free integrator) — avoid ω=0.
 inline bool hasZeroDenConstant(const numina::TransferFunction& tf) noexcept {
-    const auto& den = tf.getDenominator();
+    const auto& den = tf.denominator();
     const int deg   = den.degree();
     if (deg < 0)
         return true;
-    // coeffs: [0]=leading … [deg]=free term — no vector() copy.
+    // coeffs: [0]=leading … [deg]=free term — no coeffs() copy.
     const double lead = den[0];
-    const double free = den[static_cast<std::size_t>(deg)];
+    const double free = tf.denominatorConstant();
     return std::abs(free) <= 1e-14 * (1.0 + std::abs(lead));
 }
 

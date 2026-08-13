@@ -1,0 +1,96 @@
+#pragma once
+
+#include "code/charts/utils/chart-utils.hpp"
+
+#include <limits>
+#include <QPoint>
+#include <QWidget>
+#include <vector>
+
+class QChart;
+class QChartView;
+class QEvent;
+class QLineSeries;
+class QScatterSeries;
+class QVBoxLayout;
+
+/// Interactive C₁–C₀ plane (РКЧХ): X = C₁, Y = C₀; click/drag free selection.
+class C0C1Chart : public QWidget {
+    Q_OBJECT
+
+public:
+    /// One sample of the positive C₀,C₁ band (logical coeffs, not plot order).
+    struct Sample {
+        double omega{};
+        double c0{};
+        double c1{};
+        double c2{};
+        double kp{};
+        double tu{};
+        double td{};
+    };
+
+    /// Optimal point for one quality criterion (ЛИК / ИКК / СКО).
+    struct Optimum {
+        bool valid{false};
+        double c0{};
+        double c1{};
+        double kp{};
+        double tu{};
+        double omega{};
+        QString label;
+    };
+
+private:
+    QChart* chart_{nullptr};
+    QChartView* view_{nullptr};
+    QVBoxLayout* layout_{nullptr};
+    QLineSeries* locus_series_{nullptr};
+    QScatterSeries* opt_lik_{nullptr};
+    QScatterSeries* opt_ikk_{nullptr};
+    QScatterSeries* opt_sko_{nullptr};
+    QScatterSeries* selection_series_{nullptr};
+
+    std::vector<Sample> locus_{};
+    bool has_selection_{false};
+    double sel_c0_{};
+    double sel_c1_{};
+
+    bool dragging_{false};
+    QPoint last_pixel_{-1, -1};
+    double last_emit_c0_{std::numeric_limits<double>::quiet_NaN()};
+    double last_emit_c1_{std::numeric_limits<double>::quiet_NaN()};
+
+    void build_chart();
+    void apply_theme();
+    void apply_axis_titles();
+    void refit_axes();
+    void update_selection_marker();
+    void ensure_selection_visible();
+    /// Plot point: X = C₁, Y = C₀.
+    [[nodiscard]] static QPointF to_plot(double c0, double c1) noexcept { return {c1, c0}; }
+    [[nodiscard]] bool value_at_pixel(const QPoint& viewport_pos, double& c0, double& c1) const;
+    void handle_pointer(const QPoint& viewport_pos, bool force_emit);
+    bool eventFilter(QObject* watched, QEvent* event) override;
+
+protected:
+    void changeEvent(QEvent* event) override;
+
+public:
+    explicit C0C1Chart(QWidget* parent = nullptr);
+
+    void clear();
+    void setLocus(std::vector<Sample> samples, const QString& name = {});
+    void setOptima(const Optimum& lik, const Optimum& ikk, const Optimum& sko);
+    /// Logical coeffs (C₀, C₁); drawn as (C₁, C₀) on the chart.
+    void setSelection(double c0, double c1);
+    void clearSelection();
+
+    [[nodiscard]] bool hasLocus() const noexcept { return !locus_.empty(); }
+    [[nodiscard]] bool hasSelection() const noexcept { return has_selection_; }
+    [[nodiscard]] const std::vector<Sample>& locus() const noexcept { return locus_; }
+
+signals:
+    /// Pointer pick/drag: emitted only when (C₀, C₁) actually changed.
+    void samplePicked(const Sample& sample);
+};
