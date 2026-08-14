@@ -1,35 +1,27 @@
 #include "code/tabs/synthesis-tab.h"
 
 #include "code/dialogs/help-dialog.h"
-#include "code/dialogs/mod-par-dialog.h"
-#include "code/tabs/tab-charts-button.hpp"
+#include "code/tabs/tab-shell.hpp"
+#include "code/util/dialog-icons.hxx"
 #include "ui_synthesis-tab.h"
 
+#include <QAbstractButton>
+#include <QButtonGroup>
 #include <QCheckBox>
 #include <QMenu>
-#include <QMessageBox>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QPushButton>
+#include <QToolButton>
 
 SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::SynthesisTab) {
     ui->setupUi(this);
+    ui->regulatorFaceLayout->setAlignment(ui->faceCoeffGrid, Qt::AlignLeft);
     install_custom_widgets();
     setup_metrics();
 
-    charts_ = new ResponseChartBank(this);
-    charts_->setTransientTitle(tr("Переходный процесс"));
-    c0c1_chart_ = new C0C1Chart(this);
-    ui->chartsLayout->addWidget(charts_, /*stretch=*/3);
-    ui->chartsLayout->addWidget(c0c1_chart_, /*stretch=*/2);
+    ui->charts->setTransientTitle(tr("Переходный процесс"));
 
-    ui->verticalLayout->setStretch(0, 0);
-    ui->verticalLayout->setStretch(1, 0);
-    ui->verticalLayout->setStretch(2, 0);
-    ui->verticalLayout->setStretch(3, 1);
-
-    charts_menu_     = new QMenu(this);
-    auto* charts_btn = tab_ui::makeChartsButton(this, charts_, charts_menu_);
-    ui->buttonLayout->insertWidget(ui->buttonLayout->indexOf(ui->settingsButton), charts_btn);
+    charts_menu_ = new QMenu(this);
+    tab_ui::wireChartsButton(ui->chartsButton, ui->charts, charts_menu_);
 
     form_->setTransferFunction(&plant_tf_);
 
@@ -38,7 +30,35 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
     connect(ui->autoSynthButton, &QPushButton::clicked, this, &SynthesisTab::autoSynthesize);
     connect(ui->addButton, &QPushButton::clicked, this, &SynthesisTab::addTransferFunction);
     connect(ui->clearButton, &QPushButton::clicked, this, &SynthesisTab::clearCharts);
-    connect(c0c1_chart_, &C0C1Chart::samplePicked, this, &SynthesisTab::on_c0c1_sample_picked);
+    connect(ui->c0c1Chart, &C0C1Chart::samplePicked, this, &SynthesisTab::onSamplePicked);
+
+    auto setup_view_btn = [](QToolButton* btn, QChar glyph) {
+        dialog_icons::applyGlyph(btn, glyph);
+        btn->setFixedSize(22, 22);
+        btn->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        btn->setFocusPolicy(Qt::TabFocus);
+        btn->setAutoRaise(false);
+    };
+    setup_view_btn(ui->viewPlaneButton, QChar(0xf201)); // chart-line
+    setup_view_btn(ui->viewFaceButton, QChar(0xf52c));  // equals
+
+    auto* view_group = new QButtonGroup(this);
+    view_group->setExclusive(true);
+    view_group->addButton(ui->viewPlaneButton);
+    view_group->addButton(ui->viewFaceButton);
+    connect(ui->viewPlaneButton, &QAbstractButton::toggled, this, [this](bool on) {
+        if (!on)
+            return;
+        show_plane_ = true;
+        update_c0c1_visibility();
+    });
+    connect(ui->viewFaceButton, &QAbstractButton::toggled, this, [this](bool on) {
+        if (!on)
+            return;
+        show_plane_ = false;
+        update_c0c1_visibility();
+    });
+    update_c0c1_visibility();
 }
 
 SynthesisTab::~SynthesisTab() {
@@ -46,32 +66,27 @@ SynthesisTab::~SynthesisTab() {
 }
 
 void SynthesisTab::install_custom_widgets() {
-    form_             = new TranFuncForm(6, 6, QStringLiteral("W<sub>ОУ</sub>(p) = "), ui->formHost);
-    auto* form_layout = new QVBoxLayout(ui->formHost);
-    form_layout->setContentsMargins(0, 0, 0, 0);
-    form_layout->addWidget(form_, 0, Qt::AlignLeft | Qt::AlignVCenter);
-
-    metrics_             = new RegulationWidget(3, 4, ui->metricsHost);
-    auto* metrics_layout = new QVBoxLayout(ui->metricsHost);
-    metrics_layout->setContentsMargins(0, 0, 0, 0);
-    metrics_layout->addWidget(metrics_, 0, Qt::AlignRight | Qt::AlignVCenter);
-    ui->topLayout->insertStretch(1, 1);
+    form_    = new TranFuncForm(6, 6, QStringLiteral("W<sub>ОУ</sub>(p) = "), ui->formHost);
+    metrics_ = new RegulationWidget(3, 4, ui->metricsHost);
+    tab_ui::mountInHost(ui->formHost, form_, Qt::AlignLeft | Qt::AlignVCenter);
+    tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight | Qt::AlignVCenter);
 
     parameters_ = {
-        new RegParameter(QStringLiteral("K<sub>p</sub>"), 0.05, 2000, 0.05, 5, this),
-        new RegParameter(QStringLiteral("T<sub>u</sub>"), 0.05, 2000, 1, 120, this),
-        new RegParameter(QStringLiteral("T<sub>d</sub>"), 0.05, 2000, 1, 60, this),
+        new RegParameter(QStringLiteral("K<sub>p</sub>"), 0.01, 2000, 0.01, 3, this),
+        new RegParameter(QStringLiteral("T<sub>u</sub>"), 0.01, 2000, 1, 120, this),
+        new RegParameter(QStringLiteral("T<sub>d</sub>"), 0.01, 2000, 1, 60, this),
     };
-    ui->paramsLayout->setSpacing(0);
-    ui->paramsLayout->setContentsMargins(0, 0, 0, 0);
-    ui->paramsLayout->setSizeConstraint(QLayout::SetMinimumSize);
+    parameters_[0]->setValue(1);
+    parameters_[1]->setValue(30);
     for (auto* p : parameters_) {
         ui->paramsLayout->addLayout(p->layout());
         connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) {
+            update_c0c1_visibility();
             sync_c0c1_selection_from_params();
             replaceTransferFunction();
         });
         connect(p->slider(), &DoubleSlider::doubleValueChanged, this, [this](double) {
+            update_regulator_face();
             sync_c0c1_selection_from_params();
             replaceTransferFunction();
         });
@@ -113,7 +128,7 @@ void SynthesisTab::setup_metrics() {
 }
 
 void SynthesisTab::show_error(const QString& message) {
-    QMessageBox::critical(this, tr("Ошибка ввода"), message);
+    tab_ui::showError(this, tr("Ошибка ввода"), message);
 }
 
 void SynthesisTab::openHelp() {
@@ -126,14 +141,13 @@ void SynthesisTab::addTransferFunction() {
 }
 
 void SynthesisTab::replaceTransferFunction() {
-    if (charts_->empty())
+    if (ui->charts->empty())
         return;
     apply_current_regulator(true);
 }
 
 void SynthesisTab::clearCharts() {
-    charts_->clearAll();
+    ui->charts->clearAll();
     metrics_->updateValues({});
-    if (c0c1_chart_)
-        c0c1_chart_->clear();
+    ui->c0c1Chart->clear();
 }

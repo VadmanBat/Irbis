@@ -2,11 +2,26 @@
 <ui version="4.0">
  <class>IdTab</class>
  <widget class="QWidget" name="IdTab">
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
    <item>
-    <layout class="QHBoxLayout" name="topLayout">
+    <layout class="QHBoxLayout" name="topLayout" stretch="0,1,0">
      <item>
-      <widget class="QWidget" name="formHost" native="true"/>
+      <widget class="QWidget" name="formHost" native="true">
+       <layout class="QVBoxLayout" name="formHostLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
      </item>
      <item>
       <spacer name="topSpacer">
@@ -22,7 +37,22 @@
       </spacer>
      </item>
      <item>
-      <widget class="QWidget" name="metricsHost" native="true"/>
+      <widget class="QWidget" name="metricsHost" native="true">
+       <layout class="QVBoxLayout" name="metricsHostLayout">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+       </layout>
+      </widget>
      </item>
     </layout>
    </item>
@@ -37,6 +67,10 @@
      </item>
      <item>
       <widget class="QComboBox" name="methodCombo">
+       <property name="toolTip">
+        <string>По переходной: time, value.
+По клапану/сигналу: time, valve, value (табы/пробелы/; и т.п.).</string>
+       </property>
        <item>
         <property name="text">
          <string>По переходной h(t)</string>
@@ -87,6 +121,31 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QToolButton" name="chartsButton">
+       <property name="toolTip">
+        <string>Отображаемые графики</string>
+       </property>
+       <property name="text">
+        <string>◫</string>
+       </property>
+       <property name="popupMode">
+        <enum>QToolButton::InstantPopup</enum>
+       </property>
+       <property name="minimumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>40</width>
+         <height>40</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QPushButton" name="idSettingsButton">
@@ -167,10 +226,24 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="chartsLayout"/>
+    <widget class="ResponseChartBank" name="charts">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>1</horstretch>
+       <verstretch>1</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ResponseChartBank</class>
+   <extends>QWidget</extends>
+   <header>code/charts/response-chart-bank.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

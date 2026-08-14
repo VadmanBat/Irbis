@@ -92,6 +92,88 @@ QPushButton#clearButton:pressed {
     padding: 3px;
 }
 
+/* ---- Synthesis regulator card ---- */
+QFrame#regulatorCard {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-radius: 8px;
+}
+
+QLabel#regulatorCardTitle {
+    font-size: 11pt;
+    font-weight: 600;
+    color: palette(window-text);
+    padding-bottom: 2px;
+}
+
+QLabel#paramTitle {
+    font-size: 14pt;
+    font-weight: 600;
+}
+
+QFrame#regulatorFace {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+}
+
+QLabel#faceLawLabel {
+    font-size: 13pt;
+    font-weight: 600;
+}
+
+QLabel#faceFormulaLabel,
+QLabel#facePolyLabel {
+    font-size: 12pt;
+    padding: 2px 0 6px 0;
+}
+
+QToolButton#viewPlaneButton,
+QToolButton#viewFaceButton {
+    min-width: 22px;
+    max-width: 22px;
+    min-height: 22px;
+    max-height: 22px;
+    padding: 0;
+    margin: 0;
+    border: 1px solid palette(mid);
+    background: palette(base);
+    font-family: "Font Awesome 6 Free Solid", "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 9pt;
+}
+QToolButton#viewPlaneButton {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+QToolButton#viewFaceButton {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    margin-left: -1px;
+}
+QToolButton#viewPlaneButton:checked,
+QToolButton#viewFaceButton:checked {
+    background: palette(highlight);
+    color: palette(highlighted-text);
+    font-weight: 600;
+}
+
+QLabel#faceC0Name,
+QLabel#faceC1Name,
+QLabel#faceC2Name {
+    font-size: 12pt;
+}
+
+QLabel#faceC0Value,
+QLabel#faceC1Value,
+QLabel#faceC2Value {
+    font-size: 12pt;
+    font-family: "Consolas", "Cascadia Mono", "Courier New", monospace;
+}
+
 /* ---- Transfer function form (editable) + display (readonly) ---- */
 TranFuncForm QLabel#tfTitle,
 TfDisplayWidget QLabel#tfTitle {
@@ -292,7 +374,7 @@ RegulationWidget QLineEdit#metricValue[metricFlash="2"] {
     background-color: rgba(198, 40, 40, 0.35);
 }
 
-/* ---- Regulator parameter row: [✓] Kp  value  от  до  ──slider── ---- */
+/* ---- Regulator parameter row: [✓] Kp  value  ──slider──  ⚙ ---- */
 QLabel#regParamLabel {
     font-size: 14pt;
 }
@@ -310,9 +392,24 @@ QCheckBox#regParamCheck {
     margin: 0;
 }
 
-QDoubleSpinBox#regParamMin,
-QDoubleSpinBox#regParamMax {
-    font-size: 9pt;
+QPushButton#regParamSettings {
+    background-color: palette(base);
+    color: palette(window-text);
+    border: 1px solid palette(mid);
+    border-radius: 5px;
+    padding: 0;
+    min-width: 28px;
+    max-width: 28px;
+    min-height: 28px;
+    max-height: 28px;
+    font-size: 11pt;
+}
+QPushButton#regParamSettings:hover {
+    background-color: palette(alternate-base);
+    border-color: palette(dark);
+}
+QPushButton#regParamSettings:pressed {
+    background-color: palette(midlight);
 }
 
 /* ---- Chart viewer window (detached graph) — palette-driven for light/dark ---- */

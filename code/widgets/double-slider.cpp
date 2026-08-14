@@ -18,8 +18,8 @@ void DoubleSlider::sync_handle_from_value() {
         QSlider::setValue(0);
         return;
     }
-    const double t  = (value_ - min_) / (max_ - min_);
-    const int tick  = static_cast<int>(std::lround(std::clamp(t, 0.0, 1.0) * static_cast<double>(intervals_)));
+    const double t = (value_ - min_) / (max_ - min_);
+    const int tick = static_cast<int>(std::lround(std::clamp(t, 0.0, 1.0) * static_cast<double>(intervals_)));
     const QSignalBlocker block(this);
     QSlider::setValue(std::clamp(tick, 0, intervals_));
 }
@@ -43,7 +43,10 @@ void DoubleSlider::setRange(double min, double max, int intervals) {
     else {
         value_ = min_;
     }
+    const bool changed = value_ != old_value;
     sync_handle_from_value();
+    if (changed)
+        emit doubleValueChanged(value_);
 }
 
 void DoubleSlider::setValue(double value) {

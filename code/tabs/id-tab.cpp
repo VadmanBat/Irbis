@@ -1,41 +1,21 @@
 #include "code/tabs/id-tab.h"
 
 #include "code/dialogs/id-settings-dialog.h"
-#include "code/dialogs/mod-par-dialog.h"
-#include "code/tabs/tab-charts-button.hpp"
+#include "code/tabs/tab-shell.hpp"
 #include "ui_id-tab.h"
 
 #include <QComboBox>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QMenu>
-#include <QMessageBox>
-#include <QVBoxLayout>
+#include <QPushButton>
 
 IdTab::IdTab(QWidget* parent) : QWidget(parent), ui(new Ui::IdTab) {
     ui->setupUi(this);
     install_custom_widgets();
-    setup_metrics();
 
-    charts_ = new ResponseChartBank(this);
-    ui->chartsLayout->addWidget(charts_);
-    ui->verticalLayout->setStretch(0, 0);
-    ui->verticalLayout->setStretch(1, 0);
-    ui->verticalLayout->setStretch(2, 1);
-
-    ChartVisibility vis;
-    vis.transient = true;
-    vis.nyquist   = true;
-    vis.impulse = vis.amplitude = vis.phase = false;
-    charts_->setVisibility(vis);
-
-    charts_menu_     = new QMenu(this);
-    auto* charts_btn = tab_ui::makeChartsButton(this, charts_, charts_menu_);
-    ui->buttonLayout->insertWidget(ui->buttonLayout->indexOf(ui->idSettingsButton), charts_btn);
-
-    ui->methodCombo->setToolTip(
-        tr("По переходной: time, value.\n"
-           "По клапану/сигналу: time, valve, value (табы/пробелы/; и т.п.)."));
+    charts_menu_ = new QMenu(this);
+    tab_ui::wireChartsButton(ui->chartsButton, ui->charts, charts_menu_);
 
     connect(ui->openFileButton, &QPushButton::clicked, this, &IdTab::openFile);
     connect(ui->identifyButton, &QPushButton::clicked, this, &IdTab::runIdentification);
@@ -53,64 +33,24 @@ IdTab::~IdTab() {
 }
 
 void IdTab::install_custom_widgets() {
-    display_          = new TfDisplayWidget(QStringLiteral("W(p) = "), ui->formHost);
-    auto* form_layout = new QVBoxLayout(ui->formHost);
-    form_layout->setContentsMargins(0, 0, 0, 0);
-    form_layout->addWidget(display_, 0, Qt::AlignLeft | Qt::AlignVCenter);
-
-    metrics_             = new RegulationWidget(3, 2, ui->metricsHost);
-    auto* metrics_layout = new QVBoxLayout(ui->metricsHost);
-    metrics_layout->setContentsMargins(0, 0, 0, 0);
-    metrics_layout->addWidget(metrics_, 0, Qt::AlignRight | Qt::AlignVCenter);
-
-    ui->topLayout->setStretch(0, 0);
-    ui->topLayout->setStretch(1, 1);
-    ui->topLayout->setStretch(2, 0);
-}
-
-void IdTab::setup_metrics() {
-    metrics_->setLabels(
-        {
-            QStringLiteral("t<sub>р</sub>:"),
-            QStringLiteral("ω<sub>n</sub>:"),
-            QStringLiteral("t<sub>н</sub>:"),
-            QStringLiteral("ω<sub>c</sub>:"),
-            QStringLiteral("ζ:"),
-            QStringLiteral("h<sub>уст</sub>:"),
-        },
-        {
-            tr("Время регулирования, с"),
-            tr("Собственная частота, рад/с"),
-            tr("Время нарастания, с"),
-            tr("Частота среза, рад/с"),
-            tr("Коэффициент демпфирования, %"),
-            tr("Установившееся значение"),
-        });
-    metrics_->setColors({{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}});
+    display_ = new TfDisplayWidget(QStringLiteral("W(p) = "), ui->formHost);
+    metrics_ = new RegulationWidget(3, 2, ui->metricsHost);
+    tab_ui::mountInHost(ui->formHost, display_, Qt::AlignLeft | Qt::AlignVCenter);
+    tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight | Qt::AlignVCenter);
+    tab_ui::setupPlantQualityMetrics(metrics_);
 }
 
 void IdTab::show_error(const QString& message) {
-    QMessageBox::critical(this, tr("Ошибка"), message);
+    tab_ui::showError(this, tr("Ошибка"), message);
 }
 
 void IdTab::openSettings() {
-    ModParDialog dialog(model_param_, this);
-    if (dialog.exec() != QDialog::Accepted)
+    if (!tab_ui::editModelParam(this, model_param_))
         return;
-    model_param_ = dialog.data();
     // Grid/Padé-sample settings only: recompute responses, keep identified plant.
-    if (!charts_->empty()) {
-        charts_->recomputeAll(model_param_);
-        if (charts_->hasLastQuality()) {
-            const auto& q = charts_->lastQuality();
-            if (q.is_settled) {
-                metrics_->updateValues({q.settling_time, q.natural_frequency, q.rise_time, q.cut_frequency,
-                                        q.damping_ratio, q.steady_state});
-            }
-            else {
-                metrics_->updateValues({});
-            }
-        }
+    if (!ui->charts->empty()) {
+        ui->charts->recomputeAll(model_param_);
+        tab_ui::applySettledPlantMetrics(metrics_, ui->charts);
     }
 }
 
@@ -142,7 +82,7 @@ void IdTab::clearAll() {
     valve_series_.clear();
     signal_series_.clear();
     display_->clear();
-    charts_->clearAll();
+    ui->charts->clearAll();
     metrics_->updateValues({});
     ui->fileLabel->setText(tr("Файл не выбран"));
     ui->fileLabel->setToolTip({});

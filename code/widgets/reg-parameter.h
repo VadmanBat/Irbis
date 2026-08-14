@@ -6,9 +6,9 @@
 #include <QString>
 
 class QCheckBox;
-class QDoubleSpinBox;
 class QLabel;
 class QLayout;
+class QPushButton;
 
 class RegParameter : public QObject {
     Q_OBJECT
@@ -17,18 +17,24 @@ private:
     QCheckBox* check_box_{nullptr};
     QLabel* label_{nullptr};
     QLabel* value_label_{nullptr};
-    QDoubleSpinBox* min_spin_{nullptr};
-    QDoubleSpinBox* max_spin_{nullptr};
+    QPushButton* settings_btn_{nullptr};
     DoubleSlider* slider_{nullptr};
     QLayout* layout_{nullptr};
-
-    static constexpr int kSliderIntervals = 1000;
+    double hard_min_{};
+    double hard_max_{};
+    double min_{};
+    double max_{};
+    int intervals_{1000};
+    double factory_min_{};
+    double factory_max_{};
+    int factory_intervals_{1000};
 
     void apply_default_style();
     void refresh_value_label();
+    void update_slider_range();
+    void open_settings();
 
 private slots:
-    void update_slider_range();
     void enable(bool checked);
     void on_slider_moved(double v);
 
@@ -41,8 +47,8 @@ public:
     [[nodiscard]] DoubleSlider* slider() const { return slider_; }
     [[nodiscard]] bool enabled() const;
     [[nodiscard]] double value() const;
-    [[nodiscard]] double rangeMin() const;
-    [[nodiscard]] double rangeMax() const;
+    [[nodiscard]] double rangeMin() const { return min_; }
+    [[nodiscard]] double rangeMax() const { return max_; }
 
     void setEnabled(bool on);
     void setValue(double v);

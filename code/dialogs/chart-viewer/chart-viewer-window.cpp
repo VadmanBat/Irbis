@@ -2,6 +2,7 @@
 
 #include "code/charts/utils/chart-utils.hpp"
 #include "code/util/dialog-icons.hxx"
+#include "code/util/format.hxx"
 
 #include <QGuiApplication>
 #include <QLabel>
@@ -44,7 +45,7 @@ ChartViewerWindow::ChartViewerWindow(QChart* source_chart, QWidget* parent) : QM
             coord_label_->setText(tr("Курсор вне области графика"));
             return;
         }
-        coord_label_->setText(tr("x = %1    y = %2").arg(x, 0, 'g', 8).arg(y, 0, 'g', 8));
+        coord_label_->setText(tr("x = %1    y = %2").arg(num_format::format(x), num_format::format(y)));
     });
 }
 

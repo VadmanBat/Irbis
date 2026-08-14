@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QAbstractButton>
 #include <QColor>
 #include <QFont>
 #include <QFontMetrics>
@@ -19,6 +20,7 @@ enum class Kind {
     ModelParams,      // time & frequency ranges
     TransferFunction, // poles / h(t) / w(t)
     ChartProps,       // chart title & series
+    SliderSettings,   // regulator slider range
     Help,
     App,
 };
@@ -30,8 +32,15 @@ inline QFont awesome_font(int pixel_size) {
     f.setFamilies({QStringLiteral("Font Awesome 6 Free Solid"), QStringLiteral("Font Awesome 6 Free")});
     f.setStyleName(QStringLiteral("Solid"));
     f.setWeight(QFont::Black);
-    f.setPixelSize(pixel_size);
+    if (pixel_size > 0)
+        f.setPixelSize(pixel_size);
     f.setHintingPreference(QFont::PreferFullHinting);
+    return f;
+}
+
+inline QFont awesome_ui_font(int point_size = 9) {
+    QFont f = awesome_font(0);
+    f.setPointSize(point_size > 0 ? point_size : 9);
     return f;
 }
 
@@ -50,6 +59,8 @@ inline QChar glyph_for(Kind kind) {
             return QChar(0xf0ce); // table
         case Kind::ChartProps:
             return QChar(0xf201); // chart-line
+        case Kind::SliderSettings:
+            return QChar(0xf013); // gear
         case Kind::Help:
             return QChar(0xf059); // circle-question
         case Kind::App:
@@ -68,6 +79,8 @@ inline QColor bg_for(Kind kind) {
             return QColor(0x6a, 0x1b, 0x9a); // purple
         case Kind::ChartProps:
             return QColor(0x2e, 0x7d, 0x32); // green
+        case Kind::SliderSettings:
+            return QColor(0x00, 0x79, 0x6b); // teal
         case Kind::Help:
             return QColor(0x45, 0x5a, 0x64); // blue-grey
         case Kind::App:
@@ -236,6 +249,15 @@ inline void paint_fallback(QPainter& p, Kind kind, qreal s) {
             p.drawPolyline(poly);
             break;
         }
+        case Kind::SliderSettings: {
+            p.drawEllipse(QPointF(16 * s, 16 * s), 6 * s, 6 * s);
+            p.drawEllipse(QPointF(16 * s, 16 * s), 2.2 * s, 2.2 * s);
+            p.drawLine(QPointF(16 * s, 8 * s), QPointF(16 * s, 10.5 * s));
+            p.drawLine(QPointF(16 * s, 21.5 * s), QPointF(16 * s, 24 * s));
+            p.drawLine(QPointF(8 * s, 16 * s), QPointF(10.5 * s, 16 * s));
+            p.drawLine(QPointF(21.5 * s, 16 * s), QPointF(24 * s, 16 * s));
+            break;
+        }
         case Kind::Help: {
             p.setBrush(Qt::white);
             p.setPen(Qt::NoPen);
@@ -297,5 +319,12 @@ inline QPixmap paint(Kind kind, int size) {
 inline void apply(QWidget* widget, Kind kind) {
     if (widget)
         widget->setWindowIcon(icon(kind));
+}
+
+inline void applyGlyph(QAbstractButton* button, QChar glyph, int point_size = 9) {
+    if (!button)
+        return;
+    button->setFont(detail::awesome_ui_font(point_size));
+    button->setText(QString(glyph));
 }
 } // namespace dialog_icons

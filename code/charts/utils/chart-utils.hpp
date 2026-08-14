@@ -48,6 +48,7 @@ void updateAxes(QChart* chart, const Pair& range_x, const Pair& range_y, GridMod
                 bool snap_x = false, bool snap_y = false);
 
 void applyViewerGrid(QValueAxis* axis);
+void applyViewerGrid(QValueAxis* axis, double lo, double hi);
 void applyViewerGrid(QChart* chart);
 void updateOriginGuides(QChart* chart, const Pair& range_x, const Pair& range_y);
 

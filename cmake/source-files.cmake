@@ -9,6 +9,7 @@ set(UI_FILES
         ${CMAKE_SOURCE_DIR}/ui/dialogs/help-dialog.ui
         ${CMAKE_SOURCE_DIR}/ui/dialogs/chart-dialog.ui
         ${CMAKE_SOURCE_DIR}/ui/dialogs/tran-func-dialog.ui
+        ${CMAKE_SOURCE_DIR}/ui/dialogs/slider-settings-dialog.ui
 )
 
 set(SOURCES
@@ -21,13 +22,18 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/code/tabs/analysis-tab.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-run.cpp
+        ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-synth.cpp
+        ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-face.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/rim-tab.cpp
+
+        ${CMAKE_SOURCE_DIR}/code/control/regulator-design.cpp
 
         ${CMAKE_SOURCE_DIR}/code/dialogs/mod-par-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/id-settings-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/help-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/chart-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/tran-func-dialog.cpp
+        ${CMAKE_SOURCE_DIR}/code/dialogs/slider-settings-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/chart-viewer/chart-viewer-window.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/chart-viewer/chart-viewer-window-ui.cpp
 
@@ -42,6 +48,8 @@ set(SOURCES
 
         ${CMAKE_SOURCE_DIR}/code/charts/chart-panel.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/c0-c1-chart.cpp
+        ${CMAKE_SOURCE_DIR}/code/charts/c0-c1-chart-axes.cpp
+        ${CMAKE_SOURCE_DIR}/code/charts/c0-c1-chart-pointer.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/response-chart-bank.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/response-chart-bank-data.cpp
         ${CMAKE_SOURCE_DIR}/code/charts/response-chart-bank-channels.cpp

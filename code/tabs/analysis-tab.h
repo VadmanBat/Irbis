@@ -1,6 +1,5 @@
 #pragma once
 
-#include "code/charts/response-chart-bank.h"
 #include "code/model/model-param.hpp"
 #include "code/widgets/regulation-widget.h"
 #include "code/widgets/tf-form/tran-func-form.h"
@@ -21,13 +20,11 @@ private:
     Ui::AnalysisTab* ui;
     TranFuncForm* form_{nullptr};
     RegulationWidget* metrics_{nullptr};
-    ResponseChartBank* charts_{nullptr};
     QMenu* charts_menu_{nullptr};
     ModelParam model_param_;
     numina::TransferFunction current_tf_;
 
     void show_error(const QString& message);
-    void setup_metrics();
     void install_custom_widgets();
     void update_metrics();
 

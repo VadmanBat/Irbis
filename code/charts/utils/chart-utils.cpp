@@ -2,10 +2,12 @@
 
 #include "code/charts/utils/chart-utils-detail.hpp"
 
+#include <QAbstractSeries>
 #include <QBrush>
 #include <QLegend>
 #include <QLineSeries>
 #include <QPainter>
+#include <QScatterSeries>
 #include <QValueAxis>
 
 namespace chart_utils {
@@ -17,7 +19,9 @@ void applyAxisTheme(QValueAxis* axis, const ChartTheme& theme) {
     axis->setLinePen(QPen(theme.axis_line, 1.0));
     axis->setGridLineColor(theme.grid);
     axis->setMinorGridLineColor(theme.minor_grid);
-    // Keep grid visibility as configured by set_grid_visible / viewer.
+    // Like iostream defaultfloat / std::cout (precision 6): 1234.56 or 1.23457e+08.
+    if (axis->labelFormat() != QLatin1String("%.6g"))
+        axis->setLabelFormat(QStringLiteral("%.6g"));
 }
 
 void applyChartTheme(QChart* chart, QChartView* view) {
@@ -106,14 +110,32 @@ QChart* cloneChart(QChart* src) {
     createAxes(dst, title_x, title_y);
 
     for (auto* s : src->series()) {
-        auto* line = qobject_cast<QLineSeries*>(s);
-        if (!line || detail::isGuideSeries(line->name()))
+        if (detail::isGuideSeries(s->name()))
             continue;
-        auto* copy = new QLineSeries;
-        copy->setName(line->name());
-        copy->setPen(line->pen());
-        copy->setPointsVisible(line->pointsVisible());
-        copy->replace(line->points());
+        QAbstractSeries* copy = nullptr;
+        if (auto* line = qobject_cast<QLineSeries*>(s)) {
+            auto* out = new QLineSeries;
+            out->setName(line->name());
+            out->setPen(line->pen());
+            out->setPointsVisible(line->pointsVisible());
+            out->replace(line->points());
+            copy = out;
+        }
+        else if (auto* scatter = qobject_cast<QScatterSeries*>(s)) {
+            auto* out = new QScatterSeries;
+            out->setName(scatter->name());
+            out->setMarkerShape(scatter->markerShape());
+            out->setMarkerSize(scatter->markerSize());
+            out->setColor(scatter->color());
+            out->setBorderColor(scatter->borderColor());
+            out->setPen(scatter->pen());
+            out->setBrush(scatter->brush());
+            out->setLightMarker(scatter->lightMarker());
+            out->replace(scatter->points());
+            copy = out;
+        }
+        if (!copy)
+            continue;
         dst->addSeries(copy);
         detail::attachToAxes(dst, copy);
     }

@@ -1,9 +1,5 @@
 #include "code/app/mainwindow.h"
 
-#include "code/tabs/analysis-tab.h"
-#include "code/tabs/id-tab.h"
-#include "code/tabs/rim-tab.h"
-#include "code/tabs/synthesis-tab.h"
 #include "code/util/dialog-icons.hxx"
 #include "ui_mainwindow.h"
 
@@ -15,17 +11,11 @@
 #include <QScreen>
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent), ui(new Ui::MainWindow) {
-    ui->setupUi(this);
     load_fonts();
+    ui->setupUi(this);
     apply_styles();
     dialog_icons::apply(this, dialog_icons::Kind::App);
     qApp->setWindowIcon(windowIcon());
-
-    ui->tabWidget->addTab(new IdTab(this), tr("🔍  Идентификация"));
-    ui->tabWidget->addTab(new AnalysisTab(this), tr("🔬  Анализ"));
-    ui->tabWidget->addTab(new SynthesisTab(this), tr("🧪  Синтез"));
-    ui->tabWidget->addTab(new RimTab(this), tr("⚙️  Настройка РИМ"));
-
     center_window();
 }
 
@@ -56,7 +46,6 @@ void MainWindow::apply_styles() {
         if (!qss.open(QFile::ReadOnly))
             continue;
         qApp->setStyleSheet(QString::fromUtf8(qss.readAll()));
-        // Keep a real point size after QSS (px rules leave pointSize == -1).
         QFont f = qApp->font();
         if (f.pointSize() <= 0)
             f.setPointSize(10);

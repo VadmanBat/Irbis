@@ -1,4 +1,5 @@
 #include "code/tabs/id-tab.h"
+#include "code/tabs/tab-shell.hpp"
 #include "code/util/data-file-parser.hpp"
 #include "code/util/tf-builder.hpp"
 #include "numina/classes/control/duhamel-solver.h"
@@ -137,21 +138,8 @@ void IdTab::apply_result(const numina::TransferFunction& plant, double tau, cons
 
     display_->setTransferFunction(plant, tau);
 
-    charts_->clearAll();
-    charts_->appendTransientCurve(experimental_h, tr("Эксперимент"));
-    charts_->appendFromTf(model, model_param_, tr("Модель"));
-
-    if (charts_->hasLastQuality()) {
-        const auto& q = charts_->lastQuality();
-        if (q.is_settled) {
-            metrics_->updateValues(
-                {q.settling_time, q.natural_frequency, q.rise_time, q.cut_frequency, q.damping_ratio, q.steady_state});
-        }
-        else {
-            metrics_->updateValues({});
-        }
-    }
-    else {
-        metrics_->updateValues({});
-    }
+    ui->charts->clearAll();
+    ui->charts->appendTransientCurve(experimental_h, tr("Эксперимент"));
+    ui->charts->appendFromTf(model, model_param_, tr("Модель"));
+    tab_ui::applySettledPlantMetrics(metrics_, ui->charts);
 }

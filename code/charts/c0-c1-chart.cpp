@@ -1,36 +1,164 @@
 #include "code/charts/c0-c1-chart.h"
 
+#include "code/charts/utils/chart-utils-detail.hpp"
 #include "code/charts/utils/chart-utils-theme.hpp"
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
+#include <QAbstractSeries>
+#include <QApplication>
 #include <QChart>
+#include <QChartView>
 #include <QEvent>
+#include <QFont>
+#include <QGraphicsLayout>
+#include <QImage>
+#include <QLegend>
 #include <QLineSeries>
 #include <QMargins>
-#include <QMouseEvent>
+#include <QPainter>
 #include <QScatterSeries>
-#include <QVBoxLayout>
 #include <QValueAxis>
+#include <QVBoxLayout>
 
 namespace {
-QScatterSeries* make_marker(const QString& name, const QColor& color, QScatterSeries::MarkerShape shape,
-                            qreal size) {
-    auto* s = new QScatterSeries;
-    s->setName(name);
-    s->setMarkerShape(shape);
-    s->setMarkerSize(size);
-    s->setColor(color);
-    s->setBorderColor(color.darker(120));
-    s->setPen(QPen(color.darker(120), 1.2));
-    return s;
+constexpr int kCrossMark = 16;
+constexpr int kRingMark  = 22;
+constexpr int kSelMark   = 16;
+constexpr qreal kMergePx = 12.0;
+const QColor kLikGreen{0x2e, 0xc8, 0x54};
+const QColor kIkkRed{0xe5, 0x39, 0x35};
+const QColor kSkoBlue{0x1e, 0x88, 0xe5};
+
+enum class OptGlyph { Plus, Cross, Ring };
+
+QImage opt_glyph(OptGlyph glyph, const QColor& color) {
+    const int size    = glyph == OptGlyph::Ring ? kRingMark : kCrossMark;
+    const qreal pen_w = glyph == OptGlyph::Ring ? 2.2 : 2.0;
+    const qreal dpr   = qApp ? qApp->devicePixelRatio() : 1.0;
+    QImage img(qRound(size * dpr), qRound(size * dpr), QImage::Format_ARGB32_Premultiplied);
+    img.setDevicePixelRatio(dpr);
+    img.fill(Qt::transparent);
+
+    QPainter p(&img);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setPen(QPen(color, pen_w, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    p.setBrush(Qt::NoBrush);
+
+    const qreal mid = size * 0.5;
+    const qreal r   = size * (glyph == OptGlyph::Ring ? 0.38 : 0.36);
+    switch (glyph) {
+        case OptGlyph::Plus:
+            p.drawLine(QPointF(mid, mid - r), QPointF(mid, mid + r));
+            p.drawLine(QPointF(mid - r, mid), QPointF(mid + r, mid));
+            break;
+        case OptGlyph::Cross: {
+            const qreal d = r * 0.70710678118;
+            p.drawLine(QPointF(mid - d, mid - d), QPointF(mid + d, mid + d));
+            p.drawLine(QPointF(mid + d, mid - d), QPointF(mid - d, mid + d));
+            break;
+        }
+        case OptGlyph::Ring:
+            p.drawEllipse(QPointF(mid, mid), r, r);
+            break;
+    }
+    return img;
 }
 
-bool nearly_same(double a, double b, double eps) noexcept {
-    if (!std::isfinite(a) || !std::isfinite(b))
-        return false;
-    return std::abs(a - b) <= eps;
+void paint_legend_swatch(QScatterSeries* series, const QColor& color) {
+    series->setColor(color);
+    series->setBorderColor(color);
+    series->setBrush(QBrush(color));
+    series->setPen(QPen(color, 1.0));
+    series->setMarkerShape(QScatterSeries::MarkerShapeCircle);
+}
+
+void style_opt_glyph(QScatterSeries* series, OptGlyph glyph, const QColor& color) {
+    if (!series)
+        return;
+    const int size = glyph == OptGlyph::Ring ? kRingMark : kCrossMark;
+    paint_legend_swatch(series, color);
+    series->setMarkerSize(size);
+    series->setLightMarker(opt_glyph(glyph, color));
+}
+
+QImage sel_glyph(const QColor& color) {
+    const qreal dpr = qApp ? qApp->devicePixelRatio() : 1.0;
+    QImage img(qRound(kSelMark * dpr), qRound(kSelMark * dpr), QImage::Format_ARGB32_Premultiplied);
+    img.setDevicePixelRatio(dpr);
+    img.fill(Qt::transparent);
+
+    QPainter p(&img);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    const qreal mid = kSelMark * 0.5;
+    const qreal r   = kSelMark * 0.32;
+    p.setPen(QPen(color.lighter(140), 1.4));
+    p.setBrush(color);
+    p.drawEllipse(QPointF(mid, mid), r, r);
+    return img;
+}
+
+qreal pixel_dist(QChart* chart, const QPointF& a, const QPointF& b) {
+    if (!chart)
+        return 1e300;
+    auto* ax          = qobject_cast<QValueAxis*>(chart->axes(Qt::Horizontal).value(0, nullptr));
+    auto* ay          = qobject_cast<QValueAxis*>(chart->axes(Qt::Vertical).value(0, nullptr));
+    const QRectF plot = chart->plotArea();
+    if (!ax || !ay || !plot.isValid())
+        return 1e300;
+    const double sx = ax->max() - ax->min();
+    const double sy = ay->max() - ay->min();
+    if (!(sx > 0.0) || !(sy > 0.0))
+        return 1e300;
+    const double dx = (a.x() - b.x()) / sx * plot.width();
+    const double dy = (a.y() - b.y()) / sy * plot.height();
+    return std::hypot(dx, dy);
+}
+
+void merge_close(QPointF& a, QPointF& b) {
+    a = b = QPointF(0.5 * (a.x() + b.x()), 0.5 * (a.y() + b.y()));
+}
+
+void nest_optima(QChart* chart, QPointF* lik, QPointF* ikk, QPointF* sko) {
+    const bool hl = lik != nullptr;
+    const bool hi = ikk != nullptr;
+    const bool hs = sko != nullptr;
+    auto close    = [&](const QPointF& a, const QPointF& b) { return pixel_dist(chart, a, b) < kMergePx; };
+
+    if (hl && hi && hs && close(*lik, *ikk) && close(*ikk, *sko) && close(*lik, *sko)) {
+        const QPointF c((lik->x() + ikk->x() + sko->x()) / 3.0, (lik->y() + ikk->y() + sko->y()) / 3.0);
+        *lik = *ikk = *sko = c;
+        return;
+    }
+    if (hl && hi && close(*lik, *ikk))
+        merge_close(*lik, *ikk);
+    if (hl && hs && close(*lik, *sko))
+        merge_close(*lik, *sko);
+    if (hi && hs && close(*ikk, *sko))
+        merge_close(*ikk, *sko);
+}
+
+void style_selection_marker(QScatterSeries* series, const QColor& color) {
+    if (!series)
+        return;
+    paint_legend_swatch(series, color);
+    series->setMarkerSize(kSelMark);
+    series->setLightMarker(sel_glyph(color));
+}
+
+QPen locus_pen() {
+    const QColor c = chart_utils::isDarkTheme() ? QColor(0x66, 0xbb, 0x6a) : QColor(0x2e, 0x7d, 0x32);
+    QPen pen(c, 2.0, Qt::DashLine);
+    pen.setCapStyle(Qt::FlatCap);
+    pen.setCosmetic(true);
+    return pen;
+}
+
+QScatterSeries* make_selection_marker(const QString& name, const QColor& color) {
+    auto* s = new QScatterSeries;
+    s->setName(name);
+    style_selection_marker(s, color);
+    return s;
 }
 }
 
@@ -39,71 +167,78 @@ C0C1Chart::C0C1Chart(QWidget* parent) : QWidget(parent) {
     build_chart();
 }
 
-void C0C1Chart::apply_axis_titles() {
-    if (!chart_)
-        return;
-    auto axes_x = chart_->axes(Qt::Horizontal);
-    auto axes_y = chart_->axes(Qt::Vertical);
-    if (axes_x.isEmpty() || axes_y.isEmpty())
-        return;
-    auto* ax = qobject_cast<QValueAxis*>(axes_x.constFirst());
-    auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
-    if (!ax || !ay)
-        return;
-    // X = C₁, Y = C₀
-    ax->setTitleText(QStringLiteral("C₁"));
-    ay->setTitleText(QStringLiteral("C₀"));
-    ax->setTitleVisible(true);
-    ay->setTitleVisible(true);
-}
-
 void C0C1Chart::build_chart() {
     chart_ = new QChart;
-    view_  = chart_utils::makeChartView(chart_, this, tr("РКЧХ: C₁–C₀"), QStringLiteral("C₁"), QStringLiteral("C₀"));
-    view_->setMinimumWidth(220);
+    view_  = chart_utils::makeChartView(chart_, this, tr("Допустимые настройки"), QStringLiteral("C₁"),
+                                        QStringLiteral("C₀"));
+    view_->setMinimumSize(0, 0);
     view_->setMouseTracking(true);
     view_->viewport()->setMouseTracking(true);
     view_->viewport()->installEventFilter(this);
-    chart_->setMargins(QMargins(12, 8, 12, 16));
+    tighten_plot();
 
     locus_series_ = new QLineSeries;
-    locus_series_->setName(tr("C₁(ω), C₀(ω)"));
-    locus_series_->setPen(chart_utils::penForIndex(0));
+    locus_series_->setName(tr("ЛРЗ"));
+    locus_series_->setPen(locus_pen());
 
-    const bool dark    = chart_utils::isDarkTheme();
-    const QColor lik   = dark ? QColor(0x6c, 0xb6, 0xff) : QColor(0x1f, 0x77, 0xb4);
-    const QColor ikk   = dark ? QColor(0xff, 0xb0, 0x4a) : QColor(0xff, 0x7f, 0x0e);
-    const QColor sko   = dark ? QColor(0x5d, 0xdf, 0x5d) : QColor(0x2c, 0xa0, 0x2c);
-    const QColor sel   = dark ? QColor(0xff, 0x6b, 0x6b) : QColor(0xd6, 0x27, 0x28);
+    const bool dark  = chart_utils::isDarkTheme();
+    const QColor sel = dark ? QColor(0xff, 0x6b, 0x6b) : QColor(0xd6, 0x27, 0x28);
 
-    opt_lik_          = make_marker(tr("опт. ЛИК"), lik, QScatterSeries::MarkerShapeCircle, 12.0);
-    opt_ikk_          = make_marker(tr("опт. ИКК"), ikk, QScatterSeries::MarkerShapeRectangle, 11.0);
-    opt_sko_          = make_marker(tr("опт. СКО"), sko, QScatterSeries::MarkerShapeTriangle, 13.0);
-    selection_series_ = make_marker(tr("выбор"), sel, QScatterSeries::MarkerShapeCircle, 16.0);
-    selection_series_->setBorderColor(sel.lighter(140));
+    opt_lik_ = new QScatterSeries;
+    opt_lik_->setName(tr("опт. ЛИК"));
+    opt_ikk_ = new QScatterSeries;
+    opt_ikk_->setName(tr("опт. ИКК"));
+    opt_sko_ = new QScatterSeries;
+    opt_sko_->setName(tr("опт. СКО"));
+    style_opt_glyph(opt_lik_, OptGlyph::Plus, kLikGreen);
+    style_opt_glyph(opt_ikk_, OptGlyph::Cross, kIkkRed);
+    style_opt_glyph(opt_sko_, OptGlyph::Ring, kSkoBlue);
+    selection_series_ = make_selection_marker(tr("выбор"), sel);
 
     chart_->addSeries(locus_series_);
+    chart_->addSeries(opt_sko_);
     chart_->addSeries(opt_lik_);
     chart_->addSeries(opt_ikk_);
-    chart_->addSeries(opt_sko_);
     chart_->addSeries(selection_series_);
-    for (QAbstractSeries* s : chart_->series()) {
-        for (QAbstractAxis* ax : chart_->axes())
-            s->attachAxis(ax);
-    }
+    chart_utils::detail::attachToAxes(chart_, locus_series_);
+    chart_utils::detail::attachToAxes(chart_, opt_sko_);
+    chart_utils::detail::attachToAxes(chart_, opt_lik_);
+    chart_utils::detail::attachToAxes(chart_, opt_ikk_);
+    chart_utils::detail::attachToAxes(chart_, selection_series_);
 
     layout_ = new QVBoxLayout(this);
     layout_->setContentsMargins(0, 0, 0, 0);
     layout_->addWidget(view_);
     apply_axis_titles();
     apply_theme();
+    QObject::connect(chart_, &QChart::plotAreaChanged, this, [this](const QRectF&) { place_axis_tags(); });
+}
+
+void C0C1Chart::tighten_plot() {
+    if (!chart_)
+        return;
+    if (QLegend* lg = chart_->legend())
+        lg->setVisible(false);
+    if (QGraphicsLayout* lay = chart_->layout())
+        lay->setContentsMargins(0, 0, 0, 0);
+    chart_->setBackgroundRoundness(0);
+    chart_->setMargins(QMargins(2, 2, 2, 2));
+    QFont title_font = chart_->titleFont();
+    title_font.setPointSize(10);
+    chart_->setTitleFont(title_font);
 }
 
 void C0C1Chart::apply_theme() {
     chart_utils::applyChartTheme(chart_, view_);
     if (locus_series_)
-        locus_series_->setPen(chart_utils::penForIndex(0));
+        locus_series_->setPen(locus_pen());
+    style_opt_glyph(opt_lik_, OptGlyph::Plus, kLikGreen);
+    style_opt_glyph(opt_ikk_, OptGlyph::Cross, kIkkRed);
+    style_opt_glyph(opt_sko_, OptGlyph::Ring, kSkoBlue);
+    style_live_marker();
+    restyle_pins();
     apply_axis_titles();
+    tighten_plot();
 }
 
 void C0C1Chart::changeEvent(QEvent* event) {
@@ -111,6 +246,11 @@ void C0C1Chart::changeEvent(QEvent* event) {
         event->type() == QEvent::ThemeChange)
         apply_theme();
     QWidget::changeEvent(event);
+}
+
+void C0C1Chart::setSquareSide(int side) {
+    const int s = std::max(160, side);
+    setFixedSize(s, s);
 }
 
 void C0C1Chart::clear() {
@@ -130,6 +270,9 @@ void C0C1Chart::clear() {
         opt_sko_->clear();
     if (selection_series_)
         selection_series_->clear();
+    clear_pins();
+    live_index_ = 0;
+    style_live_marker();
     refit_axes();
 }
 
@@ -142,31 +285,41 @@ void C0C1Chart::setLocus(std::vector<Sample> samples, const QString& name) {
     QList<QPointF> pts;
     pts.reserve(static_cast<int>(locus_.size()));
     for (const auto& s : locus_)
-        pts.append(to_plot(s.c0, s.c1)); // X=C₁, Y=C₀
+        pts.append(to_plot(s.c0, s.c1));
     locus_series_->replace(std::move(pts));
     refit_axes();
     update_selection_marker();
+    schedule_refit();
 }
 
 void C0C1Chart::setOptima(const Optimum& lik, const Optimum& ikk, const Optimum& sko) {
-    auto put = [](QScatterSeries* series, const Optimum& o) {
+    QPointF p_lik = to_plot(lik.c0, lik.c1);
+    QPointF p_ikk = to_plot(ikk.c0, ikk.c1);
+    QPointF p_sko = to_plot(sko.c0, sko.c1);
+
+    auto put = [](QScatterSeries* series, bool valid, const QPointF& pt, const QString& label) {
         if (!series)
             return;
         series->clear();
-        if (o.valid)
-            series->append(to_plot(o.c0, o.c1));
-        if (!o.label.isEmpty())
-            series->setName(o.label);
+        if (valid)
+            series->append(pt);
+        if (!label.isEmpty())
+            series->setName(label);
     };
-    put(opt_lik_, lik);
-    put(opt_ikk_, ikk);
-    put(opt_sko_, sko);
+    put(opt_lik_, lik.valid, p_lik, lik.label);
+    put(opt_ikk_, ikk.valid, p_ikk, ikk.label);
+    put(opt_sko_, sko.valid, p_sko, sko.label);
     refit_axes();
+
+    nest_optima(chart_, lik.valid ? &p_lik : nullptr, ikk.valid ? &p_ikk : nullptr, sko.valid ? &p_sko : nullptr);
+    put(opt_lik_, lik.valid, p_lik, {});
+    put(opt_ikk_, ikk.valid, p_ikk, {});
+    put(opt_sko_, sko.valid, p_sko, {});
+    schedule_refit();
 }
 
 void C0C1Chart::setSelection(double c0, double c1) {
     if (has_selection_ && nearly_same(sel_c0_, c0, 0.0) && nearly_same(sel_c1_, c1, 0.0)) {
-        // exact same — still refresh marker if empty
         if (selection_series_ && selection_series_->count() == 0)
             update_selection_marker();
         return;
@@ -175,7 +328,6 @@ void C0C1Chart::setSelection(double c0, double c1) {
     sel_c0_        = c0;
     sel_c1_        = c1;
     update_selection_marker();
-    // Never refit while dragging — axes jumps make pixel→value mapping feel sticky.
     if (!dragging_)
         ensure_selection_visible();
 }
@@ -194,192 +346,75 @@ void C0C1Chart::update_selection_marker() {
         selection_series_->append(to_plot(sel_c0_, sel_c1_));
 }
 
-void C0C1Chart::ensure_selection_visible() {
-    if (!has_selection_ || !chart_ || dragging_)
-        return;
-    auto axes_x = chart_->axes(Qt::Horizontal);
-    auto axes_y = chart_->axes(Qt::Vertical);
-    if (axes_x.isEmpty() || axes_y.isEmpty())
-        return;
-    auto* ax = qobject_cast<QValueAxis*>(axes_x.constFirst());
-    auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
-    if (!ax || !ay)
-        return;
-    // Plot: X=C₁, Y=C₀
-    const bool outside =
-        sel_c1_ < ax->min() || sel_c1_ > ax->max() || sel_c0_ < ay->min() || sel_c0_ > ay->max();
-    if (outside)
-        refit_axes();
+void C0C1Chart::style_live_marker() {
+    style_selection_marker(selection_series_, chart_utils::penForIndex(live_index_).color());
 }
 
-void C0C1Chart::refit_axes() {
+void C0C1Chart::style_pin_marker(QScatterSeries* series, std::size_t color_index) {
+    style_selection_marker(series, chart_utils::penForIndex(color_index).color());
+}
+
+void C0C1Chart::restyle_pins() {
+    for (std::size_t i = 0; i < pin_series_.size(); ++i)
+        style_pin_marker(pin_series_[i], i);
+}
+
+void C0C1Chart::clear_pins() {
+    if (!chart_) {
+        pin_series_.clear();
+        return;
+    }
+    for (QScatterSeries* s : pin_series_) {
+        if (!s)
+            continue;
+        chart_->removeSeries(s);
+        delete s;
+    }
+    pin_series_.clear();
+}
+
+void C0C1Chart::setLiveIndex(std::size_t index) {
+    live_index_ = index;
+    style_live_marker();
+}
+
+void C0C1Chart::pinSelection(const QString& name) {
+    if (!chart_ || !has_selection_) {
+        ++live_index_;
+        style_live_marker();
+        return;
+    }
+
+    auto* pin = new QScatterSeries;
+    pin->setName(name.isEmpty() ? tr("фикс. %1").arg(pin_series_.size() + 1) : name);
+    pin->append(to_plot(sel_c0_, sel_c1_));
+    style_pin_marker(pin, live_index_);
+
+    if (selection_series_)
+        chart_->removeSeries(selection_series_);
+    chart_->addSeries(pin);
+    chart_utils::detail::attachToAxes(chart_, pin);
+    if (selection_series_) {
+        chart_->addSeries(selection_series_);
+        chart_utils::detail::attachToAxes(chart_, selection_series_);
+    }
+    pin_series_.push_back(pin);
+
+    ++live_index_;
+    style_live_marker();
+    schedule_refit();
+}
+
+void C0C1Chart::trimPins(std::size_t max_count) {
     if (!chart_)
         return;
-    AxisBounds b;
-    auto expand = [&](double x, double y) {
-        if (!b.valid) {
-            b.min_x = b.max_x = x;
-            b.min_y = b.max_y = y;
-            b.valid           = true;
-            return;
-        }
-        b.min_x = std::min(b.min_x, x);
-        b.max_x = std::max(b.max_x, x);
-        b.min_y = std::min(b.min_y, y);
-        b.max_y = std::max(b.max_y, y);
-    };
-    for (const auto& s : locus_)
-        expand(s.c1, s.c0); // X=C₁, Y=C₀
-    for (QScatterSeries* sc : {opt_lik_, opt_ikk_, opt_sko_, selection_series_}) {
-        if (!sc)
+    while (pin_series_.size() > max_count) {
+        QScatterSeries* s = pin_series_.front();
+        pin_series_.erase(pin_series_.begin());
+        if (!s)
             continue;
-        for (const QPointF& p : sc->points())
-            expand(p.x(), p.y());
+        chart_->removeSeries(s);
+        delete s;
     }
-    if (!b.valid) {
-        chart_utils::updateAxes(chart_, {0.0, 1.0}, {0.0, 1.0}, chart_utils::GridMode::Tab,
-                                /*snap_x=*/false, /*snap_y=*/false);
-        return;
-    }
-    const double hi_x  = std::max(0.0, b.max_x);
-    const double hi_y  = std::max(0.0, b.max_y);
-    const double pad_x = std::max(1e-9, 0.08 * (hi_x + 1e-12));
-    const double pad_y = std::max(1e-9, 0.08 * (hi_y + 1e-12));
-    // First quadrant only: lo = 0, hi as data max + pad. No lattice snap.
-    const auto rx = chart_utils::paddedAxisRange(0.0, hi_x + pad_x, /*include_zero=*/true);
-    const auto ry = chart_utils::paddedAxisRange(0.0, hi_y + pad_y, /*include_zero=*/true);
-    chart_utils::updateAxes(chart_, rx, ry, chart_utils::GridMode::Tab, /*snap_x=*/false, /*snap_y=*/false);
-}
-
-bool C0C1Chart::value_at_pixel(const QPoint& viewport_pos, double& c0, double& c1) const {
-    if (!chart_ || !view_)
-        return false;
-
-    auto axes_x = chart_->axes(Qt::Horizontal);
-    auto axes_y = chart_->axes(Qt::Vertical);
-    if (axes_x.isEmpty() || axes_y.isEmpty())
-        return false;
-    auto* ax = qobject_cast<QValueAxis*>(axes_x.constFirst());
-    auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
-    if (!ax || !ay)
-        return false;
-
-    // Viewport → chart item coords → linear map in plotArea (stable, no snap).
-    const QPointF scene_pt = view_->mapToScene(viewport_pos);
-    const QPointF chart_pt = chart_->mapFromScene(scene_pt);
-    const QRectF plot      = chart_->plotArea();
-    if (!plot.isValid() || plot.width() < 1.0 || plot.height() < 1.0)
-        return false;
-    if (!plot.contains(chart_pt))
-        return false;
-
-    const double tx = (chart_pt.x() - plot.left()) / plot.width();
-    const double ty = (plot.bottom() - chart_pt.y()) / plot.height(); // Y up in data
-    const double x  = ax->min() + tx * (ax->max() - ax->min());       // C₁
-    const double y  = ay->min() + ty * (ay->max() - ay->min());       // C₀
-    if (!std::isfinite(x) || !std::isfinite(y))
-        return false;
-
-    c1 = x;
-    c0 = y;
-    return true;
-}
-
-void C0C1Chart::handle_pointer(const QPoint& viewport_pos, bool force_emit) {
-    // One update per widget pixel — smooth free pick, no subpixel spam.
-    if (!force_emit && viewport_pos == last_pixel_)
-        return;
-    last_pixel_ = viewport_pos;
-
-    double c0 = 0.0;
-    double c1 = 0.0;
-    if (!value_at_pixel(viewport_pos, c0, c1))
-        return;
-
-    // Marker follows every new pixel.
-    setSelection(c0, c1);
-
-    // Emit / recalculate only when value coords actually changed (beyond ~½ pixel).
-    double eps0 = 0.0;
-    double eps1 = 0.0;
-    if (auto axes_x = chart_->axes(Qt::Horizontal); !axes_x.isEmpty()) {
-        if (auto* ax = qobject_cast<QValueAxis*>(axes_x.constFirst())) {
-            const double w = std::max(1.0, chart_->plotArea().width());
-            eps1           = 0.5 * (ax->max() - ax->min()) / w;
-        }
-    }
-    if (auto axes_y = chart_->axes(Qt::Vertical); !axes_y.isEmpty()) {
-        if (auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst())) {
-            const double h = std::max(1.0, chart_->plotArea().height());
-            eps0           = 0.5 * (ay->max() - ay->min()) / h;
-        }
-    }
-    if (!force_emit && nearly_same(c0, last_emit_c0_, eps0) && nearly_same(c1, last_emit_c1_, eps1))
-        return;
-
-    last_emit_c0_ = c0;
-    last_emit_c1_ = c1;
-
-    Sample s;
-    s.c0    = c0;
-    s.c1    = c1;
-    s.kp    = c1;
-    s.tu    = (c0 > 0.0 && c1 > 0.0) ? (c1 / c0) : 0.0;
-    s.omega = 0.0;
-    emit samplePicked(s);
-}
-
-bool C0C1Chart::eventFilter(QObject* watched, QEvent* event) {
-    if (watched != view_->viewport())
-        return QWidget::eventFilter(watched, event);
-
-    switch (event->type()) {
-        case QEvent::MouseButtonPress: {
-            auto* me = static_cast<QMouseEvent*>(event);
-            if (me->button() != Qt::LeftButton)
-                break;
-            double c0 = 0.0, c1 = 0.0;
-            if (!value_at_pixel(me->pos(), c0, c1))
-                return false;
-            dragging_   = true;
-            last_pixel_ = {-1, -1}; // force first sample
-            view_->viewport()->setCursor(Qt::CrossCursor);
-            view_->viewport()->grabMouse();
-            handle_pointer(me->pos(), /*force_emit=*/true);
-            return true;
-        }
-        case QEvent::MouseMove: {
-            if (!dragging_)
-                break;
-            auto* me = static_cast<QMouseEvent*>(event);
-            if (!(me->buttons() & Qt::LeftButton)) {
-                dragging_ = false;
-                view_->viewport()->releaseMouse();
-                view_->viewport()->unsetCursor();
-                break;
-            }
-            handle_pointer(me->pos(), /*force_emit=*/false);
-            return true;
-        }
-        case QEvent::MouseButtonRelease: {
-            auto* me = static_cast<QMouseEvent*>(event);
-            if (me->button() != Qt::LeftButton || !dragging_)
-                break;
-            dragging_ = false;
-            view_->viewport()->releaseMouse();
-            view_->viewport()->unsetCursor();
-            // Final sample at release (in case last move was filtered).
-            handle_pointer(me->pos(), /*force_emit=*/false);
-            return true;
-        }
-        case QEvent::Leave: {
-            if (!dragging_)
-                break;
-            // Keep drag if mouse grabbed; Leave can fire during grab on some platforms.
-            break;
-        }
-        default:
-            break;
-    }
-    return QWidget::eventFilter(watched, event);
+    restyle_pins();
 }

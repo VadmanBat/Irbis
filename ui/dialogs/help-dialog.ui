@@ -32,6 +32,14 @@
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="html">
+      <string>&lt;style&gt;p { text-align: justify; text-indent: 20px; margin-bottom: 10px; }&lt;/style&gt;
+&lt;p&gt;&lt;b&gt;ПИД-регулятор&lt;/b&gt; — механизм обратной связи для управления системами. Он корректирует управляющий сигнал в зависимости от отклонения текущего значения от заданного.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;K&lt;sub&gt;p&lt;/sub&gt;&lt;/b&gt; — сила реакции на ошибку; рост ускоряет систему, но может вызвать колебания.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;T&lt;sub&gt;u&lt;/sub&gt;&lt;/b&gt; — время интегрирования; уменьшение быстрее убирает статическую ошибку.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;T&lt;sub&gt;d&lt;/sub&gt;&lt;/b&gt; — время дифференцирования; демпфирует, но усиливает шум при больших значениях.&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;Важно!&lt;/b&gt; Настройка обычно итеративна и требует экспериментов.&lt;/p&gt;</string>
+     </property>
     </widget>
    </item>
    <item>
@@ -54,6 +62,9 @@
        <property name="text">
         <string>Понятно</string>
        </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
@@ -74,5 +85,12 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>HelpDialog</receiver>
+   <slot>accept()</slot>
+  </connection>
+ </connections>
 </ui>

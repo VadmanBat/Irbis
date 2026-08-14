@@ -8,6 +8,11 @@ void applyViewerGrid(QValueAxis* axis) {
         axes_detail::apply_viewer_grid(axis);
 }
 
+void applyViewerGrid(QValueAxis* axis, double lo, double hi) {
+    if (axis)
+        axes_detail::apply_viewer_grid(axis, lo, hi);
+}
+
 void applyViewerGrid(QChart* chart) {
     if (!chart)
         return;

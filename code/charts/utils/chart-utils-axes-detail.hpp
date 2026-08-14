@@ -104,16 +104,42 @@ inline void apply_tab_grid_snap(QValueAxis* axis) {
     force_grid_on(axis);
 }
 
-/// Viewer: refresh 1–2–5 tick step after pan/zoom (does not force grid on).
-inline void apply_viewer_grid(QValueAxis* axis) {
-    const double step = niceTickStep(axis->max() - axis->min(), kMajorTicks);
+/// Viewer: 1–2–5 step for the *target* window. Set ticks before expanding range,
+/// otherwise a leftover tiny interval + home span freezes Qt.
+inline void apply_viewer_grid(QValueAxis* axis, double lo, double hi) {
+    if (!axis)
+        return;
+    if (!std::isfinite(lo) || !std::isfinite(hi) || !(hi > lo))
+        return;
+
+    const double span = hi - lo;
+    double step       = niceTickStep(span, kMajorTicks);
+    if (!(step > 0.0) || !std::isfinite(step))
+        step = span;
+
+    // TicksDynamic walks from tickAnchor by step. Anchor 0 + tiny step far from
+    // the origin enumerates 10^n ticks and freezes Qt. Stay on the 0-lattice,
+    // but park the anchor at the first tick in/near the window.
+    double anchor = 0.0;
+    if (step > 0.0) {
+        const double steps_from_zero = lo / step;
+        constexpr double k_max_walk  = 64.0;
+        if (!std::isfinite(steps_from_zero) || std::abs(steps_from_zero) > k_max_walk) {
+            const double n = std::floor(lo / step);
+            anchor         = std::isfinite(n) ? n * step : lo;
+        }
+    }
+
     if (axis->tickType() != QValueAxis::TicksDynamic)
         axis->setTickType(QValueAxis::TicksDynamic);
-    if (axis->tickAnchor() != 0.0)
-        axis->setTickAnchor(0.0);
-    if (std::abs(axis->tickInterval() - step) > 1e-12 * std::max(1.0, step))
-        axis->setTickInterval(step);
+    axis->setTickAnchor(anchor);
+    axis->setTickInterval(step);
     ensure_minor_ticks(axis);
+}
+
+inline void apply_viewer_grid(QValueAxis* axis) {
+    if (axis)
+        apply_viewer_grid(axis, axis->min(), axis->max());
 }
 
 inline void apply_axis_style(QValueAxis* axis, GridMode mode, bool snap) {

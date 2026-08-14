@@ -87,12 +87,18 @@ void updateAxes(QChart* chart, const Pair& range_x, const Pair& range_y, GridMod
     {
         const QSignalBlocker bx(axis_x);
         const QSignalBlocker by(axis_y);
+        if (mode == GridMode::Viewer) {
+            axes_detail::apply_viewer_grid(axis_x, range_x.first, range_x.second);
+            axes_detail::apply_viewer_grid(axis_y, range_y.first, range_y.second);
+        }
         if (axis_x->min() != range_x.first || axis_x->max() != range_x.second)
             axis_x->setRange(range_x.first, range_x.second);
         if (axis_y->min() != range_y.first || axis_y->max() != range_y.second)
             axis_y->setRange(range_y.first, range_y.second);
-        axes_detail::apply_axis_style(axis_x, mode, snap_x);
-        axes_detail::apply_axis_style(axis_y, mode, snap_y);
+        if (mode != GridMode::Viewer) {
+            axes_detail::apply_axis_style(axis_x, mode, snap_x);
+            axes_detail::apply_axis_style(axis_y, mode, snap_y);
+        }
         const ChartTheme theme = currentTheme();
         applyAxisTheme(axis_x, theme);
         applyAxisTheme(axis_y, theme);
@@ -100,5 +106,6 @@ void updateAxes(QChart* chart, const Pair& range_x, const Pair& range_y, GridMod
 
     updateOriginGuides(chart, {axis_x->min(), axis_x->max()}, {axis_y->min(), axis_y->max()});
     axes_detail::attach_all_series(chart, axis_x, axis_y);
+    chart->update();
 }
 } // namespace chart_utils

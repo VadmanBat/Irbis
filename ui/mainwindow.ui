@@ -31,10 +31,52 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
+     <widget class="IdTab" name="idTab">
+      <attribute name="title">
+       <string>🔍  Идентификация</string>
+      </attribute>
+     </widget>
+     <widget class="AnalysisTab" name="analysisTab">
+      <attribute name="title">
+       <string>🔬  Анализ</string>
+      </attribute>
+     </widget>
+     <widget class="SynthesisTab" name="synthesisTab">
+      <attribute name="title">
+       <string>🧪  Синтез</string>
+      </attribute>
+     </widget>
+     <widget class="RimTab" name="rimTab">
+      <attribute name="title">
+       <string>⚙️  Настройка РИМ</string>
+      </attribute>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>IdTab</class>
+   <extends>QWidget</extends>
+   <header>code/tabs/id-tab.h</header>
+  </customwidget>
+  <customwidget>
+   <class>AnalysisTab</class>
+   <extends>QWidget</extends>
+   <header>code/tabs/analysis-tab.h</header>
+  </customwidget>
+  <customwidget>
+   <class>SynthesisTab</class>
+   <extends>QWidget</extends>
+   <header>code/tabs/synthesis-tab.h</header>
+  </customwidget>
+  <customwidget>
+   <class>RimTab</class>
+   <extends>QWidget</extends>
+   <header>code/tabs/rim-tab.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

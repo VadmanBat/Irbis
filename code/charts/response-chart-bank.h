@@ -128,6 +128,7 @@ public:
     void clearAll();
 
     [[nodiscard]] bool empty() const { return history_.empty(); }
+    [[nodiscard]] std::size_t seriesCount() const noexcept { return history_.size(); }
     [[nodiscard]] bool hasLastQuality() const noexcept { return has_last_quality_; }
     [[nodiscard]] const numina::QualityReport& lastQuality() const noexcept { return last_quality_; }
 };

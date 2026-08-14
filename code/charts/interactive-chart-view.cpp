@@ -1,5 +1,7 @@
 #include "code/charts/interactive-chart-view.h"
 
+#include <algorithm>
+#include <cmath>
 #include <QEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -76,11 +78,56 @@ void InteractiveChartView::setTool(Tool tool) {
     apply_tool_cursor();
 }
 
+void InteractiveChartView::clamp_axis_spans() {
+    auto clamp = [](QValueAxis* a) {
+        if (!a)
+            return;
+        const double lo = a->min();
+        const double hi = a->max();
+        if (!std::isfinite(lo) || !std::isfinite(hi))
+            return;
+        const double c     = 0.5 * (lo + hi);
+        const double min_s = std::max(1e-15, 1e-12 * std::max(1.0, std::abs(c)));
+        if (std::isfinite(c) && hi - lo >= min_s)
+            return;
+        const double mid = std::isfinite(c) ? c : 0.0;
+        a->setRange(mid - 0.5 * min_s, mid + 0.5 * min_s);
+    };
+    clamp(axis_x());
+    clamp(axis_y());
+}
+
+void InteractiveChartView::zoom_about(const QPointF& value, double factor) {
+    auto zoom_one = [&](QValueAxis* a, double center) {
+        if (!a || !(factor > 0.0) || !std::isfinite(center))
+            return;
+        const double lo = a->min();
+        const double hi = a->max();
+        if (!std::isfinite(lo) || !std::isfinite(hi) || !(hi > lo))
+            return;
+        const double span  = hi - lo;
+        const double min_s = std::max(1e-15, 1e-12 * std::max(1.0, std::abs(center)));
+        double new_span    = span / factor;
+        if (new_span < min_s)
+            new_span = min_s;
+        const double t      = (center - lo) / span;
+        const double new_lo = center - t * new_span;
+        const double new_hi = new_lo + new_span;
+        if (std::isfinite(new_lo) && std::isfinite(new_hi) && new_hi > new_lo) {
+            chart_utils::applyViewerGrid(a, new_lo, new_hi);
+            a->setRange(new_lo, new_hi);
+        }
+    };
+    zoom_one(axis_x(), value.x());
+    zoom_one(axis_y(), value.y());
+}
+
 void InteractiveChartView::sync_axes_after_view_change() {
     auto* ax = axis_x();
     auto* ay = axis_y();
     if (!ax || !ay)
         return;
+    clamp_axis_spans();
     // Tick lattice only — must not re-enable grid if user turned it off.
     chart_utils::applyViewerGrid(ax);
     chart_utils::applyViewerGrid(ay);
@@ -105,8 +152,7 @@ void InteractiveChartView::pan_by_pixels(int dx_px, int dy_px) {
 void InteractiveChartView::zoomInStep() {
     if (!chart())
         return;
-    // QChart::zoom(f): f > 1 zooms in, 0 < f < 1 zooms out.
-    chart()->zoom(1.25);
+    zoom_about(chart()->mapToValue(chart()->plotArea().center()), 1.25);
     sync_axes_after_view_change();
     emit viewChanged();
 }
@@ -114,7 +160,7 @@ void InteractiveChartView::zoomInStep() {
 void InteractiveChartView::zoomOutStep() {
     if (!chart())
         return;
-    chart()->zoom(0.8);
+    zoom_about(chart()->mapToValue(chart()->plotArea().center()), 0.8);
     sync_axes_after_view_change();
     emit viewChanged();
 }
@@ -122,6 +168,12 @@ void InteractiveChartView::zoomOutStep() {
 void InteractiveChartView::resetView(const chart_utils::Pair& home_x, const chart_utils::Pair& home_y) {
     if (!chart())
         return;
+    // Ticks for the home window first — zoomReset/setRange on a leftover tiny
+    // interval would paint 10^n grid lines and freeze.
+    if (auto* ax = axis_x())
+        chart_utils::applyViewerGrid(ax, home_x.first, home_x.second);
+    if (auto* ay = axis_y())
+        chart_utils::applyViewerGrid(ay, home_y.first, home_y.second);
     chart()->zoomReset();
     chart_utils::updateAxes(chart(), home_x, home_y, chart_utils::GridMode::Viewer, false, false);
     apply_axis_grid(chart(), grid_on_);
@@ -186,17 +238,14 @@ void InteractiveChartView::wheelEvent(QWheelEvent* event) {
         return;
     }
     const QPointF chart_pos = chart()->mapFromScene(mapToScene(event->position().toPoint()));
-    const QPointF before    = chart()->mapToValue(chart_pos);
+    const QPointF focus     = chart()->mapToValue(chart_pos);
+    if (!std::isfinite(focus.x()) || !std::isfinite(focus.y())) {
+        event->accept();
+        return;
+    }
     // Wheel up → zoom in (factor > 1); wheel down → zoom out.
     constexpr double k_step = 1.25;
-    chart()->zoom(event->angleDelta().y() > 0 ? k_step : 1.0 / k_step);
-    const QPointF after = chart()->mapToValue(chart_pos);
-    auto* ax            = axis_x();
-    auto* ay            = axis_y();
-    if (ax && ay) {
-        ax->setRange(ax->min() + (before.x() - after.x()), ax->max() + (before.x() - after.x()));
-        ay->setRange(ay->min() + (before.y() - after.y()), ay->max() + (before.y() - after.y()));
-    }
+    zoom_about(focus, event->angleDelta().y() > 0 ? k_step : 1.0 / k_step);
     sync_axes_after_view_change();
     emit viewChanged();
     event->accept();

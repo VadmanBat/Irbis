@@ -30,6 +30,8 @@ private:
     bool grid_on_{true};
 
     void apply_tool_cursor();
+    void clamp_axis_spans();
+    void zoom_about(const QPointF& value, double factor);
     void sync_axes_after_view_change();
     void pan_by_pixels(int dx_px, int dy_px);
     void apply_theme();

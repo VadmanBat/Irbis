@@ -1,6 +1,5 @@
 #pragma once
 
-#include "code/charts/response-chart-bank.h"
 #include "code/model/id-settings.hpp"
 #include "code/model/model-param.hpp"
 #include "code/widgets/regulation-widget.h"
@@ -33,7 +32,6 @@ private:
     Ui::IdTab* ui;
     TfDisplayWidget* display_{nullptr};
     RegulationWidget* metrics_{nullptr};
-    ResponseChartBank* charts_{nullptr};
     QMenu* charts_menu_{nullptr};
     ModelParam model_param_;
     IdSettings id_settings_;
@@ -45,7 +43,6 @@ private:
     bool has_data_{false};
 
     void install_custom_widgets();
-    void setup_metrics();
     void show_error(const QString& message);
     [[nodiscard]] bool load_step_file(const QString& path);
     [[nodiscard]] bool load_valve_signal_file(const QString& path);

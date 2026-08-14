@@ -65,7 +65,7 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 | `code/charts/utils/` | **Module:** `chart_utils`, nice axes, clone |
 | `code/series/` | Axis bounds aggregation (`AxisBounds`, `BoundsSet`) |
 | `code/model/` | POD settings (`ModelParam`, `IdSettings`) |
-| `code/control/` | (reserved; regulator coeffs → numina `makeRegulator`) |
+| `code/control/` | Thin adapter `regulator_design` (locus, Pi/Pid/Auto, Γ) |
 | `code/util/` | Parsing, formatting, TF builders |
 | `ui/` | Qt Designer forms (kebab-case), parallel to `code/` |
 | `data/` | QSS, fonts (copied next to exe on build) |
@@ -156,6 +156,7 @@ Visible panels: bounds from write. Hidden: `boundsOf*` only; series built on sho
 | t / ω | `niceX=false` | `dataAxisRange`, Fixed exact (no snap → ω stays off 0) |
 | value Y | `niceY=true` | `niceAxisRange` + snap lattice through 0 |
 | КЧХ X/Y | both nice | same: majors at …,−s,0,s,… so grid crosses origin |
+| C₀–C₁ | snap X/Y | 1–2–5 from 0; labels `%.4g`; shown only for П+И (без D); `+` pins selection with series color |
 
 Snap picks 1–2–5 step with **minimal** expansion (avoids old 160→200).  
 Guides `hor-line` / `ver-line` are not cloned into the viewer legend.
@@ -175,8 +176,9 @@ Per **cpp-my-style**: class implementations split into **~100–150 line** `.cpp
 | `InteractiveChartView` | `charts/interactive-chart-view.h/.cpp` |
 | `chart_utils` | `charts/utils/chart-utils.cpp` (+ `-axes`, `-series`, `-menu`, `*-detail.hpp`, `nice-axis`) |
 | `ResponseChartBank` | `charts/response-chart-bank.cpp` (+ `-data.cpp`) |
-| `C0C1Chart` | `charts/c0-c1-chart.h/.cpp` (РКЧХ locus + click) |
-| `IdTab` / `SynthesisTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`) |
+| `C0C1Chart` | `charts/c0-c1-chart.h` + `.cpp` / `-axes` / `-pointer` |
+| `regulator_design` | `control/regulator-design.hpp/.cpp` |
+| `IdTab` / `SynthesisTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`, synthesis `*-synth.cpp` / `*-face.cpp`) |
 
 When adding a large method: **new cpp unit**, not grow past ~150 lines.
 
@@ -213,9 +215,10 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | Axis styling / nice limits | `nice-axis.hpp`, `chart-utils` guides |
 | TF clipboard format | `widgets/tf-form/*` IO (`RegValve-TF-v1`) |
 | Identification algorithm | prefer **numina**; UI only in `id-tab-run` |
-| Auto-synthesis PI/PID (РКЧХ / Γ) | `SynthesisTab::autoSynthesize` + numina `RegulatorDesigner`; UI: `C0C1Chart`, φ, criterion, law, region |
+| Auto-synthesis PI/PID (РКЧХ / Γ) | `regulator_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` / `Wр` face (`*-face.cpp`), φ, criterion, law, region |
+| Slider range / intervals | `SliderSettingsDialog` from `RegParameter` ⚙ |
 | Global chrome / buttons | `data/styles/app.qss` |
-| Window shell / tabs list | `mainwindow.cpp` |
+| Window shell / tabs list | `ui/mainwindow.ui` + `mainwindow.cpp` (styles, fonts) |
 | Chart zoom window | `dialogs/chart-viewer/*`, `charts/interactive-chart-view.*` |
 
 ---

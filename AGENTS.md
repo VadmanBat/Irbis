@@ -16,7 +16,7 @@ Apply user skills when editing C++/Qt:
 
 ## Folder layout
 
-Domain folders (`widgets/`, `charts/`, `dialogs/`, `tabs/`).  
+Domain folders (`widgets/`, `charts/`, `dialogs/`, `tabs/`, `control/`).  
 **Multi-file modules** live in subfolders (not deeper nesting):
 
 | Module | Path |
@@ -24,13 +24,14 @@ Domain folders (`widgets/`, `charts/`, `dialogs/`, `tabs/`).
 | `TranFuncForm` | `code/widgets/tf-form/` |
 | `chart_utils` | `code/charts/utils/` |
 | `ChartViewerWindow` | `code/dialogs/chart-viewer/` |
+| `regulator_design` | `code/control/` |
 
 Single-file classes stay flat in the domain folder.
 
 ## Math vs UI
 
-- **numina** = transfer functions, responses, identification, (future) regulator design  
-- **RegValve** = Qt UI + thin adapters (`tf_builder`, charts)
+- **numina** = transfer functions, responses, identification, regulator design  
+- **RegValve** = Qt UI + thin adapters (`tf_builder`, `regulator_design`, charts)
 
 Do not reimplement poly/TF math in the app.
 
