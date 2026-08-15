@@ -63,7 +63,7 @@ bool save_svg(QChartView* view, const QString& path) {
     generator.setViewBox(QRect(0, 0, size.width(), size.height()));
     if (QChart* chart = view->chart())
         generator.setTitle(chart->title());
-    generator.setDescription(CHART_TR("График RegValve"));
+    generator.setDescription(CHART_TR("График Irbis"));
 
     QPainter painter(&generator);
     if (!painter.isActive())

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.28)
 # Before project()/Qt AUTOMOC: fix MSYS2 moc DLL search (0xC0000135 without ucrt64/bin).
 include("${CMAKE_CURRENT_LIST_DIR}/cmake/msys-qt-env.cmake")
 
-project(RegValve VERSION 1.0 LANGUAGES CXX)
+project(irbis VERSION 1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -55,17 +55,17 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # Runtime assets next to the executable (cwd when running from CLion is often the build dir).
 # MainWindow looks for: data/styles/…, data/fonts/… and fallback styles/…
-set(REGVALVE_DATA_DIR "${CMAKE_SOURCE_DIR}/data")
-if (EXISTS "${REGVALVE_DATA_DIR}")
+set(IRBIS_DATA_DIR "${CMAKE_SOURCE_DIR}/data")
+if (EXISTS "${IRBIS_DATA_DIR}")
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/data"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/styles"
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${REGVALVE_DATA_DIR}"
+                "${IRBIS_DATA_DIR}"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/data"
             COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${REGVALVE_DATA_DIR}/styles"
+                "${IRBIS_DATA_DIR}/styles"
                 "$<TARGET_FILE_DIR:${PROJECT_NAME}>/styles"
             COMMENT "Copying data/ (styles, fonts) next to ${PROJECT_NAME}"
             VERBATIM
@@ -79,8 +79,8 @@ if (CCACHE_FOUND)
 endif ()
 
 # Pure logic tests (no Qt GUI) — nice axis rounding, etc.
-option(REGVALVE_BUILD_TESTS "Build unit tests (nice-axis, …)" ON)
-if (REGVALVE_BUILD_TESTS)
+option(IRBIS_BUILD_TESTS "Build unit tests (nice-axis, …)" ON)
+if (IRBIS_BUILD_TESTS)
     enable_testing()
     add_executable(nice_axis_test tests/nice-axis-test.cpp)
     target_include_directories(nice_axis_test PRIVATE ${CMAKE_SOURCE_DIR})

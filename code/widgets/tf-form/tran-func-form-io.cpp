@@ -45,7 +45,7 @@ QString TranFuncForm::exportText() const {
         human += QStringLiteral(" · e^(-%1 p)").arg(num_format::formatFull(tau));
 
     return QStringLiteral(
-               "RegValve-TF-v1\n"
+               "Irbis-TF-v1\n"
                "num: %1\n"
                "den: %2\n"
                "tau: %3\n"
@@ -64,7 +64,8 @@ bool TranFuncForm::importText(const QString& text) {
 
     for (QString line : lines) {
         line = line.trimmed();
-        if (line.startsWith(QStringLiteral("RegValve-TF-v1"), Qt::CaseInsensitive)) {
+        if (line.startsWith(QStringLiteral("Irbis-TF-v1"), Qt::CaseInsensitive) ||
+            line.startsWith(QStringLiteral("RegValve-TF-v1"), Qt::CaseInsensitive)) {
             has_header = true;
             continue;
         }
@@ -107,7 +108,7 @@ void TranFuncForm::copyToClipboard() {
 void TranFuncForm::pasteFromClipboard() {
     if (!importText(QApplication::clipboard()->text())) {
         QMessageBox::information(this, tr("Вставка ПФ"),
-                                 tr("В буфере нет данных формата RegValve-TF-v1.\n"
+                                 tr("В буфере нет данных формата Irbis-TF-v1.\n"
                                     "Скопируйте ПФ кнопкой 📋 на вкладке «Анализ» или «Синтез»."));
         return;
     }

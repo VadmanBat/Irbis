@@ -31,7 +31,7 @@ Single-file classes stay flat in the domain folder.
 ## Math vs UI
 
 - **numina** = transfer functions, responses, identification, controller design  
-- **RegValve** = Qt UI + thin adapters (`tf_builder`, `controller_design`, charts)
+- **Irbis** = Qt UI + thin adapters (`tf_builder`, `controller_design`, charts)
 
 Do not reimplement poly/TF math in the app.
 
@@ -41,4 +41,4 @@ New sources → **`cmake/source-files.cmake`** (paths under module folders).
 
 ## Build tip
 
-If link fails with `Permission denied` on `RegValve.exe`, stop the running app and rebuild.
+If link fails with `Permission denied` on `Irbis.exe`, stop the running app and rebuild.

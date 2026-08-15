@@ -60,7 +60,7 @@ public:
 
     /// Machine + human-readable text for clipboard / report.
     [[nodiscard]] QString exportText() const;
-    /// Apply from clipboard text (RegValve-TF-v1). Returns false if format unknown.
+    /// Apply from clipboard text (Irbis-TF-v1, also reads legacy RegValve-TF-v1).
     bool importText(const QString& text);
 
     void setTransferFunction(const numina::TransferFunction* tf);

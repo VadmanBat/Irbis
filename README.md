@@ -1,4 +1,4 @@
-# RegValve
+# Irbis
 
 Desktop-приложение (Qt 6) для анализа передаточных функций и ручной настройки регулятора.  
 Математика — внешняя библиотека **[numina](https://github.com/VadmanBat/numina)**; UI — Qt Designer (`.ui`).

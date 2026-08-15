@@ -1,5 +1,5 @@
 // Pure unit tests for chart_utils::niceNumber / niceAxisRange (no Qt).
-// Build: see CMakeLists option REGVALVE_BUILD_TESTS.
+// Build: see CMakeLists option IRBIS_BUILD_TESTS.
 
 #include "code/charts/utils/nice-axis.hpp"
 

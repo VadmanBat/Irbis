@@ -138,7 +138,7 @@ QString TfDisplayWidget::export_text() const {
     for (double v : den_)
         den_parts << num_format::formatFull(v);
     return QStringLiteral(
-               "RegValve-TF-v1\n"
+               "Irbis-TF-v1\n"
                "num: %1\n"
                "den: %2\n"
                "tau: %3\n"

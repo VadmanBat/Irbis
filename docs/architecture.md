@@ -1,4 +1,4 @@
-# Architecture — RegValve (for Grok Build)
+# Architecture — Irbis (for Grok Build)
 
 This document is the **map of the codebase** for future AI/human work: layers, ownership,
 where to change what, and coding conventions (skills).
@@ -9,7 +9,7 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 
 ## 1. Purpose
 
-**RegValve** is a Qt 6 desktop app for control-engineering workflows:
+**Irbis** is a Qt 6 desktop app for control-engineering workflows:
 
 1. **Identification** — experimental data → plant TF (Simoyu / Duhamel + optional τ)
 2. **Analysis** — plant TF → time/frequency responses + quality metrics
@@ -17,7 +17,7 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 4. **RIM / RKCH** — planned (placeholder tab / modes)
 
 **Math** lives in external static library **[numina](https://github.com/VadmanBat/numina)**.  
-**RegValve** is the UI + thin adapters (builders, factories, chart presentation).
+**Irbis** is the UI + thin adapters (builders, factories, chart presentation).
 
 ---
 
@@ -213,7 +213,7 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | New controller type | numina `TransferFunction::makeController`, synthesis UI |
 | New chart type | `ResponseChartBank`, `ChartVisibility`, menu labels |
 | Axis styling / nice limits | `nice-axis.hpp`, `chart-utils` guides |
-| TF clipboard format | `widgets/tf-form/*` IO (`RegValve-TF-v1`) |
+| TF clipboard format | `widgets/tf-form/*` IO (`Irbis-TF-v1`, reads legacy `RegValve-TF-v1`) |
 | Identification algorithm | prefer **numina**; UI only in `id-tab-run` |
 | Auto-synthesis PI/PID (РКЧХ / Γ) | `controller_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` / `Wр` face (`*-face.cpp`), φ, criterion, law, region |
 | Slider range / intervals | `SliderSettingsDialog` from `RegParameter` ⚙ |
@@ -230,7 +230,7 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 - MSYS2 UCRT64 helpers: `cmake/msys-qt-env.cmake`
 - Runtime assets: `data/` copied next to exe (POST_BUILD)
 
-Tests (optional): `REGVALVE_BUILD_TESTS` → `nice_axis_test` (pure math, no Qt UI).
+Tests (optional): `IRBIS_BUILD_TESTS` → `nice_axis_test` (pure math, no Qt UI).
 
 ---
 
@@ -250,7 +250,7 @@ Tests (optional): `REGVALVE_BUILD_TESTS` → `nice_axis_test` (pure math, no Qt 
 3. Keep **tabs thin**: move algorithms to `*-run.cpp` / `util/` / numina.
 4. Split large new code into **multiple kebab-case `.cpp`** (~100–150 lines).
 5. Update `cmake/source-files.cmake` when adding sources.
-6. After chart/TF behavior changes, rebuild Release kit (watch for locked `RegValve.exe`).
+6. After chart/TF behavior changes, rebuild Release kit (watch for locked `Irbis.exe`).
 7. Do not expand scope into UX redesign unless asked — architecture here is structural.
 
 ---
