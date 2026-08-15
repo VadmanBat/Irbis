@@ -1,11 +1,11 @@
 #pragma once
 
-#include "numina/classes/control/regulator-designer.h"
+#include "numina/classes/control/controller-designer.h"
 
 #include <vector>
 
-namespace regulator_design {
-using Designer  = numina::RegulatorDesigner;
+namespace controller_design {
+using Designer  = numina::ControllerDesigner;
 using Spec      = Designer::Spec;
 using Design    = Designer::Design;
 using Law       = Designer::Law;

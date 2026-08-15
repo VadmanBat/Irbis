@@ -73,7 +73,7 @@ void SynthesisTab::install_custom_widgets() {
 
     parameters_ = {
         new RegParameter(QStringLiteral("K<sub>p</sub>"), 0.01, 2000, 0.01, 3, this),
-        new RegParameter(QStringLiteral("T<sub>u</sub>"), 0.01, 2000, 1, 120, this),
+        new RegParameter(QStringLiteral("T<sub>i</sub>"), 0.01, 2000, 1, 120, this),
         new RegParameter(QStringLiteral("T<sub>d</sub>"), 0.01, 2000, 1, 60, this),
     };
     parameters_[0]->setValue(1);
@@ -137,13 +137,13 @@ void SynthesisTab::openHelp() {
 }
 
 void SynthesisTab::addTransferFunction() {
-    apply_current_regulator(false);
+    apply_current_controller(false);
 }
 
 void SynthesisTab::replaceTransferFunction() {
     if (ui->charts->empty())
         return;
-    apply_current_regulator(true);
+    apply_current_controller(true);
 }
 
 void SynthesisTab::clearCharts() {

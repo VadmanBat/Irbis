@@ -9,7 +9,7 @@
 #include <utility>
 
 namespace {
-QString regulator_title(bool p_on, bool i_on, bool d_on, double kp, double tu, double td) {
+QString controller_title(bool p_on, bool i_on, bool d_on, double kp, double ti, double td) {
     const int id = static_cast<int>(p_on) + 2 * static_cast<int>(i_on) + 4 * static_cast<int>(d_on);
     std::ostringstream stream;
     stream << std::fixed;
@@ -22,10 +22,10 @@ QString regulator_title(bool p_on, bool i_on, bool d_on, double kp, double tu, d
             stream << "P(" << kp << ")";
             break;
         case 2:
-            stream << "I(" << tu << ")";
+            stream << "I(" << ti << ")";
             break;
         case 3:
-            stream << "PI(" << kp << ", " << tu << ")";
+            stream << "PI(" << kp << ", " << ti << ")";
             break;
         case 4:
             stream << "D(" << td << ")";
@@ -34,10 +34,10 @@ QString regulator_title(bool p_on, bool i_on, bool d_on, double kp, double tu, d
             stream << "PD(" << kp << ", " << td << ")";
             break;
         case 6:
-            stream << "ID(" << tu << ", " << td << ")";
+            stream << "ID(" << ti << ", " << td << ")";
             break;
         case 7:
-            stream << "PID(" << kp << ", " << tu << ", " << td << ")";
+            stream << "PID(" << kp << ", " << ti << ", " << td << ")";
             break;
         default:
             stream << "1";
@@ -88,8 +88,8 @@ void SynthesisTab::openSettings() {
     }
 }
 
-numina::RegulatorDesigner::Criterion SynthesisTab::selected_criterion() const noexcept {
-    using C = numina::RegulatorDesigner::Criterion;
+numina::ControllerDesigner::Criterion SynthesisTab::selected_criterion() const noexcept {
+    using C = numina::ControllerDesigner::Criterion;
     switch (ui->criterionCombo->currentIndex()) {
         case 1:
             return C::Ikk;
@@ -100,8 +100,8 @@ numina::RegulatorDesigner::Criterion SynthesisTab::selected_criterion() const no
     }
 }
 
-numina::RegulatorDesigner::Law SynthesisTab::selected_law() const noexcept {
-    using L = numina::RegulatorDesigner::Law;
+numina::ControllerDesigner::Law SynthesisTab::selected_law() const noexcept {
+    using L = numina::ControllerDesigner::Law;
     switch (ui->lawCombo->currentIndex()) {
         case 1:
             return L::Pid;
@@ -112,8 +112,8 @@ numina::RegulatorDesigner::Law SynthesisTab::selected_law() const noexcept {
     }
 }
 
-numina::RegulatorDesigner::Region SynthesisTab::selected_region() const noexcept {
-    using R = numina::RegulatorDesigner::Region;
+numina::ControllerDesigner::Region SynthesisTab::selected_region() const noexcept {
+    using R = numina::ControllerDesigner::Region;
     return ui->regionCombo->currentIndex() == 1 ? R::Gamma : R::Rkch;
 }
 
@@ -128,7 +128,7 @@ bool SynthesisTab::build_plant(numina::TransferFunction& out) {
     return true;
 }
 
-void SynthesisTab::apply_current_regulator(bool replace_last) {
+void SynthesisTab::apply_current_controller(bool replace_last) {
     update_c0c1_visibility();
     auto plant_num = form_->numerator();
     auto plant_den = form_->denominator();
@@ -139,21 +139,21 @@ void SynthesisTab::apply_current_regulator(bool replace_last) {
     const bool i_on = parameters_[1]->enabled();
     const bool d_on = parameters_[2]->enabled();
     const double kp = parameters_[0]->value();
-    const double tu = parameters_[1]->value();
+    const double ti = parameters_[1]->value();
     const double td = parameters_[2]->value();
-    auto [reg_num, reg_den] =
-        numina::TransferFunction::makeRegulator(p_on ? kp : -1.0, i_on ? tu : -1.0, d_on ? td : -1.0);
+    auto [ctrl_num, ctrl_den] =
+        numina::TransferFunction::makeController(p_on ? kp : -1.0, i_on ? ti : -1.0, d_on ? td : -1.0);
 
     try {
         const double tau = form_->delayTime();
         const int order  = model_param_.approxOrder;
         plant_tf_        = tf_builder::plant(plant_num, plant_den, tau, order);
         current_tf_ =
-            tf_builder::closedLoop(std::move(plant_num), std::move(plant_den), std::move(reg_num).extractCoeffs(),
-                                   std::move(reg_den).extractCoeffs(), tau, order);
+            tf_builder::closedLoop(std::move(plant_num), std::move(plant_den), std::move(ctrl_num).extractCoeffs(),
+                                   std::move(ctrl_den).extractCoeffs(), tau, order);
         form_->setTransferFunction(&plant_tf_);
 
-        const QString title  = regulator_title(p_on, i_on, d_on, kp, tu, td);
+        const QString title  = controller_title(p_on, i_on, d_on, kp, ti, td);
         const bool had       = !ui->charts->empty();
         const bool appending = !(replace_last && had);
         if (!appending)

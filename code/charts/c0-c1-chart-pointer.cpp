@@ -76,7 +76,7 @@ void C0C1Chart::handle_pointer(const QPoint& viewport_pos, bool force_emit) {
     s.c0    = c0;
     s.c1    = c1;
     s.kp    = c1;
-    s.tu    = (c0 > 0.0 && c1 > 0.0) ? (c1 / c0) : 0.0;
+    s.ti    = (c0 > 0.0 && c1 > 0.0) ? (c1 / c0) : 0.0;
     s.omega = 0.0;
     emit samplePicked(s);
 }

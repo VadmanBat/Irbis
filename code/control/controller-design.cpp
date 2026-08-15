@@ -1,8 +1,8 @@
-#include "code/control/regulator-design.hpp"
+#include "code/control/controller-design.hpp"
 
 #include <cmath>
 
-namespace regulator_design {
+namespace controller_design {
 bool usesPidFace(const Designer& des, const Law law, const Designer::Type w_hi_hint) noexcept {
     if (law == Law::Pid)
         return true;

@@ -25,6 +25,9 @@ int main(int argc, char* argv[]) {
     return QApplication::exec();
 }
 /*
+ * 1 / (1 + 10p + 100p^2) tay = 5 phi = 99
+ *
+ *
 RegValve-TF-v1
 num: 2.5
 den: 12000 1600 70 1

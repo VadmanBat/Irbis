@@ -26,7 +26,7 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-face.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/rim-tab.cpp
 
-        ${CMAKE_SOURCE_DIR}/code/control/regulator-design.cpp
+        ${CMAKE_SOURCE_DIR}/code/control/controller-design.cpp
 
         ${CMAKE_SOURCE_DIR}/code/dialogs/mod-par-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/id-settings-dialog.cpp

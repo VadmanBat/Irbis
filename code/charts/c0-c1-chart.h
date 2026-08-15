@@ -29,7 +29,7 @@ public:
         double c1{};
         double c2{};
         double kp{};
-        double tu{};
+        double ti{};
         double td{};
     };
 
@@ -39,7 +39,7 @@ public:
         double c0{};
         double c1{};
         double kp{};
-        double tu{};
+        double ti{};
         double omega{};
         QString label;
     };

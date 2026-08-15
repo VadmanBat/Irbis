@@ -598,7 +598,7 @@
                  <item row="0" column="0">
                   <widget class="QLabel" name="faceC0Name">
                    <property name="toolTip">
-                    <string>C₀ = Kp / Tu</string>
+                    <string>C₀ = Kp / Ti</string>
                    </property>
                    <property name="text">
                     <string>C&lt;sub&gt;0&lt;/sub&gt;</string>

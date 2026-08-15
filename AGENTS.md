@@ -24,14 +24,14 @@ Domain folders (`widgets/`, `charts/`, `dialogs/`, `tabs/`, `control/`).
 | `TranFuncForm` | `code/widgets/tf-form/` |
 | `chart_utils` | `code/charts/utils/` |
 | `ChartViewerWindow` | `code/dialogs/chart-viewer/` |
-| `regulator_design` | `code/control/` |
+| `controller_design` | `code/control/` |
 
 Single-file classes stay flat in the domain folder.
 
 ## Math vs UI
 
-- **numina** = transfer functions, responses, identification, regulator design  
-- **RegValve** = Qt UI + thin adapters (`tf_builder`, `regulator_design`, charts)
+- **numina** = transfer functions, responses, identification, controller design  
+- **RegValve** = Qt UI + thin adapters (`tf_builder`, `controller_design`, charts)
 
 Do not reimplement poly/TF math in the app.
 

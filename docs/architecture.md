@@ -65,7 +65,7 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 | `code/charts/utils/` | **Module:** `chart_utils`, nice axes, clone |
 | `code/series/` | Axis bounds aggregation (`AxisBounds`, `BoundsSet`) |
 | `code/model/` | POD settings (`ModelParam`, `IdSettings`) |
-| `code/control/` | Thin adapter `regulator_design` (locus, Pi/Pid/Auto, Γ) |
+| `code/control/` | Thin adapter `controller_design` (locus, Pi/Pid/Auto, Γ) |
 | `code/util/` | Parsing, formatting, TF builders |
 | `ui/` | Qt Designer forms (kebab-case), parallel to `code/` |
 | `data/` | QSS, fonts (copied next to exe on build) |
@@ -118,7 +118,7 @@ UI coefficients (TranFuncForm)
 Closed loop (synthesis):
 
 ```
-plant + TransferFunction::makeRegulator(Kp,Tu,Td)
+plant + TransferFunction::makeController(Kp,Ti,Td)
     → tf_builder::closedLoop(...) / TransferFunction::closed
 ```
 
@@ -177,7 +177,7 @@ Per **cpp-my-style**: class implementations split into **~100–150 line** `.cpp
 | `chart_utils` | `charts/utils/chart-utils.cpp` (+ `-axes`, `-series`, `-menu`, `*-detail.hpp`, `nice-axis`) |
 | `ResponseChartBank` | `charts/response-chart-bank.cpp` (+ `-data.cpp`) |
 | `C0C1Chart` | `charts/c0-c1-chart.h` + `.cpp` / `-axes` / `-pointer` |
-| `regulator_design` | `control/regulator-design.hpp/.cpp` |
+| `controller_design` | `control/controller-design.hpp/.cpp` |
 | `IdTab` / `SynthesisTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`, synthesis `*-synth.cpp` / `*-face.cpp`) |
 
 When adding a large method: **new cpp unit**, not grow past ~150 lines.
@@ -210,12 +210,12 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | Task | Touch |
 |------|--------|
 | New simulation parameter | `ModelParam`, `mod-par-dialog.ui` + `.cpp`, `tf_builder` |
-| New regulator type | numina `TransferFunction::makeRegulator`, synthesis UI |
+| New controller type | numina `TransferFunction::makeController`, synthesis UI |
 | New chart type | `ResponseChartBank`, `ChartVisibility`, menu labels |
 | Axis styling / nice limits | `nice-axis.hpp`, `chart-utils` guides |
 | TF clipboard format | `widgets/tf-form/*` IO (`RegValve-TF-v1`) |
 | Identification algorithm | prefer **numina**; UI only in `id-tab-run` |
-| Auto-synthesis PI/PID (РКЧХ / Γ) | `regulator_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` / `Wр` face (`*-face.cpp`), φ, criterion, law, region |
+| Auto-synthesis PI/PID (РКЧХ / Γ) | `controller_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` / `Wр` face (`*-face.cpp`), φ, criterion, law, region |
 | Slider range / intervals | `SliderSettingsDialog` from `RegParameter` ⚙ |
 | Global chrome / buttons | `data/styles/app.qss` |
 | Window shell / tabs list | `ui/mainwindow.ui` + `mainwindow.cpp` (styles, fonts) |

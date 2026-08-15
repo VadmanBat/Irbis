@@ -80,7 +80,7 @@ void SynthesisTab::update_regulator_face() {
     const bool i_on = parameters_[1]->enabled();
     const bool d_on = parameters_[2]->enabled();
     const double kp = parameters_[0]->value();
-    const double tu = parameters_[1]->value();
+    const double ti = parameters_[1]->value();
     const double td = parameters_[2]->value();
     const int id    = static_cast<int>(p_on) + 2 * static_cast<int>(i_on) + 4 * static_cast<int>(d_on);
 
@@ -93,12 +93,12 @@ void SynthesisTab::update_regulator_face() {
             ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("K<sub>p</sub>")));
             break;
         case 2:
-            ui->faceFormulaLabel->setText(wr_eq_frac(QStringLiteral("1"), QStringLiteral("T<sub>u</sub> p"), bar));
+            ui->faceFormulaLabel->setText(wr_eq_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar));
             break;
         case 3:
             ui->faceFormulaLabel->setText(
                 html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = K<sub>p</sub>(1 + ")) +
-                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>u</sub> p"), bar)) +
+                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar)) +
                                      html_cell(QStringLiteral(")")))));
             break;
         case 4:
@@ -110,13 +110,13 @@ void SynthesisTab::update_regulator_face() {
         case 6:
             ui->faceFormulaLabel->setText(
                 html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = ")) +
-                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>u</sub> p"), bar)) +
+                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar)) +
                                      html_cell(QStringLiteral(" + T<sub>d</sub> p")))));
             break;
         case 7:
             ui->faceFormulaLabel->setText(
                 html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = K<sub>p</sub>(1 + ")) +
-                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>u</sub> p"), bar)) +
+                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar)) +
                                      html_cell(QStringLiteral(" + T<sub>d</sub> p)")))));
             break;
         default:
@@ -124,9 +124,9 @@ void SynthesisTab::update_regulator_face() {
             break;
     }
 
-    const bool c0_on = p_on && i_on && tu > 0.0;
+    const bool c0_on = i_on && ti > 0.0;
     const bool c1_on = p_on;
-    const bool c2_on = p_on && d_on;
+    const bool c2_on = d_on;
 
     QStringList num_terms;
     if (c0_on)
@@ -156,7 +156,7 @@ void SynthesisTab::update_regulator_face() {
     }
 
     auto coeff = [](bool on, double v) { return on && std::isfinite(v) ? num_format::format(v) : QStringLiteral("—"); };
-    ui->faceC0Value->setText(coeff(c0_on, kp / tu));
+    ui->faceC0Value->setText(coeff(c0_on, (p_on ? kp : 1.0) / ti));
     ui->faceC1Value->setText(coeff(c1_on, kp));
-    ui->faceC2Value->setText(coeff(c2_on, kp * td));
+    ui->faceC2Value->setText(coeff(c2_on, (p_on ? kp : 1.0) * td));
 }
