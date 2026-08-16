@@ -89,123 +89,71 @@ inline QColor bg_for(Kind kind) {
     return QColor(0x42, 0x42, 0x42);
 }
 
-/// Snow leopard (ирбис) face for the application icon.
+/// Snow leopard (ирбис) face — fallback if the baked .ico is missing.
+/// Designed to read at 16 px: dark tile, large head, glowing eyes, few spots.
 inline void paint_irbis(QPainter& p, int size) {
     const qreal s = size / 32.0;
 
-    // Cold mountain sky tile.
-    {
-        QLinearGradient g(0, 0, 0, size);
-        g.setColorAt(0.0, QColor(0x6b, 0x7d, 0x8c));
-        g.setColorAt(1.0, QColor(0x3d, 0x4a, 0x56));
-        p.setPen(Qt::NoPen);
-        p.setBrush(g);
-        p.drawRoundedRect(QRectF(0.4 * s, 0.4 * s, 31.2 * s, 31.2 * s), 6.5 * s, 6.5 * s);
-    }
-
-    // Head fur (soft gray-white).
-    const QColor fur(0xe8, 0xe6, 0xe0);
-    const QColor fur_shadow(0xc8, 0xc4, 0xba);
-    const QColor spot(0x3a, 0x36, 0x32);
-    const QColor nose(0x2a, 0x24, 0x22);
-    const QColor eye_rim(0x1a, 0x18, 0x16);
-    const QColor eye_iris(0xc8, 0xd4, 0x3a); // pale chartreuse, typical for irbis
-    const QColor eye_shine(0xff, 0xff, 0xff);
-
-    // Ears (behind head slightly).
-    p.setBrush(fur);
-    p.setPen(QPen(fur_shadow, 0.6 * s));
-    {
-        QPolygonF left_ear;
-        left_ear << QPointF(7 * s, 14 * s) << QPointF(5 * s, 5 * s) << QPointF(13 * s, 9 * s);
-        p.drawPolygon(left_ear);
-        QPolygonF right_ear;
-        right_ear << QPointF(25 * s, 14 * s) << QPointF(27 * s, 5 * s) << QPointF(19 * s, 9 * s);
-        p.drawPolygon(right_ear);
-    }
-    // Ear inner (rosy-gray) + dark tips.
     p.setPen(Qt::NoPen);
-    p.setBrush(QColor(0xb8, 0xa0, 0x98));
-    p.drawPolygon(QPolygonF() << QPointF(8.2 * s, 12.5 * s) << QPointF(7 * s, 7.5 * s) << QPointF(11.5 * s, 9.5 * s));
-    p.drawPolygon(QPolygonF() << QPointF(23.8 * s, 12.5 * s) << QPointF(25 * s, 7.5 * s) << QPointF(20.5 * s, 9.5 * s));
-    p.setBrush(spot);
-    p.drawEllipse(QPointF(6.5 * s, 6.2 * s), 1.3 * s, 1.3 * s);
-    p.drawEllipse(QPointF(25.5 * s, 6.2 * s), 1.3 * s, 1.3 * s);
+    p.setBrush(QColor(0x12, 0x1c, 0x30));
+    p.drawRoundedRect(QRectF(0.2 * s, 0.2 * s, 31.6 * s, 31.6 * s), 6.0 * s, 6.0 * s);
 
-    // Head.
+    const QColor fur(0xec, 0xea, 0xe4);
+    const QColor fur_shadow(0xc4, 0xc0, 0xb6);
+    const QColor spot(0x1c, 0x18, 0x16);
+    const QColor nose(0x2a, 0x24, 0x22);
+    const QColor eye_rim(0x14, 0x12, 0x10);
+    const QColor eye_iris(0xdc, 0xf0, 0x22);
+    const QColor eye_glow(0xf0, 0xff, 0x6a);
+
+    p.setBrush(fur);
+    p.drawPolygon(QPolygonF() << QPointF(6.5 * s, 13 * s) << QPointF(3.5 * s, 3.5 * s) << QPointF(13 * s, 7.5 * s));
+    p.drawPolygon(QPolygonF() << QPointF(25.5 * s, 13 * s) << QPointF(28.5 * s, 3.5 * s) << QPointF(19 * s, 7.5 * s));
+    p.setBrush(spot);
+    p.drawPolygon(QPolygonF() << QPointF(7.2 * s, 11 * s) << QPointF(5.2 * s, 5.2 * s) << QPointF(11 * s, 8 * s));
+    p.drawPolygon(QPolygonF() << QPointF(24.8 * s, 11 * s) << QPointF(26.8 * s, 5.2 * s) << QPointF(21 * s, 8 * s));
+
     {
-        QRadialGradient hg(QPointF(16 * s, 15 * s), 12 * s);
+        QRadialGradient hg(QPointF(16 * s, 16 * s), 14 * s);
         hg.setColorAt(0.0, fur);
         hg.setColorAt(1.0, fur_shadow);
         p.setBrush(hg);
-        p.setPen(QPen(QColor(0x9a, 0x96, 0x8e), 0.5 * s));
-        p.drawEllipse(QPointF(16 * s, 17 * s), 11.2 * s, 10.2 * s);
+        p.drawEllipse(QPointF(16 * s, 17.5 * s), 13.0 * s, 11.6 * s);
     }
 
-    // Rosette spots (simplified — readable at 16–32 px).
-    p.setPen(Qt::NoPen);
     p.setBrush(spot);
-    const QPointF spots[] = {
-        {9.5 * s, 14 * s},  {22.5 * s, 14 * s},  {11 * s, 20 * s},     {21 * s, 20 * s},
-        {16 * s, 11.5 * s}, {8.5 * s, 17.5 * s}, {23.5 * s, 17.5 * s},
-    };
-    for (const QPointF& c : spots)
-        p.drawEllipse(c, 1.15 * s, 0.95 * s);
-    // Smaller secondary flecks.
-    p.setBrush(QColor(0x55, 0x50, 0x4a));
-    p.drawEllipse(QPointF(13 * s, 13 * s), 0.55 * s, 0.45 * s);
-    p.drawEllipse(QPointF(19 * s, 13 * s), 0.55 * s, 0.45 * s);
-    p.drawEllipse(QPointF(14.5 * s, 22 * s), 0.5 * s, 0.4 * s);
-    p.drawEllipse(QPointF(17.5 * s, 22 * s), 0.5 * s, 0.4 * s);
+    for (const QPointF& c : {QPointF(8.5 * s, 16 * s), QPointF(23.5 * s, 16 * s), QPointF(16 * s, 10.5 * s),
+                             QPointF(10 * s, 22 * s), QPointF(22 * s, 22 * s)})
+        p.drawEllipse(c, 1.45 * s, 1.2 * s);
 
-    // Eyes.
     auto draw_eye = [&](qreal cx) {
+        QRadialGradient glow(QPointF(cx * s, 16.0 * s), 4.2 * s);
+        glow.setColorAt(0.0, QColor(0xf4, 0xff, 0x70, 180));
+        glow.setColorAt(1.0, QColor(0xf4, 0xff, 0x70, 0));
+        p.setBrush(glow);
+        p.drawEllipse(QPointF(cx * s, 16.0 * s), 4.2 * s, 3.6 * s);
         p.setBrush(eye_rim);
-        p.drawEllipse(QPointF(cx * s, 16.2 * s), 2.4 * s, 2.6 * s);
+        p.drawEllipse(QPointF(cx * s, 16.1 * s), 3.15 * s, 3.35 * s);
         p.setBrush(eye_iris);
-        p.drawEllipse(QPointF(cx * s, 16.3 * s), 1.55 * s, 1.7 * s);
+        p.drawEllipse(QPointF(cx * s, 16.15 * s), 2.25 * s, 2.4 * s);
+        p.setBrush(eye_glow);
+        p.drawEllipse(QPointF(cx * s, 16.05 * s), 1.55 * s, 1.7 * s);
         p.setBrush(eye_rim);
-        p.drawEllipse(QPointF(cx * s, 16.3 * s), 0.55 * s, 1.15 * s); // vertical pupil
-        p.setBrush(eye_shine);
-        p.drawEllipse(QPointF((cx - 0.55) * s, 15.5 * s), 0.45 * s, 0.45 * s);
+        p.drawEllipse(QPointF(cx * s, 16.2 * s), 0.55 * s, 1.25 * s);
+        p.setBrush(Qt::white);
+        p.drawEllipse(QPointF((cx - 0.75) * s, 15.2 * s), 0.55 * s, 0.55 * s);
     };
-    draw_eye(11.5);
-    draw_eye(20.5);
+    draw_eye(10.8);
+    draw_eye(21.2);
 
-    // Brow / cheek tuft lines (subtle).
-    p.setPen(QPen(QColor(0x7a, 0x74, 0x6c), 0.7 * s, Qt::SolidLine, Qt::RoundCap));
-    p.drawLine(QPointF(8.5 * s, 13.5 * s), QPointF(10.5 * s, 14.2 * s));
-    p.drawLine(QPointF(23.5 * s, 13.5 * s), QPointF(21.5 * s, 14.2 * s));
-
-    // Muzzle.
-    p.setPen(Qt::NoPen);
-    p.setBrush(QColor(0xf2, 0xf0, 0xea));
-    p.drawEllipse(QPointF(16 * s, 21.5 * s), 4.2 * s, 3.2 * s);
-
-    // Nose.
+    p.setBrush(QColor(0xf4, 0xf2, 0xec));
+    p.drawEllipse(QPointF(16 * s, 22.6 * s), 4.8 * s, 3.4 * s);
     p.setBrush(nose);
-    {
-        QPolygonF n;
-        n << QPointF(16 * s, 19.2 * s) << QPointF(14.2 * s, 20.8 * s) << QPointF(17.8 * s, 20.8 * s);
-        p.drawPolygon(n);
-        p.drawEllipse(QPointF(16 * s, 20.9 * s), 1.5 * s, 0.85 * s);
-    }
-
-    // Mouth.
-    p.setPen(QPen(nose, 0.75 * s, Qt::SolidLine, Qt::RoundCap));
+    p.drawPolygon(QPolygonF() << QPointF(16 * s, 19.6 * s) << QPointF(13.8 * s, 21.6 * s) << QPointF(18.2 * s, 21.6 * s));
+    p.drawEllipse(QPointF(16 * s, 21.7 * s), 1.7 * s, 0.95 * s);
+    p.setPen(QPen(nose, 0.9 * s, Qt::SolidLine, Qt::RoundCap));
     p.setBrush(Qt::NoBrush);
-    p.drawArc(QRectF(13.5 * s, 20.5 * s, 5 * s, 3.5 * s), 200 * 16, 140 * 16);
-
-    // Whiskers (skip on tiny icons).
-    if (size >= 24) {
-        p.setPen(QPen(QColor(0x90, 0x8a, 0x82), 0.55 * s, Qt::SolidLine, Qt::RoundCap));
-        p.drawLine(QPointF(11.5 * s, 21 * s), QPointF(5.5 * s, 19.5 * s));
-        p.drawLine(QPointF(11.5 * s, 22 * s), QPointF(5.2 * s, 22 * s));
-        p.drawLine(QPointF(11.5 * s, 23 * s), QPointF(5.5 * s, 24.5 * s));
-        p.drawLine(QPointF(20.5 * s, 21 * s), QPointF(26.5 * s, 19.5 * s));
-        p.drawLine(QPointF(20.5 * s, 22 * s), QPointF(26.8 * s, 22 * s));
-        p.drawLine(QPointF(20.5 * s, 23 * s), QPointF(26.5 * s, 24.5 * s));
-    }
+    p.drawArc(QRectF(13.2 * s, 21.0 * s, 5.6 * s, 3.8 * s), 200 * 16, 140 * 16);
 }
 
 inline void paint_fallback(QPainter& p, Kind kind, qreal s) {

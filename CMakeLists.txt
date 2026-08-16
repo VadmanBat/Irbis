@@ -41,6 +41,15 @@ add_subdirectory("${NUMINA_ROOT}" "${CMAKE_BINARY_DIR}/numina_build")
 include(cmake/source-files.cmake)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
+# Bake the irbis face into the PE so Explorer / taskbar show it on irbis.exe.
+if (WIN32)
+    set(IRBIS_WIN_ICON "${CMAKE_SOURCE_DIR}/data/icons/irbis.rc")
+    target_sources(${PROJECT_NAME} PRIVATE "${IRBIS_WIN_ICON}")
+    set_source_files_properties("${IRBIS_WIN_ICON}" PROPERTIES
+            OBJECT_DEPENDS "${CMAKE_SOURCE_DIR}/data/icons/irbis.ico"
+            COMPILE_FLAGS "--include-dir=${CMAKE_SOURCE_DIR}/data/icons")
+endif ()
+
 target_include_directories(${PROJECT_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}

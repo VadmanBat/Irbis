@@ -8,14 +8,22 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <QGuiApplication>
+#include <QIcon>
 #include <QScreen>
 
 MainWindow::MainWindow(QWidget* parent) : QWidget(parent), ui(new Ui::MainWindow) {
     load_fonts();
     ui->setupUi(this);
     apply_styles();
-    dialog_icons::apply(this, dialog_icons::Kind::App);
-    qApp->setWindowIcon(windowIcon());
+    const QIcon app_icon(QStringLiteral(":/icons/irbis.ico"));
+    if (!app_icon.isNull()) {
+        setWindowIcon(app_icon);
+        qApp->setWindowIcon(app_icon);
+    }
+    else {
+        dialog_icons::apply(this, dialog_icons::Kind::App);
+        qApp->setWindowIcon(windowIcon());
+    }
     center_window();
 }
 

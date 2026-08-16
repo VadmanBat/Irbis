@@ -2,6 +2,7 @@
 
 #include <QApplication>
 #include <QFont>
+#include <QIcon>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QTranslator>
@@ -9,6 +10,7 @@
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("Irbis"));
+    QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/irbis.ico")));
 
     QLocale::setDefault(QLocale(QLocale::Russian));
 

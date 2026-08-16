@@ -14,6 +14,7 @@ set(UI_FILES
 
 set(SOURCES
         ${CMAKE_SOURCE_DIR}/main.cpp
+        ${CMAKE_SOURCE_DIR}/data/icons/irbis.qrc
 
         ${CMAKE_SOURCE_DIR}/code/app/mainwindow.cpp
 
