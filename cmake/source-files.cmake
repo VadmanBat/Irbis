@@ -39,6 +39,7 @@ set(SOURCES
 
         ${CMAKE_SOURCE_DIR}/code/widgets/double-slider.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/reg-parameter.cpp
+        ${CMAKE_SOURCE_DIR}/code/widgets/reg-parameter-range.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/regulation-widget.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-display-widget.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-form/tran-func-form.cpp

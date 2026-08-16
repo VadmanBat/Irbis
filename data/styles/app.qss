@@ -379,11 +379,15 @@ QLabel#regParamLabel {
     font-size: 14pt;
 }
 
-QLabel#regParamValue {
+QDoubleSpinBox#regParamValue {
     font-size: 11pt;
     font-family: "Consolas", "Cascadia Mono", "Courier New", monospace;
     color: palette(window-text);
-    padding: 0 4px;
+    padding: 1px 2px;
+    min-width: 72px;
+    max-width: 72px;
+    min-height: 28px;
+    max-height: 28px;
 }
 
 QCheckBox#regParamCheck {

@@ -48,10 +48,8 @@ QString controller_title(bool p_on, bool i_on, bool d_on, double kp, double ti, 
 }
 
 void SynthesisTab::block_param_signals(bool block) {
-    for (auto* p : parameters_) {
-        p->checkBox()->blockSignals(block);
-        p->slider()->blockSignals(block);
-    }
+    for (auto* p : parameters_)
+        p->blockUiSignals(block);
 }
 
 void SynthesisTab::update_metrics_from_bank() {

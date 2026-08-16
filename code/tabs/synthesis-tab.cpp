@@ -78,19 +78,21 @@ void SynthesisTab::install_custom_widgets() {
     };
     parameters_[0]->setValue(1);
     parameters_[1]->setValue(30);
+    int row = 0;
     for (auto* p : parameters_) {
-        ui->paramsLayout->addLayout(p->layout());
+        p->placeIn(ui->paramsLayout, row++);
         connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) {
             update_c0c1_visibility();
             sync_c0c1_selection_from_params();
             replaceTransferFunction();
         });
-        connect(p->slider(), &DoubleSlider::doubleValueChanged, this, [this](double) {
+        connect(p, &RegParameter::valueChanged, this, [this](double) {
             update_regulator_face();
             sync_c0c1_selection_from_params();
             replaceTransferFunction();
         });
     }
+    ui->paramsLayout->setColumnStretch(3, 1);
 }
 
 void SynthesisTab::setup_metrics() {

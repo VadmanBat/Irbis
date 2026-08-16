@@ -97,7 +97,7 @@ void SynthesisTab::autoSynthesize() {
     try {
         QApplication::setOverrideCursor(Qt::WaitCursor);
 
-        const double phi = static_cast<double>(ui->phiSpin->value()) / 100.0;
+        const double phi = ui->phiSpin->value() / 100.0;
         numina::ControllerDesigner designer(plant, phi);
 
         numina::ControllerDesigner::Spec spec;
@@ -112,7 +112,7 @@ void SynthesisTab::autoSynthesize() {
             QApplication::restoreOverrideCursor();
             show_error(tr("Нет области C₀>0, C₁>0 при φ = %1 %.\n"
                           "ПИ недоступен (Ω_доп пуста). Выберите ПИД или Авто.")
-                           .arg(ui->phiSpin->value()));
+                           .arg(ui->phiSpin->value(), 0, 'f', 2));
             return;
         }
 
