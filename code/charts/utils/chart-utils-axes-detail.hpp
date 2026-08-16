@@ -89,10 +89,20 @@ inline void apply_dynamic_grid(QValueAxis* axis, double lo, double hi, bool adju
     const double anchor = tick_anchor(lo, step);
     const QString fmt   = label_format_for_range(lo, hi, step);
 
+    const bool same = axis->tickType() == QValueAxis::TicksDynamic && axis->tickInterval() == step &&
+                      axis->tickAnchor() == anchor && axis->labelFormat() == fmt && axis->min() == lo &&
+                      axis->max() == hi;
+    if (same) {
+        ensure_minor_ticks(axis);
+        return;
+    }
+
     if (axis->tickType() != QValueAxis::TicksDynamic)
         axis->setTickType(QValueAxis::TicksDynamic);
-    axis->setTickInterval(step);
-    axis->setTickAnchor(anchor);
+    if (axis->tickInterval() != step)
+        axis->setTickInterval(step);
+    if (axis->tickAnchor() != anchor)
+        axis->setTickAnchor(anchor);
     if (axis->labelFormat() != fmt)
         axis->setLabelFormat(fmt);
     if (axis->min() != lo || axis->max() != hi)

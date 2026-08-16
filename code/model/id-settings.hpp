@@ -5,6 +5,6 @@ struct IdSettings {
     bool autoOrder   = true; ///< Simoyu identifyAuto / identifyDelayAuto
     int denOrder     = 2;    ///< n = deg(D), used when !autoOrder
     int numOrder     = 0;    ///< m = deg(N), m ≤ n
-    int maxAutoOrder = 8;    ///< max plant order for auto structure (not Padé approxOrder)
+    int maxAutoOrder = 6;    ///< max plant order for auto structure (not Padé approxOrder)
     bool estimateTau = true; ///< identifyDelay*
 };

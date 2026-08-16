@@ -19,11 +19,18 @@ namespace chart_utils {
 void applyAxisTheme(QValueAxis* axis, const ChartTheme& theme) {
     if (!axis)
         return;
-    axis->setLabelsColor(theme.text);
-    axis->setTitleBrush(QBrush(theme.text));
-    axis->setLinePen(QPen(theme.axis_line, 1.0));
-    axis->setGridLineColor(theme.grid);
-    axis->setMinorGridLineColor(theme.minor_grid);
+    if (axis->labelsColor() != theme.text)
+        axis->setLabelsColor(theme.text);
+    const QBrush title(theme.text);
+    if (axis->titleBrush() != title)
+        axis->setTitleBrush(title);
+    const QPen line(theme.axis_line, 1.0);
+    if (axis->linePen() != line)
+        axis->setLinePen(line);
+    if (axis->gridLineColor() != theme.grid)
+        axis->setGridLineColor(theme.grid);
+    if (axis->minorGridLineColor() != theme.minor_grid)
+        axis->setMinorGridLineColor(theme.minor_grid);
 }
 
 void applyChartTheme(QChart* chart, QChartView* view) {
