@@ -2,10 +2,15 @@
 
 #include "code/charts/utils/chart-utils-detail.hpp"
 
+#include <algorithm>
+#include <QAbstractAxis>
 #include <QAbstractSeries>
 #include <QBrush>
+#include <QFontMetrics>
+#include <QGraphicsLayout>
 #include <QLegend>
 #include <QLineSeries>
+#include <QMargins>
 #include <QPainter>
 #include <QScatterSeries>
 #include <QValueAxis>
@@ -19,9 +24,6 @@ void applyAxisTheme(QValueAxis* axis, const ChartTheme& theme) {
     axis->setLinePen(QPen(theme.axis_line, 1.0));
     axis->setGridLineColor(theme.grid);
     axis->setMinorGridLineColor(theme.minor_grid);
-    // Like iostream defaultfloat / std::cout (precision 6): 1234.56 or 1.23457e+08.
-    if (axis->labelFormat() != QLatin1String("%.6g"))
-        axis->setLabelFormat(QStringLiteral("%.6g"));
 }
 
 void applyChartTheme(QChart* chart, QChartView* view) {
@@ -65,6 +67,27 @@ QPen penForIndex(std::size_t index) {
     return penForIndexTheme(index, isDarkTheme());
 }
 
+void tightenChartFrame(QChart* chart) {
+    if (!chart)
+        return;
+    if (QGraphicsLayout* lay = chart->layout())
+        lay->setContentsMargins(0, 0, 0, 0);
+
+    // Left/bottom already reserve a title band. The right side has no axis, so
+    // match that band — otherwise the plot sits on the widget edge.
+    int title_band = 0;
+    for (QAbstractAxis* ax : chart->axes()) {
+        if (ax->titleText().isEmpty() || !ax->isTitleVisible())
+            continue;
+        title_band = std::max(title_band, QFontMetrics(ax->titleFont()).height());
+    }
+    if (title_band == 0)
+        title_band = QFontMetrics(chart->font()).height();
+
+    constexpr int k = 2;
+    chart->setMargins(QMargins(k, k, k + title_band, k));
+}
+
 QChartView* makeChartView(QChart* chart, QWidget* parent, const QString& title, const QString& titleX,
                           const QString& titleY) {
     chart->setTitle(title);
@@ -77,6 +100,7 @@ QChartView* makeChartView(QChart* chart, QWidget* parent, const QString& title, 
     auto* view = new QChartView(chart, parent);
     view->setRenderHint(QPainter::Antialiasing, true);
     view->setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    tightenChartFrame(chart);
     applyChartTheme(chart, view);
     createChartContextMenu(view);
     return view;
@@ -142,6 +166,7 @@ QChart* cloneChart(QChart* src) {
 
     // Preserve source extents; viewer switches to GridMode::Viewer after open.
     updateAxes(dst, range_x, range_y, GridMode::Tab, /*snap_x=*/false, /*snap_y=*/false);
+    tightenChartFrame(dst);
     applyChartTheme(dst, nullptr);
     return dst;
 }

@@ -1,4 +1,5 @@
 #include "code/charts/utils/chart-utils-axes-detail.hpp"
+#include "code/charts/utils/chart-utils-detail.hpp"
 
 #include <QLegend>
 #include <QLegendMarker>
@@ -91,13 +92,9 @@ void updateAxes(QChart* chart, const Pair& range_x, const Pair& range_y, GridMod
             axes_detail::apply_viewer_grid(axis_x, range_x.first, range_x.second);
             axes_detail::apply_viewer_grid(axis_y, range_y.first, range_y.second);
         }
-        if (axis_x->min() != range_x.first || axis_x->max() != range_x.second)
-            axis_x->setRange(range_x.first, range_x.second);
-        if (axis_y->min() != range_y.first || axis_y->max() != range_y.second)
-            axis_y->setRange(range_y.first, range_y.second);
-        if (mode != GridMode::Viewer) {
-            axes_detail::apply_axis_style(axis_x, mode, snap_x);
-            axes_detail::apply_axis_style(axis_y, mode, snap_y);
+        else {
+            axes_detail::apply_tab_grid(axis_x, range_x.first, range_x.second, snap_x);
+            axes_detail::apply_tab_grid(axis_y, range_y.first, range_y.second, snap_y);
         }
         const ChartTheme theme = currentTheme();
         applyAxisTheme(axis_x, theme);

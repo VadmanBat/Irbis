@@ -48,6 +48,6 @@ public:
     void clearCurves();
     void clearDataSeries();
 
-    /// niceX/niceY: true → nice range + zero-anchored Fixed grid; false X → exact (t, ω); false Y → pad ~2%.
+    /// niceX/niceY: true → nice range + 1–2–5 Dynamic grid; false X → exact (t, ω); false Y → pad ~2%.
     void fitAxes(double minX, double maxX, double minY, double maxY, bool niceX = true, bool niceY = true);
 };

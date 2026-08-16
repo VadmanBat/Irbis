@@ -25,8 +25,8 @@ void createAxes(QChart* chart, const QString& titleX, const QString& titleY) {
     auto* axis_y = new QValueAxis(chart);
     axis_x->setTitleText(titleX);
     axis_y->setTitleText(titleY);
-    axes_detail::apply_tab_grid_exact(axis_x);
-    axes_detail::apply_tab_grid_exact(axis_y);
+    axes_detail::apply_tab_grid(axis_x, -1.0, 1.0, /*snap=*/false);
+    axes_detail::apply_tab_grid(axis_y, -1.0, 1.0, /*snap=*/false);
     const ChartTheme theme = currentTheme();
     applyAxisTheme(axis_x, theme);
     applyAxisTheme(axis_y, theme);

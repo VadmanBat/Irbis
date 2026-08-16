@@ -89,8 +89,7 @@ void ChartPanel::clearCurves() {
 
 void ChartPanel::fitAxes(double minX, double maxX, double minY, double maxY, bool niceX, bool niceY) {
     // Range: nice → 1–2–5; data → exact (t, ω); padded → +2%.
-    // Snap only on nice axes: Fixed ticks on lattice through 0 (КЧХ grid crosses origin).
-    // t/ω keep exact span — no snap (would pull ω down to 0).
+    // Ticks: 1–2–5 inside the window. t/ω keep the data span (no expand to 0 extra).
     const auto rx = niceX ? chart_utils::niceAxisRange(minX, maxX, true) : chart_utils::dataAxisRange(minX, maxX, true);
     const auto ry =
         niceY ? chart_utils::niceAxisRange(minY, maxY, true) : chart_utils::paddedAxisRange(minY, maxY, true);

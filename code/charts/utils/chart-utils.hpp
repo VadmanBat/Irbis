@@ -32,8 +32,8 @@ struct SeriesWrite {
 };
 
 enum class GridMode {
-    Tab,    ///< Fixed ticks; optional snap_x/y (tabs, no pan)
-    Viewer, ///< Dynamic ticks + anchor 0 (detached viewer)
+    Tab,    ///< Dynamic 1–2–5 ticks inside the window (t, ω keep data span)
+    Viewer, ///< Dynamic 1–2–5; park anchor if the window is far from 0
 };
 
 QPen penForIndex(std::size_t index);
@@ -43,7 +43,7 @@ void createChartContextMenu(QChartView* chartView);
 void openChartViewer(QChart* chart, QWidget* parent = nullptr);
 void removeAllSeries(QChart* chart);
 
-/// Set range then style. Default: no lattice re-snap (fitAxes already applied nice/data ranges).
+/// Interval, then range (never the reverse — leftover tiny step freezes Qt).
 void updateAxes(QChart* chart, const Pair& range_x, const Pair& range_y, GridMode mode = GridMode::Tab,
                 bool snap_x = false, bool snap_y = false);
 
@@ -51,6 +51,8 @@ void applyViewerGrid(QValueAxis* axis);
 void applyViewerGrid(QValueAxis* axis, double lo, double hi);
 void applyViewerGrid(QChart* chart);
 void updateOriginGuides(QChart* chart, const Pair& range_x, const Pair& range_y);
+/// Drop default QChart padding; plot rect stays with QChart (titles / labels / legend).
+void tightenChartFrame(QChart* chart);
 
 /// One pass: QLineSeries points + AxisBounds. wrote=false if empty / no chart / no series to replace.
 [[nodiscard]] SeriesWrite addRealSeries(QChart* chart, const VecPair& points, const QString& title,

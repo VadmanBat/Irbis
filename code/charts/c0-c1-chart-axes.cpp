@@ -27,8 +27,6 @@ void C0C1Chart::apply_axis_titles() {
     ay->setTitleText(QStringLiteral("C₀"));
     ax->setTitleVisible(false);
     ay->setTitleVisible(false);
-    ax->setLabelFormat(QStringLiteral("%.4g"));
-    ay->setLabelFormat(QStringLiteral("%.4g"));
 
     if (!tag_c1_) {
         tag_c1_ = new QGraphicsSimpleTextItem(QStringLiteral("C₁"), chart_);

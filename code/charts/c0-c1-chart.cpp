@@ -11,11 +11,9 @@
 #include <QChartView>
 #include <QEvent>
 #include <QFont>
-#include <QGraphicsLayout>
 #include <QImage>
 #include <QLegend>
 #include <QLineSeries>
-#include <QMargins>
 #include <QPainter>
 #include <QScatterSeries>
 #include <QValueAxis>
@@ -219,10 +217,8 @@ void C0C1Chart::tighten_plot() {
         return;
     if (QLegend* lg = chart_->legend())
         lg->setVisible(false);
-    if (QGraphicsLayout* lay = chart_->layout())
-        lay->setContentsMargins(0, 0, 0, 0);
     chart_->setBackgroundRoundness(0);
-    chart_->setMargins(QMargins(2, 2, 2, 2));
+    chart_utils::tightenChartFrame(chart_);
     QFont title_font = chart_->titleFont();
     title_font.setPointSize(10);
     chart_->setTitleFont(title_font);

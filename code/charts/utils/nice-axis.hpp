@@ -180,4 +180,72 @@ inline void suppress_sign_noise(double& min_v, double& max_v) noexcept {
         step = 1.0;
     return step;
 }
+
+/// Next smaller 1–2–5 step: 5→2→1→0.5.
+[[nodiscard]] inline double finerNiceStep(double step) noexcept {
+    if (!std::isfinite(step) || !(step > 0.0))
+        return 1.0;
+    const double exp  = std::floor(std::log10(step));
+    const double base = std::pow(10.0, exp);
+    const double mant = step / base;
+    if (mant > 3.0)
+        return 2.0 * base;
+    if (mant > 1.5)
+        return 1.0 * base;
+    return 5.0 * (base / 10.0);
+}
+
+/// How many k·step ticks lie in [lo, hi] (closed).
+[[nodiscard]] inline int tickCountInRange(double lo, double hi, double step) noexcept {
+    if (!(step > 0.0) || !std::isfinite(step) || !std::isfinite(lo) || !std::isfinite(hi) || !(hi > lo))
+        return 0;
+    const double first = std::ceil(lo / step - 1e-12);
+    const double last  = std::floor(hi / step + 1e-12);
+    if (last < first)
+        return 0;
+    return static_cast<int>(last - first) + 1;
+}
+
+/// 1–2–5 step for a window: ~`major_ticks`, but not fewer than `min_ticks`.
+/// Heckbert nearest can jump 0.3→0.5 and leave h(t)∈[0, 1.2] with only 0 / 0.5 / 1.
+[[nodiscard]] inline double niceTickStepIn(double lo, double hi, int major_ticks = 5,
+                                          int min_ticks = 5) noexcept {
+    const double span = hi - lo;
+    double step       = niceTickStep(span, major_ticks);
+    const double floor_step = span / 12.0;
+    while (tickCountInRange(lo, hi, step) < min_ticks && step > floor_step) {
+        const double finer = finerNiceStep(step);
+        if (!(finer < step) || !(finer > 0.0))
+            break;
+        step = finer;
+    }
+    return step;
+}
+
+/// Digits after the point so `k·step` prints cleanly (Heckbert / matplotlib).
+/// 1–2–5 keep `−log10(step)` digits; 2.5 needs one more (`2.5` not `2`).
+[[nodiscard]] inline int labelDecimals(double step) noexcept {
+    if (!std::isfinite(step) || !(std::abs(step) > 0.0))
+        return 0;
+    const double ax   = std::abs(step);
+    const double exp  = std::floor(std::log10(ax));
+    const double mant = ax / std::pow(10.0, exp); // [1, 10)
+    int d             = std::max(0, static_cast<int>(-exp));
+    if (mant > 2.0000001 && mant < 4.9999999)
+        ++d;
+    return d > 10 ? 10 : d;
+}
+
+/// Minimum printf width so `200` and `200.5` occupy the same slot (`%5.1f`).
+[[nodiscard]] inline int labelFieldWidth(double lo, double hi, double step) noexcept {
+    const int dec     = labelDecimals(step);
+    const double peak = std::max(std::abs(lo), std::abs(hi));
+    int int_digits    = 1;
+    if (std::isfinite(peak) && peak >= 10.0)
+        int_digits = static_cast<int>(std::floor(std::log10(peak))) + 1;
+    int w = int_digits + (dec > 0 ? dec + 1 : 0);
+    if ((std::isfinite(lo) && lo < 0.0) || (std::isfinite(hi) && hi < 0.0))
+        ++w;
+    return w < 1 ? 1 : w;
+}
 } // namespace chart_utils
