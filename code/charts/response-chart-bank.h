@@ -39,6 +39,7 @@ private:
     struct Batch {
         QString name;
         numina::TransferFunction tf;
+        double delayTau{0.0}; ///< exact / Padé delay applied at sample time (0 if already in tf)
         ModelParam params;
 
         tf_builder::VecPair transient;
@@ -103,7 +104,8 @@ private:
     bool trim_history();
     void rematerialize_panel(int panel_idx);
     void push_batch(Batch b, bool replace_last);
-    Batch make_batch(const numina::TransferFunction& tf, const ModelParam& params, const QString& name);
+    Batch make_batch(const numina::TransferFunction& tf, const ModelParam& params, const QString& name,
+                     double delayTau = 0.0);
     void refresh_last_quality();
 
     [[nodiscard]] ChartPanel* panel_at(int idx) const noexcept;
@@ -121,8 +123,10 @@ public:
 
     void populateMenu(QMenu* menu);
 
-    void appendFromTf(const numina::TransferFunction& tf, const ModelParam& params, const QString& name);
-    void replaceLastFromTf(const numina::TransferFunction& tf, const ModelParam& params, const QString& name);
+    void appendFromTf(const numina::TransferFunction& tf, const ModelParam& params, const QString& name,
+                      double delayTau = 0.0);
+    void replaceLastFromTf(const numina::TransferFunction& tf, const ModelParam& params, const QString& name,
+                           double delayTau = 0.0);
     void recomputeAll(const ModelParam& params);
     void appendTransientCurve(const chart_utils::VecPair& points, const QString& name);
     void clearAll();

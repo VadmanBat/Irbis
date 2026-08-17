@@ -13,14 +13,17 @@ class ModParDialog : public QDialog {
 
 private:
     Ui::ModParDialog* ui;
+    bool allow_ideal_delay_{false};
 
     void on_auto_time_range_toggled(bool checked);
     void on_auto_time_intervals_toggled(bool checked);
     void on_auto_freq_range_toggled(bool checked);
     void on_auto_freq_intervals_toggled(bool checked);
+    void on_use_pade_toggled(bool checked);
 
 public:
-    explicit ModParDialog(const ModelParam& values, QWidget* parent = nullptr);
+    /// allowIdealDelay: analysis may keep e^{-τp} exact; order spin is then gated by «Паде».
+    explicit ModParDialog(const ModelParam& values, QWidget* parent = nullptr, bool allowIdealDelay = false);
     ~ModParDialog() override;
 
     [[nodiscard]] ModelParam data() const;

@@ -78,6 +78,9 @@ void SynthesisTab::openSettings() {
     if (!tab_ui::editModelParam(this, model_param_) || ui->charts->empty())
         return;
     try {
+        // Padé order is baked into the delay factor of the closed loop, not into
+        // the time/freq grid. Rebuild the last series from form + controller + τ.
+        apply_current_controller(true);
         ui->charts->recomputeAll(model_param_);
         update_metrics_from_bank();
     }

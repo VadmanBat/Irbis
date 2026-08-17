@@ -63,18 +63,18 @@ void ResponseChartBank::push_batch(Batch b, bool replace_last) {
     set_panel_updates_all(true);
 }
 
-void ResponseChartBank::appendFromTf(const numina::TransferFunction& tf, const ModelParam& params,
-                                     const QString& name) {
-    push_batch(make_batch(tf, params, name), false);
+void ResponseChartBank::appendFromTf(const numina::TransferFunction& tf, const ModelParam& params, const QString& name,
+                                     double delayTau) {
+    push_batch(make_batch(tf, params, name, delayTau), false);
 }
 
 void ResponseChartBank::replaceLastFromTf(const numina::TransferFunction& tf, const ModelParam& params,
-                                          const QString& name) {
+                                          const QString& name, double delayTau) {
     if (history_.empty()) {
-        appendFromTf(tf, params, name);
+        appendFromTf(tf, params, name, delayTau);
         return;
     }
-    push_batch(make_batch(tf, params, name), true);
+    push_batch(make_batch(tf, params, name, delayTau), true);
 }
 
 void ResponseChartBank::appendTransientCurve(const chart_utils::VecPair& points, const QString& name) {
@@ -98,7 +98,12 @@ void ResponseChartBank::recomputeAll(const ModelParam& params) {
         return;
 
     for (Batch& batch : history_) {
-        batch.params = params;
+        // Delay mode is per series (how it was added). Grid/sample settings are shared.
+        const bool use_pade = batch.params.usePadeApprox;
+        const int order     = batch.params.approxOrder;
+        batch.params                = params;
+        batch.params.usePadeApprox  = use_pade;
+        batch.params.approxOrder    = order;
         batch.clear_channels();
         ensure_visible_channels(batch);
     }

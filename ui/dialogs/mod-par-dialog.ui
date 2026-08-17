@@ -323,6 +323,19 @@
        <number>8</number>
       </property>
       <item>
+       <widget class="QCheckBox" name="usePadeCheckBox">
+        <property name="text">
+         <string>Разложение Паде</string>
+        </property>
+        <property name="toolTip">
+         <string>Вкл. — рациональная аппроксимация e^{−τp}. Выкл. — точное запаздывание (сдвиг h(t), фаза −ωτ).</string>
+        </property>
+        <property name="visible">
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="approxOrderLabel">
         <property name="text">
          <string>Порядок:</string>

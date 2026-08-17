@@ -17,5 +17,6 @@ struct ModelParam {
     double freqMax    = 10.0;
     int freqIntervals = 100;
 
-    int approxOrder = 6; ///< Padé order for e^{-τp}
+    int approxOrder    = 6;    ///< Padé order for e^{-τp}
+    bool usePadeApprox = true; ///< false → exact e^{-τp} (analysis); synthesis always true
 };

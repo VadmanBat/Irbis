@@ -4,9 +4,11 @@
 #include "code/util/secondary-text.hxx"
 #include "ui_mod-par-dialog.h"
 
+#include <QCheckBox>
 #include <utility>
 
-ModParDialog::ModParDialog(const ModelParam& values, QWidget* parent) : QDialog(parent), ui(new Ui::ModParDialog) {
+ModParDialog::ModParDialog(const ModelParam& values, QWidget* parent, bool allowIdealDelay)
+    : QDialog(parent), ui(new Ui::ModParDialog), allow_ideal_delay_(allowIdealDelay) {
     ui->setupUi(this);
     dialog_icons::apply(this, dialog_icons::Kind::ModelParams);
     secondary_text::applyAll({ui->hintLabel, ui->approxHint});
@@ -26,6 +28,13 @@ ModParDialog::ModParDialog(const ModelParam& values, QWidget* parent) : QDialog(
     ui->freqMaxSpinBox->setValue(values.freqMax);
     ui->freqIntervalsSpinBox->setValue(values.freqIntervals);
     ui->approxOrderSpinBox->setValue(values.approxOrder);
+
+    ui->usePadeCheckBox->setVisible(allow_ideal_delay_);
+    if (allow_ideal_delay_) {
+        ui->usePadeCheckBox->setChecked(values.usePadeApprox);
+        connect(ui->usePadeCheckBox, &QCheckBox::toggled, this, &ModParDialog::on_use_pade_toggled);
+        on_use_pade_toggled(values.usePadeApprox);
+    }
 
     connect(ui->autoTimeRangeCheckBox, &QCheckBox::toggled, this, &ModParDialog::on_auto_time_range_toggled);
     connect(ui->autoTimeIntervalsCheckBox, &QCheckBox::toggled, this, &ModParDialog::on_auto_time_intervals_toggled);
@@ -57,6 +66,7 @@ ModelParam ModParDialog::data() const {
     p.freqMax           = ui->freqMaxSpinBox->value();
     p.freqIntervals     = ui->freqIntervalsSpinBox->value();
     p.approxOrder       = ui->approxOrderSpinBox->value();
+    p.usePadeApprox     = !allow_ideal_delay_ || ui->usePadeCheckBox->isChecked();
     if (p.timeMax < p.timeMin)
         std::swap(p.timeMin, p.timeMax);
     if (p.freqMax < p.freqMin)
@@ -87,4 +97,12 @@ void ModParDialog::on_auto_freq_range_toggled(bool checked) {
 
 void ModParDialog::on_auto_freq_intervals_toggled(bool checked) {
     ui->freqIntervalsSpinBox->setEnabled(!checked);
+}
+
+void ModParDialog::on_use_pade_toggled(bool checked) {
+    ui->approxOrderLabel->setEnabled(checked);
+    ui->approxOrderSpinBox->setEnabled(checked);
+    ui->approxHint->setText(checked ? tr("1…6, обычно 6")
+                                    : tr("Точное e^{−τp}: сдвиг h(t), фаза −ωτ"));
+    secondary_text::apply(ui->approxHint);
 }

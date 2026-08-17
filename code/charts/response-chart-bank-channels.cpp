@@ -1,5 +1,4 @@
 #include "code/charts/response-chart-bank.h"
-#include "numina/classes/control/transfer-function/response-lab.h"
 
 #include <utility>
 
@@ -45,20 +44,19 @@ void ResponseChartBank::ensure_channel(Batch& batch, Channel ch) {
     if ((ch == Channel::Nyquist || ch == Channel::Amplitude || ch == Channel::Phase) && batch.has_freq)
         return;
 
-    numina::ResponseLab lab(batch.tf);
     switch (ch) {
         case Channel::Transient:
-            batch.transient     = tf_builder::transient(lab, batch.params);
+            batch.transient     = tf_builder::transient(batch.tf, batch.params, batch.delayTau);
             batch.has_transient = true;
             break;
         case Channel::Impulse:
-            batch.impulse     = tf_builder::impulse(lab, batch.params);
+            batch.impulse     = tf_builder::impulse(batch.tf, batch.params, batch.delayTau);
             batch.has_impulse = true;
             break;
         case Channel::Nyquist:
         case Channel::Amplitude:
         case Channel::Phase: {
-            auto freq       = tf_builder::frequencyBundle(lab, batch.params);
+            auto freq       = tf_builder::frequencyBundle(batch.tf, batch.params, batch.delayTau);
             batch.nyquist   = std::move(freq.nyquist);
             batch.amplitude = std::move(freq.amplitude);
             batch.phase     = std::move(freq.phase);
@@ -83,32 +81,31 @@ void ResponseChartBank::refresh_last_quality() {
         last_quality_     = {};
         return;
     }
-    numina::ResponseLab lab(history_.back().tf);
-    last_quality_     = lab.evaluate();
+    last_quality_     = tf_builder::quality(history_.back().tf, history_.back().params, history_.back().delayTau);
     has_last_quality_ = true;
 }
 
 ResponseChartBank::Batch ResponseChartBank::make_batch(const numina::TransferFunction& tf, const ModelParam& params,
-                                                       const QString& name) {
+                                                       const QString& name, double delayTau) {
     Batch b;
-    b.name   = name;
-    b.tf     = tf;
-    b.params = params;
+    b.name     = name;
+    b.tf       = tf;
+    b.delayTau = delayTau;
+    b.params   = params;
 
-    numina::ResponseLab lab(b.tf);
-    last_quality_     = lab.evaluate();
+    last_quality_     = tf_builder::quality(b.tf, params, delayTau);
     has_last_quality_ = true;
 
     if (vis_.transient) {
-        b.transient     = tf_builder::transient(lab, params);
+        b.transient     = tf_builder::transient(b.tf, params, delayTau);
         b.has_transient = true;
     }
     if (vis_.impulse) {
-        b.impulse     = tf_builder::impulse(lab, params);
+        b.impulse     = tf_builder::impulse(b.tf, params, delayTau);
         b.has_impulse = true;
     }
     if (vis_.nyquist || vis_.amplitude || vis_.phase) {
-        auto freq   = tf_builder::frequencyBundle(lab, params);
+        auto freq   = tf_builder::frequencyBundle(b.tf, params, delayTau);
         b.nyquist   = std::move(freq.nyquist);
         b.amplitude = std::move(freq.amplitude);
         b.phase     = std::move(freq.phase);

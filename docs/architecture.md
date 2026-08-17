@@ -101,17 +101,19 @@ Includes use the full path from project root, e.g.:
 - time: `autoTimeRange`, `timeMin`/`timeMax`, `autoTimeIntervals`, `timeIntervals`
 - frequency: same pattern; **always log ω-grid**
 - `approxOrder` — Padé order for delay
+- `usePadeApprox` / `approxOrder` — per series at add time; `recomputeAll` updates only the time/freq grid
 
-Edited by `ModParDialog`. Each tab owns a `ModelParam` instance (not yet a shared session).
+Edited by `ModParDialog`. Analysis opens the dialog with `allowIdealDelay` (checkbox + gated order). Synthesis / ID always use Padé. Each tab owns a `ModelParam` instance (not yet a shared session).
 
 ### 4.2 Plant TF pipeline
 
 ```
 UI coefficients (TranFuncForm)
-    → tf_builder::plant(num, den, tau, order)
-    → numina::TransferFunction
-    → ResponseChartBank::appendFromTf / replaceLastFromTf
-         → tf_builder::transient / impulse / frequencyBundle
+    → W₀ = tf_builder::plant(num, den)          [analysis]
+    → or plant(num, den, τ, order)              [Padé baked in: ID / synth plant]
+    → ResponseChartBank::appendFromTf(..., τ)
+         → exact e^{-τp}  (shift h(t), W(jω)·e^{-jωτ})  if !usePadeApprox
+         → or W₀·Padé(τ, order)                         if  usePadeApprox
          → ChartPanel series + BoundsSet + niceAxisRange
 ```
 

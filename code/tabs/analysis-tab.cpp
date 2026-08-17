@@ -9,6 +9,7 @@
 
 AnalysisTab::AnalysisTab(QWidget* parent) : QWidget(parent), ui(new Ui::AnalysisTab) {
     ui->setupUi(this);
+    model_param_.usePadeApprox = false;
     install_custom_widgets();
 
     charts_menu_ = new QMenu(this);
@@ -44,7 +45,7 @@ void AnalysisTab::update_metrics() {
 }
 
 void AnalysisTab::openSettings() {
-    if (!tab_ui::editModelParam(this, model_param_) || ui->charts->empty())
+    if (!tab_ui::editModelParam(this, model_param_, /*allowIdealDelay=*/true) || ui->charts->empty())
         return;
     try {
         ui->charts->recomputeAll(model_param_);
@@ -64,9 +65,9 @@ void AnalysisTab::addTransferFunction() {
     }
 
     try {
-        current_tf_ = tf_builder::plant(std::move(num), std::move(den), form_->delayTime(), model_param_.approxOrder);
+        current_tf_ = tf_builder::plant(std::move(num), std::move(den));
         form_->setTransferFunction(&current_tf_);
-        ui->charts->appendFromTf(current_tf_, model_param_, form_->linkName());
+        ui->charts->appendFromTf(current_tf_, model_param_, form_->linkName(), form_->delayTime());
         update_metrics();
     }
     catch (const std::exception& ex) {
@@ -86,9 +87,9 @@ void AnalysisTab::replaceTransferFunction() {
         return;
     }
     try {
-        current_tf_ = tf_builder::plant(std::move(num), std::move(den), form_->delayTime(), model_param_.approxOrder);
+        current_tf_ = tf_builder::plant(std::move(num), std::move(den));
         form_->setTransferFunction(&current_tf_);
-        ui->charts->replaceLastFromTf(current_tf_, model_param_, form_->linkName());
+        ui->charts->replaceLastFromTf(current_tf_, model_param_, form_->linkName(), form_->delayTime());
         update_metrics();
     }
     catch (const std::exception& ex) {

@@ -46,8 +46,8 @@ inline void showError(QWidget* parent, const QString& title, const QString& mess
     return QObject::tr("Порядок числителя НЕ может быть больше порядка знаменателя!");
 }
 
-[[nodiscard]] inline bool editModelParam(QWidget* parent, ModelParam& param) {
-    ModParDialog dialog(param, parent);
+[[nodiscard]] inline bool editModelParam(QWidget* parent, ModelParam& param, bool allowIdealDelay = false) {
+    ModParDialog dialog(param, parent, allowIdealDelay);
     if (dialog.exec() != QDialog::Accepted)
         return false;
     param = dialog.data();
