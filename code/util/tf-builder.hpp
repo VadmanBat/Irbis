@@ -1,6 +1,7 @@
 #pragma once
 
 #include "code/model/model-param.hpp"
+#include "numina/classes/control/delayed-plant.h"
 #include "numina/classes/control/transfer-function.h"
 #include "numina/classes/control/transfer-function/quality-report.h"
 #include "numina/classes/control/transfer-function/response-lab.h"
@@ -46,10 +47,35 @@ inline numina::TransferFunction plant(std::vector<double> num, std::vector<doubl
 inline numina::TransferFunction withDelay(const numina::TransferFunction& w0, double tau, const ModelParam& p) {
     if (!(tau > 0.0) || !p.usePadeApprox)
         return w0;
-    return numina::TransferFunction{
-        w0,
-        numina::TransferFunction::makeDelay(tau, static_cast<std::uint8_t>(p.approxOrder)),
-    };
+    return numina::DelayedPlant(w0, tau).pade(static_cast<std::uint8_t>(p.approxOrder));
+}
+
+inline void apply_delayed_time_samples(VecPair& pts, const numina::DelayedPlant& plant, bool shift_axis) {
+    const double tau = plant.delay();
+    if (!(tau > 0.0) || pts.empty())
+        return;
+    if (shift_axis) {
+        for (auto& pt : pts)
+            pt.first += tau;
+        if (pts.front().first > 0.0)
+            pts.insert(pts.begin(), {0.0, 0.0});
+    }
+    for (auto& pt : pts)
+        pt.second = plant.transientResponse(pt.first);
+}
+
+inline void apply_delayed_impulse_samples(VecPair& pts, const numina::DelayedPlant& plant, bool shift_axis) {
+    const double tau = plant.delay();
+    if (!(tau > 0.0) || pts.empty())
+        return;
+    if (shift_axis) {
+        for (auto& pt : pts)
+            pt.first += tau;
+        if (pts.front().first > 0.0)
+            pts.insert(pts.begin(), {0.0, 0.0});
+    }
+    for (auto& pt : pts)
+        pt.second = plant.impulseResponse(pt.first);
 }
 
 inline void shiftTimeByDelay(VecPair& pts, double tau) {
@@ -121,7 +147,7 @@ inline VecPair impulse(numina::ResponseLab& lab, const ModelParam& p) {
     return lab.impulse(range, static_cast<std::size_t>(std::max(2, p.timeIntervals)));
 }
 
-/// numina gives h₀(t) of W₀; Irbis shifts by τ (exact delay is not in numina).
+/// Lab samples W₀; exact τ via DelayedPlant (ResponseLab cannot bind it yet).
 inline VecPair transient(const numina::TransferFunction& tf, const ModelParam& p, double tau = 0.0) {
     if (tau > 0.0 && p.usePadeApprox) {
         const auto delayed = withDelay(tf, tau, p);
@@ -131,7 +157,7 @@ inline VecPair transient(const numina::TransferFunction& tf, const ModelParam& p
     numina::ResponseLab lab(tf);
     auto pts = transient(lab, p);
     if (tau > 0.0)
-        shiftTimeByDelay(pts, tau);
+        apply_delayed_time_samples(pts, numina::DelayedPlant(tf, tau), p.autoTimeRange);
     return pts;
 }
 
@@ -144,7 +170,7 @@ inline VecPair impulse(const numina::TransferFunction& tf, const ModelParam& p, 
     numina::ResponseLab lab(tf);
     auto pts = impulse(lab, p);
     if (tau > 0.0)
-        shiftTimeByDelay(pts, tau);
+        apply_delayed_impulse_samples(pts, numina::DelayedPlant(tf, tau), p.autoTimeRange);
     return pts;
 }
 
@@ -160,9 +186,10 @@ inline bool hasZeroDenConstant(const numina::TransferFunction& tf) noexcept {
     return std::abs(free) <= 1e-14 * (1.0 + std::abs(lead));
 }
 
-/// КЧХ + АЧХ + ФЧХ — log ω-grid. tau>0: W(jω) = W₀(jω)·e^{-jωτ} (Irbis; numina has no exact delay).
+/// КЧХ + АЧХ + ФЧХ — log ω-grid. tau>0: DelayedPlant::frequencyResponse (lab stays on W₀).
 inline FrequencyBundle frequencyBundle(numina::ResponseLab& lab, const ModelParam& p, double tau = 0.0) {
     const numina::TransferFunction& tf = lab.tf();
+    const numina::DelayedPlant plant(tf, tau);
     std::pair<double, double> range    = p.autoFreqRange ? lab.frequencyRange() : std::make_pair(p.freqMin, p.freqMax);
 
     if (hasZeroDenConstant(tf)) {
@@ -191,9 +218,7 @@ inline FrequencyBundle frequencyBundle(numina::ResponseLab& lab, const ModelPara
     for (const double w : omegas) {
         if (!(w > 0.0))
             continue;
-        auto W = tf.frequencyResponse({0.0, w});
-        if (tau > 0.0)
-            W *= std::exp(std::complex<double>(0.0, -w * tau));
+        const auto W = plant.frequencyResponse({0.0, w});
         out.nyquist.push_back(W);
         out.amplitude.emplace_back(w, std::abs(W));
 

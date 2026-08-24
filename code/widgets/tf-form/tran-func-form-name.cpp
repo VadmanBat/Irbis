@@ -13,7 +13,8 @@ void TranFuncForm::create_label_context_menu(QLabel* label) {
     connect(about_action, &QAction::triggered, this, [this] {
         if (!tf_)
             return;
-        TranFuncDialog dialog(*tf_, this);
+        const double tau = exact_delay_solutions_ ? delayTime() : 0.0;
+        TranFuncDialog dialog(*tf_, this, tau);
         dialog.exec();
     });
     auto* menu = new QMenu(label);

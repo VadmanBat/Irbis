@@ -149,6 +149,10 @@ void TranFuncForm::setTransferFunction(const numina::TransferFunction* tf) {
     tf_ = tf;
 }
 
+void TranFuncForm::setExactDelaySolutions(bool on) noexcept {
+    exact_delay_solutions_ = on;
+}
+
 std::vector<double> TranFuncForm::numerator() const {
     return get_line_edit_data(numerator_);
 }

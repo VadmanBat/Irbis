@@ -4,6 +4,7 @@
 #include <optional>
 #include <QFile>
 #include <QString>
+#include <QStringView>
 #include <utility>
 #include <vector>
 
@@ -12,9 +13,19 @@ using Pair    = std::pair<double, double>;
 using VecPair = std::vector<Pair>;
 using Vec     = std::vector<double>;
 
-/// Scan text for floating-point tokens. Accepts '.' and ',' as decimal separators;
-/// any other characters (spaces, tabs, commas between numbers, letters, etc.) are ignored.
-inline Vec extractNumbers(const QString& text) {
+/// Title / comment line: any letter except scientific e/E.
+/// «Name: … 1-го порядка» must not contribute a stray 1 and shift (t,h) pairs.
+inline bool is_data_line(QStringView line) noexcept {
+    for (const QChar c : line) {
+        if (c.isLetter() && c.toLower() != QLatin1Char('e'))
+            return false;
+    }
+    return true;
+}
+
+/// Scan a chunk for floating-point tokens. Accepts '.' and ',' as decimal separators;
+/// other characters are ignored.
+inline Vec extract_numbers_chunk(const QString& text) {
     Vec out;
     const QByteArray utf8 = text.toUtf8();
     const char* s         = utf8.constData();
@@ -101,6 +112,29 @@ inline Vec extractNumbers(const QString& text) {
         const double v = std::strtod(buf, &endptr);
         if (endptr != buf)
             out.push_back(v);
+    }
+    out.shrink_to_fit();
+    return out;
+}
+
+/// Line-wise extract: skip titles/comments, then scan numbers on data rows.
+inline Vec extractNumbers(const QString& text) {
+    Vec out;
+    qsizetype from          = 0;
+    const qsizetype n_chars = text.size();
+    while (from <= n_chars) {
+        const qsizetype nl = text.indexOf(QLatin1Char('\n'), from);
+        const qsizetype to = nl < 0 ? n_chars : nl;
+        QStringView line(text.constData() + from, to - from);
+        if (!line.isEmpty() && line.back() == QLatin1Char('\r'))
+            line.chop(1);
+        if (is_data_line(line) && !line.trimmed().isEmpty()) {
+            const auto row = extract_numbers_chunk(QString{line});
+            out.insert(out.end(), row.begin(), row.end());
+        }
+        if (nl < 0)
+            break;
+        from = to + 1;
     }
     out.shrink_to_fit();
     return out;

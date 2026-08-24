@@ -17,7 +17,7 @@ namespace Ui {
 class IdTab;
 }
 
-/// Идентификация: файл → Simoyu / Дюамель+Simoyu (+τ) → ПФ и графики.
+/// Идентификация: файл → Дюамель? → DeadTimeEstimator? → Simoyu → ПФ и графики.
 class IdTab : public QWidget {
     Q_OBJECT
 

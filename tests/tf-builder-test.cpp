@@ -126,6 +126,16 @@ int main() {
         }
     }
 
+    {
+        const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
+        numina::DelayedPlant plant(w0, 0.5);
+        tf_builder::VecPair pts{{0.0, 99.0}, {0.25, 99.0}, {0.75, 99.0}};
+        tf_builder::apply_delayed_time_samples(pts, plant, false);
+        expect_true("h(t<τ)=0", std::abs(pts[0].second) <= 1e-15);
+        expect_true("h(t<τ) mid", std::abs(pts[1].second) <= 1e-15);
+        expect_true("h(t>τ)=h0(t−τ)", std::abs(pts[2].second - w0.transientResponse(0.25)) <= 1e-12);
+    }
+
     if (g_failed) {
         std::fprintf(stderr, "%d failed\n", g_failed);
         return EXIT_FAILURE;

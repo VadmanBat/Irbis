@@ -4,9 +4,12 @@
 #include "code/util/format.hxx"
 #include "ui_tran-func-dialog.h"
 
+#include "numina/classes/calculus/laplace-solution.h"
+
 #include <cmath>
 #include <complex>
 #include <numbers>
+#include <utility>
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QBrush>
@@ -19,31 +22,58 @@
 namespace {
 enum class SolutionFormat { Html, Plain, Latex };
 
-QString solution_text(const numina::LaplaceSolution& sol, SolutionFormat format) {
+QString shift_time_variable(QString text, const QString& t_sub) {
+    text.replace(QStringLiteral(" t"), QStringLiteral(" ") + t_sub);
+    return text;
+}
+
+QString apply_exact_delay(QString body, double tau, SolutionFormat format) {
+    if (!(tau > 0.0))
+        return body;
+    const QString tau_s = num_format::format(tau);
+    switch (format) {
+        case SolutionFormat::Html: {
+            const QString t_sub = QStringLiteral("(t−%1)").arg(tau_s);
+            return QStringLiteral("1(t−%1)&nbsp;&middot;&nbsp;(%2)").arg(tau_s, shift_time_variable(body, t_sub));
+        }
+        case SolutionFormat::Plain: {
+            const QString t_sub = QStringLiteral("(t-%1)").arg(tau_s);
+            return QStringLiteral("1(t-%1) * (%2)").arg(tau_s, shift_time_variable(body, t_sub));
+        }
+        case SolutionFormat::Latex: {
+            const QString t_sub = QStringLiteral("(t-%1)").arg(tau_s);
+            return QStringLiteral("1(t-%1)\\,(%2)").arg(tau_s, shift_time_variable(body, t_sub));
+        }
+    }
+    return body;
+}
+
+QString solution_text(const numina::LaplaceSolution& sol, SolutionFormat format, double delay_tau) {
+    QString body;
     switch (format) {
         case SolutionFormat::Html:
-            return QString::fromStdString(sol.htmlString());
+            body = QString::fromStdString(sol.htmlString());
+            break;
         case SolutionFormat::Plain:
-            return QString::fromStdString(sol.plainString());
+            body = QString::fromStdString(sol.plainString());
+            break;
         case SolutionFormat::Latex:
-            return QString::fromStdString(sol.latexString());
+            body = QString::fromStdString(sol.latexString());
+            break;
     }
-    return {};
+    return apply_exact_delay(std::move(body), delay_tau, format);
 }
 } // namespace
 
-TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* parent)
-    : QDialog(parent), ui(new Ui::TranFuncDialog), tf_(tf) {
+TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* parent, double delayTau)
+    : QDialog(parent), ui(new Ui::TranFuncDialog), tf_(tf), delay_tau_(delayTau) {
     ui->setupUi(this);
     dialog_icons::apply(this, dialog_icons::Kind::TransferFunction);
 
     ui->polesTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->polesTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     fill_poles();
-
-    ui->htTextEdit->setHtml(QString::fromStdString(tf_.transientSolution().htmlString()));
-    ui->wtTextEdit->setHtml(QString::fromStdString(tf_.impulseSolution().htmlString()));
-
+    show_solutions();
     setup_copy_menus();
 
     connect(ui->okButton, &QPushButton::clicked, this, &QDialog::accept);
@@ -51,6 +81,13 @@ TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* pare
 
 TranFuncDialog::~TranFuncDialog() {
     delete ui;
+}
+
+void TranFuncDialog::show_solutions() {
+    const auto& h = tf_.transientSolution();
+    const auto& w = tf_.impulseSolution();
+    ui->htTextEdit->setHtml(solution_text(h, SolutionFormat::Html, delay_tau_));
+    ui->wtTextEdit->setHtml(solution_text(w, SolutionFormat::Html, delay_tau_));
 }
 
 void TranFuncDialog::setup_copy_menus() {
@@ -61,7 +98,7 @@ void TranFuncDialog::setup_copy_menus() {
             auto* act = menu->addAction(title);
             connect(act, &QAction::triggered, this, [this, button, transient, format] {
                 const numina::LaplaceSolution& sol = transient ? tf_.transientSolution() : tf_.impulseSolution();
-                copy_solution_text(solution_text(sol, format), button);
+                copy_solution_text(solution_text(sol, format, delay_tau_), button);
             });
         };
 

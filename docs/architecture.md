@@ -102,6 +102,7 @@ Includes use the full path from project root, e.g.:
 - frequency: same pattern; **always log ω-grid**
 - `approxOrder` — Padé order for delay
 - `usePadeApprox` / `approxOrder` — per series at add time; `recomputeAll` updates only the time/freq grid
+- exact delay: `numina::DelayedPlant` (lab still on \(W_0\); Irbis samples \(h(t-\tau)\), \(W(j\omega)e^{-j\omega\tau}\))
 
 Edited by `ModParDialog`. Analysis opens the dialog with `allowIdealDelay` (checkbox + gated order). Synthesis / ID always use Padé. Each tab owns a `ModelParam` instance (not yet a shared session).
 
@@ -129,7 +130,7 @@ plant + TransferFunction::makeController(Kp,Ti,Td)
 ```
 file → data_file_parser → step or (valve, signal)
     → DuhamelSolver? → h(t)
-    → SimoyuIdentifier → plant + optional tau
+    → DeadTimeEstimator? (τ + strip) → SimoyuIdentifier → W₀
     → TfDisplayWidget + charts overlay (experiment vs model)
 ```
 

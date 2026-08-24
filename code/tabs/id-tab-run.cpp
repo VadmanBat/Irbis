@@ -4,6 +4,7 @@
 #include "code/util/tf-builder.hpp"
 #include "numina/classes/control/duhamel-solver.h"
 #include "numina/classes/control/simoyu-identifier.h"
+#include "numina/classes/control/simoyu-identifier/dead-time-estimator.h"
 #include "ui_id-tab.h"
 
 #include <algorithm>
@@ -100,30 +101,27 @@ void IdTab::runIdentification() {
             step_series_ = experimental_h;
         }
 
-        numina::SimoyuIdentifier::DelayFit fit;
-        if (want_tau) {
-            if (auto_order)
-                fit = simoyu.identifyDelayAuto(experimental_h, max_order, max_order);
-            else
-                fit = simoyu.identifyDelay(experimental_h, den_n, num_m);
-        }
-        else {
-            fit.tau = 0.0;
-            if (auto_order)
-                fit.plant = simoyu.identifyAuto(experimental_h, max_order, max_order);
-            else
-                fit.plant = simoyu.identify(experimental_h, den_n, num_m);
+        double dt    = 0.0;
+        const auto h = numina::StepNormalizer::seriesToUniform(experimental_h, dt);
+        if (h.size() < 2 || !(dt > 0.0)) {
+            show_error(tr("Не удалось привести h(t) к равномерной сетке (точек: %1).")
+                           .arg(experimental_h.size()));
+            return;
         }
 
-        if (!fit.isOk()) {
+        const double tau = want_tau ? numina::DeadTimeEstimator::estimate(h, dt) : 0.0;
+        const auto hs    = numina::DeadTimeEstimator::strip(h, dt, tau);
+        const auto plant = auto_order ? simoyu.identifyAuto(hs, dt, max_order, max_order)
+                                      : simoyu.identify(hs, dt, den_n, num_m);
+
+        if (plant.denominator().degree() < 1) {
             show_error(tr("Идентификация не дала модели (deg D < 1).\n"
                           "Точек h(t): %1. Проверьте данные и метод.")
                            .arg(experimental_h.size()));
             return;
         }
 
-        const double tau = fit.tau > 0.0 ? fit.tau : 0.0;
-        apply_result(fit.plant, tau, experimental_h);
+        apply_result(plant, tau > 0.0 ? tau : 0.0, experimental_h);
         ui->fileLabel->setText(QFileInfo(file_path_).fileName());
     }
     catch (const std::exception& ex) {
@@ -134,7 +132,7 @@ void IdTab::runIdentification() {
 void IdTab::apply_result(const numina::TransferFunction& plant, double tau, const Series& experimental_h) {
     numina::TransferFunction model = plant;
     if (tau > 0.0)
-        model *= numina::TransferFunction::makeDelay(tau, static_cast<std::uint8_t>(model_param_.approxOrder));
+        model = numina::DelayedPlant(plant, tau).pade(static_cast<std::uint8_t>(model_param_.approxOrder));
 
     display_->setTransferFunction(plant, tau);
 

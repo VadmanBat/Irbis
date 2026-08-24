@@ -30,6 +30,7 @@ private:
     QLabel* name_label_{nullptr};
     int id_{0};
     const numina::TransferFunction* tf_{nullptr};
+    bool exact_delay_solutions_{false};
 
     QLayout* create_coeff_row(VecLine& line_edits, int factor);
     void create_label_context_menu(QLabel* label);
@@ -64,6 +65,7 @@ public:
     bool importText(const QString& text);
 
     void setTransferFunction(const numina::TransferFunction* tf);
+    void setExactDelaySolutions(bool on) noexcept;
     void bindNameLabel(QLabel* label);
 
 protected:
