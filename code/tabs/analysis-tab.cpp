@@ -29,7 +29,7 @@ AnalysisTab::~AnalysisTab() {
 }
 
 void AnalysisTab::install_custom_widgets() {
-    form_    = new TranFuncForm(6, 6, QStringLiteral("W(p) = "), ui->formHost);
+    form_ = new TranFuncForm(6, 6, QStringLiteral("W(p) = "), ui->formHost);
     form_->setExactDelaySolutions(true);
     metrics_ = new RegulationWidget(3, 2, ui->metricsHost);
     tab_ui::mountInHost(ui->formHost, form_, Qt::AlignLeft | Qt::AlignVCenter);

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <QAreaSeries>
 #include <QString>
 #include <QValueAxis>
 
@@ -35,14 +36,13 @@ inline void force_grid_on(QValueAxis* axis) {
 
 inline QString label_format_for_range(double lo, double hi, double step) {
     // Leading '%' must be a printf mark, not a QString::arg slot (`%1.%2f` → `3.0f`).
-    return QLatin1Char('%') + QString::number(labelFieldWidth(lo, hi, step)) + QLatin1Char('.')
-         + QString::number(labelDecimals(step)) + QLatin1Char('f');
+    return QLatin1Char('%') + QString::number(labelFieldWidth(lo, hi, step)) + QLatin1Char('.') +
+           QString::number(labelDecimals(step)) + QLatin1Char('f');
 }
 
 inline void pin_zero_edges(double& lo, double& hi) noexcept {
     const double span = hi - lo;
-    const double eps =
-        1e-12 * std::max(1.0, std::max(span, std::max(std::abs(lo), std::abs(hi))));
+    const double eps  = 1e-12 * std::max(1.0, std::max(span, std::max(std::abs(lo), std::abs(hi))));
     if (std::abs(lo) <= eps)
         lo = 0.0;
     if (std::abs(hi) <= eps)
@@ -126,6 +126,9 @@ inline void apply_viewer_grid(QValueAxis* axis) {
 
 inline void attach_all_series(QChart* chart, QValueAxis* axis_x, QValueAxis* axis_y) {
     for (auto* series : chart->series()) {
+        // QAreaSeries::attachAxis forwards to upper/lower; attach those instead.
+        if (qobject_cast<QAreaSeries*>(series))
+            continue;
         if (!series->attachedAxes().contains(axis_x))
             series->attachAxis(axis_x);
         if (!series->attachedAxes().contains(axis_y))

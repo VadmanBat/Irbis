@@ -149,7 +149,8 @@ inline void paint_irbis(QPainter& p, int size) {
     p.setBrush(QColor(0xf4, 0xf2, 0xec));
     p.drawEllipse(QPointF(16 * s, 22.6 * s), 4.8 * s, 3.4 * s);
     p.setBrush(nose);
-    p.drawPolygon(QPolygonF() << QPointF(16 * s, 19.6 * s) << QPointF(13.8 * s, 21.6 * s) << QPointF(18.2 * s, 21.6 * s));
+    p.drawPolygon(QPolygonF() << QPointF(16 * s, 19.6 * s) << QPointF(13.8 * s, 21.6 * s)
+                              << QPointF(18.2 * s, 21.6 * s));
     p.drawEllipse(QPointF(16 * s, 21.7 * s), 1.7 * s, 0.95 * s);
     p.setPen(QPen(nose, 0.9 * s, Qt::SolidLine, Qt::RoundCap));
     p.setBrush(Qt::NoBrush);

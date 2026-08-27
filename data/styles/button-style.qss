@@ -92,6 +92,86 @@ QPushButton#clearButton:pressed {
     padding: 3px;
 }
 
+/* ---- Identification sidebar (text buttons, not 40×40 icons) ---- */
+QFrame#idSidebar,
+QFrame#idModelCard {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-radius: 8px;
+}
+
+QLabel#idCardTitle {
+    font-size: 10.5pt;
+    font-weight: 600;
+    color: palette(window-text);
+    padding-bottom: 2px;
+}
+
+QFrame#idSidebar QPushButton#openFileButton,
+QFrame#idSidebar QPushButton#identifyButton,
+QFrame#idSidebar QPushButton#clearButton {
+    min-width: 0;
+    min-height: 32px;
+    font-size: 10.5pt;
+    padding: 6px 12px;
+}
+
+QFrame#idSidebar QPushButton#openFileButton {
+    min-height: 36px;
+}
+
+QFrame#idSidebar QPushButton#identifyButton {
+    min-height: 36px;
+    font-size: 11pt;
+    font-weight: 600;
+}
+
+QFrame#idModelCard QPushButton#copyTfButton,
+QFrame#idModelCard QPushButton#equationsButton {
+    min-width: 132px;
+    min-height: 32px;
+    padding: 5px 14px;
+    font-size: 10.5pt;
+    color: white;
+    border-style: outset;
+    border-width: 2px;
+    border-radius: 5px;
+}
+
+QFrame#idModelCard QPushButton#copyTfButton {
+    background-color: #2e7d32;
+    border-color: #1b5e20;
+}
+QFrame#idModelCard QPushButton#copyTfButton:hover {
+    background-color: #388e3c;
+    border-style: inset;
+}
+QFrame#idModelCard QPushButton#copyTfButton:pressed {
+    background-color: #1b5e20;
+    border-style: inset;
+}
+QFrame#idModelCard QPushButton#copyTfButton:disabled {
+    background-color: #9e9e9e;
+    border-color: #757575;
+}
+
+QFrame#idModelCard QPushButton#equationsButton {
+    background-color: #6a1b9a;
+    border-color: #4a148c;
+}
+QFrame#idModelCard QPushButton#equationsButton:hover {
+    background-color: #8e24aa;
+    border-style: inset;
+}
+QFrame#idModelCard QPushButton#equationsButton:pressed {
+    background-color: #4a148c;
+    border-style: inset;
+}
+QFrame#idModelCard QPushButton#equationsButton:disabled {
+    background-color: #9e9e9e;
+    border-color: #757575;
+}
+
 /* ---- Synthesis regulator card ---- */
 QFrame#regulatorCard {
     background-color: palette(base);
@@ -414,4 +494,153 @@ QPushButton#regParamSettings:hover {
 }
 QPushButton#regParamSettings:pressed {
     background-color: palette(midlight);
+}
+
+/* ---- Transfer-function inspector dialog ---- */
+QDialog#TranFuncDialog {
+    background-color: palette(window);
+}
+
+QDialog#TranFuncDialog QScrollArea#bodyScroll,
+QDialog#TranFuncDialog QScrollArea#bodyScroll > QWidget,
+QDialog#TranFuncDialog QWidget#bodyContents {
+    background: transparent;
+    border: none;
+}
+
+QDialog#TranFuncDialog QFrame#tfCard {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-top: 3px solid palette(mid);
+    border-radius: 8px;
+}
+
+QDialog#TranFuncDialog QFrame#tfCard[tfRole="formula"] {
+    background-color: rgba(38, 166, 154, 0.12);
+    border-top: 3px solid #26a69a;
+}
+
+QDialog#TranFuncDialog QFrame#tfCard[tfRole="poles"] {
+    background-color: rgba(126, 87, 194, 0.12);
+    border-top: 3px solid #7e57c2;
+}
+
+QDialog#TranFuncDialog QFrame#tfCard[tfRole="solutions"] {
+    background-color: rgba(66, 165, 245, 0.12);
+    border-top: 3px solid #42a5f5;
+}
+
+QDialog#TranFuncDialog QFrame#tfCard[tfRole="de"] {
+    background-color: rgba(144, 164, 174, 0.12);
+    border-top: 3px solid #90a4ae;
+}
+
+QDialog#TranFuncDialog QLabel#tfCardTitle {
+    font-size: 11pt;
+    font-weight: 600;
+    color: palette(window-text);
+    padding: 2px 2px 4px 2px;
+}
+
+QDialog#TranFuncDialog QLabel#tfEqTitle {
+    font-size: 10pt;
+    font-weight: 600;
+    color: palette(window-text);
+}
+
+QDialog#TranFuncDialog QToolButton#tfSectionToggle,
+QDialog#TranFuncDialog QToolButton#tfSectionToggle:hover,
+QDialog#TranFuncDialog QToolButton#tfSectionToggle:pressed,
+QDialog#TranFuncDialog QToolButton#tfSectionToggle:checked,
+QDialog#TranFuncDialog QToolButton#tfSectionToggle:checked:hover,
+QDialog#TranFuncDialog QToolButton#tfSectionToggle:focus {
+    font-size: 11pt;
+    font-weight: 600;
+    padding: 4px 2px;
+    color: palette(window-text);
+    background: transparent;
+    border: none;
+    outline: none;
+}
+
+QDialog#TranFuncDialog QToolButton#tfSectionToggle:hover {
+    background: rgba(127, 127, 127, 0.12);
+    border-radius: 4px;
+}
+
+QDialog#TranFuncDialog QToolButton#tfCopyButton {
+    font-size: 9pt;
+    padding: 4px 10px;
+    color: palette(window-text);
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-radius: 5px;
+}
+
+QDialog#TranFuncDialog QToolButton#tfCopyButton:hover {
+    background-color: palette(alternate-base);
+}
+
+QDialog#TranFuncDialog QToolButton#tfCopyButton:pressed {
+    background-color: palette(midlight);
+}
+
+QDialog#TranFuncDialog QFrame#tfSectionLine {
+    color: palette(mid);
+    max-height: 1px;
+    margin: 2px 0;
+}
+
+QDialog#TranFuncDialog QWidget#tfFormulaHost,
+QDialog#TranFuncDialog QFrame#tfEqBlock {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-radius: 6px;
+}
+
+QDialog#TranFuncDialog FormulaView {
+    font-size: 13pt;
+    font-family: "Cambria Math", "Cambria", "Times New Roman", serif;
+    background: transparent;
+    color: palette(window-text);
+}
+
+QDialog#TranFuncDialog TfDisplayWidget QLabel#tfTitle {
+    font-size: 16pt;
+}
+
+QDialog#TranFuncDialog TfDisplayWidget QLabel#tfPolyText {
+    font-size: 13pt;
+}
+
+QDialog#TranFuncDialog TfDisplayWidget QLabel#tfDelayText {
+    font-size: 14pt;
+}
+
+QDialog#TranFuncDialog QHeaderView {
+    background-color: transparent;
+}
+
+QDialog#TranFuncDialog QTableWidget {
+    background-color: palette(base);
+    alternate-background-color: rgba(127, 127, 127, 0.10);
+    color: palette(window-text);
+    border: 1px solid palette(mid);
+    border-radius: 6px;
+    gridline-color: transparent;
+    selection-background-color: palette(highlight);
+    selection-color: palette(highlighted-text);
+}
+
+QDialog#TranFuncDialog QTableWidget::item {
+    padding: 5px 12px 5px 8px;
+}
+
+QDialog#TranFuncDialog QHeaderView::section {
+    font-weight: 600;
+    font-size: 9.5pt;
+    padding: 8px 12px 8px 8px;
+    border: none;
+    border-bottom: 1px solid palette(mid);
+    border-right: 1px solid palette(mid);
 }

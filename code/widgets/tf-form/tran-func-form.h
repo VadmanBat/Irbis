@@ -1,6 +1,6 @@
 #pragma once
 
-#include "numina/classes/control/transfer-function.h"
+#include "numina/classes/control/models/transfer-function.h"
 
 #include <QWidget>
 #include <vector>

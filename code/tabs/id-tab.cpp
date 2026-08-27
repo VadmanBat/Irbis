@@ -1,31 +1,58 @@
 #include "code/tabs/id-tab.h"
 
-#include "code/dialogs/id-settings-dialog.h"
+#include "code/charts/chart-panel.h"
+#include "code/dialogs/tran-func-dialog.h"
 #include "code/tabs/tab-shell.hpp"
+#include "code/util/secondary-text.hxx"
 #include "ui_id-tab.h"
 
+#include <algorithm>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QMenu>
+#include <QPoint>
 #include <QPushButton>
+#include <QRect>
+#include <QSpinBox>
+#include <QToolTip>
 
 IdTab::IdTab(QWidget* parent) : QWidget(parent), ui(new Ui::IdTab) {
     ui->setupUi(this);
     install_custom_widgets();
 
-    charts_menu_ = new QMenu(this);
-    tab_ui::wireChartsButton(ui->chartsButton, ui->charts, charts_menu_);
+    secondary_text::applyAll({ui->structHint, ui->delayHint, ui->fileLabel});
 
     connect(ui->openFileButton, &QPushButton::clicked, this, &IdTab::openFile);
     connect(ui->identifyButton, &QPushButton::clicked, this, &IdTab::runIdentification);
     connect(ui->clearButton, &QPushButton::clicked, this, &IdTab::clearAll);
-    connect(ui->settingsButton, &QPushButton::clicked, this, &IdTab::openSettings);
-    connect(ui->idSettingsButton, &QPushButton::clicked, this, &IdTab::openIdSettings);
-    connect(ui->methodCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
-        if (has_data_)
-            ui->fileLabel->setText(tr("%1 (нажмите ▶ для пересчёта)").arg(QFileInfo(file_path_).fileName()));
+    connect(ui->copyTfButton, &QPushButton::clicked, this, &IdTab::copyIdentifiedTf);
+    connect(ui->equationsButton, &QPushButton::clicked, this, &IdTab::showEquations);
+    connect(ui->plantKindCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+            [this](int) { sync_plant_kind_ui(); });
+    connect(ui->autoOrderCheck, &QCheckBox::toggled, this, [this](bool) { sync_struct_ui(); });
+    connect(ui->estimateTauCheck, &QCheckBox::toggled, this, [this](bool on) {
+        ui->delayHint->setText(on ? tr("τ будет оценено по данным.") : tr("Модель без запаздывания (τ = 0)."));
+        secondary_text::apply(ui->delayHint);
     });
+    connect(ui->denOrderSpin, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int n) {
+        if (ui->numOrderSpin->value() > n)
+            ui->numOrderSpin->setValue(n);
+        ui->numOrderSpin->setMaximum(n);
+        maybe_show_structure_template();
+    });
+    connect(ui->numOrderSpin, QOverload<int>::of(&QSpinBox::valueChanged), this,
+            [this](int) { maybe_show_structure_template(); });
+    connect(ui->methodCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
+        if (file_path_.isEmpty())
+            return;
+        if (preview_loaded_file())
+            ui->fileLabel->setText(QFileInfo(file_path_).fileName());
+    });
+
+    ui->numOrderSpin->setMaximum(ui->denOrderSpin->value());
+    sync_plant_kind_ui();
+    sync_struct_ui();
 }
 
 IdTab::~IdTab() {
@@ -34,33 +61,79 @@ IdTab::~IdTab() {
 
 void IdTab::install_custom_widgets() {
     display_ = new TfDisplayWidget(QStringLiteral("W(p) = "), ui->formHost);
-    metrics_ = new RegulationWidget(3, 2, ui->metricsHost);
     tab_ui::mountInHost(ui->formHost, display_, Qt::AlignLeft | Qt::AlignVCenter);
-    tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight | Qt::AlignVCenter);
-    tab_ui::setupPlantQualityMetrics(metrics_);
+    connect(display_, &TfDisplayWidget::contentsChanged, this, &IdTab::sync_tf_actions);
+    sync_tf_actions();
+
+    chart_ = new ChartPanel(tr("h(t): эксперимент / модель"), tr("t, с"), tr("h(t)"), ui->chartHost);
+    chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    tab_ui::mountInHost(ui->chartHost, chart_, {});
+    if (auto* box = qobject_cast<QBoxLayout*>(ui->chartHost->layout()))
+        box->setStretchFactor(chart_, 1);
 }
 
 void IdTab::show_error(const QString& message) {
     tab_ui::showError(this, tr("Ошибка"), message);
 }
 
-void IdTab::openSettings() {
-    if (!tab_ui::editModelParam(this, model_param_))
-        return;
-    // Grid/Padé-sample settings only: recompute responses, keep identified plant.
-    if (!ui->charts->empty()) {
-        ui->charts->recomputeAll(model_param_);
-        tab_ui::applySettledPlantMetrics(metrics_, ui->charts);
-    }
+IdSettings IdTab::read_id_settings() const {
+    IdSettings s;
+    s.plantKind   = static_cast<IdSettings::PlantKind>(ui->plantKindCombo->currentIndex());
+    s.autoOrder   = ui->autoOrderCheck->isChecked();
+    s.denOrder    = ui->denOrderSpin->value();
+    s.numOrder    = std::min(ui->numOrderSpin->value(), s.denOrder);
+    s.estimateTau = ui->estimateTauCheck->isChecked();
+    return s;
 }
 
-void IdTab::openIdSettings() {
-    IdSettingsDialog dialog(id_settings_, this);
-    if (dialog.exec() != QDialog::Accepted)
+void IdTab::sync_plant_kind_ui() {
+    const bool astatic = ui->plantKindCombo->currentIndex() == static_cast<int>(IdSettings::PlantKind::Astatic);
+    ui->structGroup->setVisible(!astatic);
+    maybe_show_structure_template();
+}
+
+void IdTab::sync_struct_ui() {
+    const bool auto_on = ui->autoOrderCheck->isChecked();
+    ui->denOrderSpin->setEnabled(!auto_on);
+    ui->numOrderSpin->setEnabled(!auto_on);
+    ui->denOrderLabel->setEnabled(!auto_on);
+    ui->numOrderLabel->setEnabled(!auto_on);
+    ui->structHint->setText(auto_on ? tr("Структура подбирается автоматически.")
+                                    : tr("Задайте порядки знаменателя и числителя"));
+    secondary_text::apply(ui->structHint);
+    maybe_show_structure_template();
+}
+
+void IdTab::maybe_show_structure_template() {
+    if (!display_ || !display_->isEmpty())
         return;
-    id_settings_ = dialog.data();
-    if (has_data_)
-        runIdentification();
+    const bool astatic = ui->plantKindCombo->currentIndex() == static_cast<int>(IdSettings::PlantKind::Astatic);
+    if (astatic || ui->autoOrderCheck->isChecked()) {
+        display_->clear();
+        return;
+    }
+    display_->setStructureTemplate(ui->numOrderSpin->value(), ui->denOrderSpin->value());
+}
+
+void IdTab::sync_tf_actions() {
+    const bool on = display_ && !display_->isEmpty();
+    ui->copyTfButton->setEnabled(on);
+    ui->equationsButton->setEnabled(on);
+}
+
+void IdTab::copyIdentifiedTf() {
+    if (!display_ || display_->isEmpty())
+        return;
+    display_->copyToClipboard();
+    QToolTip::showText(ui->copyTfButton->mapToGlobal(QPoint(0, ui->copyTfButton->height())), tr("ПФ скопирована"),
+                       ui->copyTfButton, QRect(), 1500);
+}
+
+void IdTab::showEquations() {
+    if (!display_ || display_->isEmpty())
+        return;
+    TranFuncDialog dialog(display_->transferFunction(), this, display_->delay());
+    dialog.exec();
 }
 
 void IdTab::openFile() {
@@ -69,10 +142,15 @@ void IdTab::openFile() {
     if (path.isEmpty())
         return;
     file_path_ = path;
-    has_data_  = false; // set true only after successful load in runIdentification
-    ui->fileLabel->setText(QFileInfo(path).fileName());
     ui->fileLabel->setToolTip(path);
-    runIdentification();
+    if (!preview_loaded_file()) {
+        file_path_.clear();
+        has_data_ = false;
+        ui->fileLabel->setText(tr("Файл не выбран"));
+        ui->fileLabel->setToolTip({});
+        return;
+    }
+    ui->fileLabel->setText(QFileInfo(path).fileName());
 }
 
 void IdTab::clearAll() {
@@ -82,8 +160,9 @@ void IdTab::clearAll() {
     valve_series_.clear();
     signal_series_.clear();
     display_->clear();
-    ui->charts->clearAll();
-    metrics_->updateValues({});
+    maybe_show_structure_template();
+    if (chart_)
+        chart_->clearCurves();
     ui->fileLabel->setText(tr("Файл не выбран"));
     ui->fileLabel->setToolTip({});
 }

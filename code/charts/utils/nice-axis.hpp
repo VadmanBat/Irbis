@@ -208,10 +208,9 @@ inline void suppress_sign_noise(double& min_v, double& max_v) noexcept {
 
 /// 1–2–5 step for a window: ~`major_ticks`, but not fewer than `min_ticks`.
 /// Heckbert nearest can jump 0.3→0.5 and leave h(t)∈[0, 1.2] with only 0 / 0.5 / 1.
-[[nodiscard]] inline double niceTickStepIn(double lo, double hi, int major_ticks = 5,
-                                          int min_ticks = 5) noexcept {
-    const double span = hi - lo;
-    double step       = niceTickStep(span, major_ticks);
+[[nodiscard]] inline double niceTickStepIn(double lo, double hi, int major_ticks = 5, int min_ticks = 5) noexcept {
+    const double span       = hi - lo;
+    double step             = niceTickStep(span, major_ticks);
     const double floor_step = span / 12.0;
     while (tickCountInRange(lo, hi, step) < min_ticks && step > floor_step) {
         const double finer = finerNiceStep(step);

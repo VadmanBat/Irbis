@@ -6,14 +6,23 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>820</width>
+    <width>900</width>
     <height>640</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>720</width>
+    <height>480</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Передаточная функция</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
    <property name="spacing">
     <number>12</number>
    </property>
@@ -30,182 +39,707 @@
     <number>16</number>
    </property>
    <item>
-    <widget class="QLabel" name="titleLabel">
-     <property name="text">
-      <string>Корневая характеристика и решения</string>
+    <widget class="QScrollArea" name="bodyScroll">
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOff</enum>
      </property>
-     <property name="styleSheet">
-      <string>font-size: 12pt; font-weight: 600;</string>
+     <property name="verticalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="polesGroup">
-     <property name="title">
-      <string>Полюса (корни знаменателя)</string>
+     <property name="widgetResizable">
+      <bool>true</bool>
      </property>
-     <layout class="QVBoxLayout" name="polesLayout">
-      <item>
-       <widget class="QTableWidget" name="polesTable">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>200</height>
-         </size>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-        <property name="alternatingRowColors">
-         <bool>true</bool>
-        </property>
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <column>
-         <property name="text">
-          <string>Re</string>
+     <widget class="QWidget" name="bodyContents">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>868</width>
+        <height>560</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="bodyLayout">
+       <property name="spacing">
+        <number>16</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QFrame" name="headerCard">
+         <property name="objectName">
+          <string notr="true">tfCard</string>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Im</string>
+         <property name="tfRole" stdset="0">
+          <string notr="true">formula</string>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Abs</string>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Arg, °</string>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>τ, с</string>
+         <layout class="QVBoxLayout" name="headerLayout">
+          <property name="spacing">
+           <number>8</number>
+          </property>
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
+          <property name="topMargin">
+           <number>10</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
+          </property>
+          <property name="bottomMargin">
+           <number>14</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="formulaTitle">
+            <property name="objectName">
+             <string notr="true">tfCardTitle</string>
+            </property>
+            <property name="text">
+             <string>Формула</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="formulaHost" native="true">
+            <property name="objectName">
+             <string notr="true">tfFormulaHost</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="polesCard">
+         <property name="objectName">
+          <string notr="true">tfCard</string>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>ζ</string>
+         <property name="tfRole" stdset="0">
+          <string notr="true">poles</string>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>T, с</string>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
          </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Значимость</string>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
          </property>
-        </column>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="htGroup">
-     <property name="title">
-      <string>Переходная характеристика h(t)</string>
-     </property>
-     <layout class="QVBoxLayout" name="htLayout">
-      <item>
-       <layout class="QHBoxLayout" name="htToolLayout">
-        <item>
-         <spacer name="htSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+         <layout class="QVBoxLayout" name="polesLayout">
+          <property name="spacing">
+           <number>8</number>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="leftMargin">
+           <number>14</number>
           </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="htCopyButton">
-          <property name="text">
-           <string>Копировать ▾</string>
+          <property name="topMargin">
+           <number>10</number>
           </property>
-          <property name="popupMode">
-           <enum>QToolButton::InstantPopup</enum>
+          <property name="rightMargin">
+           <number>14</number>
           </property>
-          <property name="toolTip">
-           <string>Скопировать h(t) в буфер</string>
+          <property name="bottomMargin">
+           <number>14</number>
           </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="htTextEdit">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="minimumHeight">
-         <number>80</number>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="wtGroup">
-     <property name="title">
-      <string>Импульсная характеристика w(t)</string>
-     </property>
-     <layout class="QVBoxLayout" name="wtLayout">
-      <item>
-       <layout class="QHBoxLayout" name="wtToolLayout">
-        <item>
-         <spacer name="wtSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
+          <item>
+           <widget class="QLabel" name="polesTitle">
+            <property name="objectName">
+             <string notr="true">tfCardTitle</string>
+            </property>
+            <property name="text">
+             <string>Полюса</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QTableWidget" name="polesTable">
+            <property name="editTriggers">
+             <set>QAbstractItemView::NoEditTriggers</set>
+            </property>
+            <property name="alternatingRowColors">
+             <bool>true</bool>
+            </property>
+            <property name="selectionBehavior">
+             <enum>QAbstractItemView::SelectRows</enum>
+            </property>
+            <property name="showGrid">
+             <bool>false</bool>
+            </property>
+            <property name="wordWrap">
+             <bool>false</bool>
+            </property>
+            <attribute name="verticalHeaderVisible">
+             <bool>false</bool>
+            </attribute>
+            <column>
+             <property name="text">
+              <string>Re</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Im</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Abs</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Arg, °</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>τ, с</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>ζ</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>T, с</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Значимость</string>
+             </property>
+            </column>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="solutionsCard">
+         <property name="objectName">
+          <string notr="true">tfCard</string>
+         </property>
+         <property name="tfRole" stdset="0">
+          <string notr="true">solutions</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <layout class="QVBoxLayout" name="solutionsLayout">
+          <property name="spacing">
+           <number>10</number>
           </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
+          <property name="leftMargin">
+           <number>14</number>
           </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QToolButton" name="wtCopyButton">
-          <property name="text">
-           <string>Копировать ▾</string>
+          <property name="topMargin">
+           <number>10</number>
           </property>
-          <property name="popupMode">
-           <enum>QToolButton::InstantPopup</enum>
+          <property name="rightMargin">
+           <number>14</number>
           </property>
-          <property name="toolTip">
-           <string>Скопировать w(t) в буфер</string>
+          <property name="bottomMargin">
+           <number>14</number>
           </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item>
-       <widget class="QTextEdit" name="wtTextEdit">
-        <property name="readOnly">
-         <bool>true</bool>
-        </property>
-        <property name="minimumHeight">
-         <number>80</number>
-        </property>
-       </widget>
-      </item>
-     </layout>
+          <item>
+           <widget class="QLabel" name="solutionsTitle">
+            <property name="objectName">
+             <string notr="true">tfCardTitle</string>
+            </property>
+            <property name="text">
+             <string>Аналитические решения при единичном скачке и импульсе</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="htBlock">
+            <property name="objectName">
+             <string notr="true">tfEqBlock</string>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <layout class="QVBoxLayout" name="htBlockLayout">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <property name="leftMargin">
+              <number>12</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>12</number>
+             </property>
+             <property name="bottomMargin">
+              <number>10</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="htToolLayout">
+               <property name="spacing">
+                <number>8</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="htCaption">
+                 <property name="objectName">
+                  <string notr="true">tfEqTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Переходная характеристика</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="htSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>8</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QToolButton" name="htCopyButton">
+                 <property name="objectName">
+                  <string notr="true">tfCopyButton</string>
+                 </property>
+                 <property name="text">
+                  <string>Копировать</string>
+                 </property>
+                 <property name="popupMode">
+                  <enum>QToolButton::InstantPopup</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Скопировать h(t)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QWidget" name="htHost" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="wtBlock">
+            <property name="objectName">
+             <string notr="true">tfEqBlock</string>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <layout class="QVBoxLayout" name="wtBlockLayout">
+             <property name="spacing">
+              <number>6</number>
+             </property>
+             <property name="leftMargin">
+              <number>12</number>
+             </property>
+             <property name="topMargin">
+              <number>8</number>
+             </property>
+             <property name="rightMargin">
+              <number>12</number>
+             </property>
+             <property name="bottomMargin">
+              <number>10</number>
+             </property>
+             <item>
+              <layout class="QHBoxLayout" name="wtToolLayout">
+               <property name="spacing">
+                <number>8</number>
+               </property>
+               <item>
+                <widget class="QLabel" name="wtCaption">
+                 <property name="objectName">
+                  <string notr="true">tfEqTitle</string>
+                 </property>
+                 <property name="text">
+                  <string>Импульсная характеристика</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="wtSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>40</width>
+                   <height>8</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="QToolButton" name="wtCopyButton">
+                 <property name="objectName">
+                  <string notr="true">tfCopyButton</string>
+                 </property>
+                 <property name="text">
+                  <string>Копировать</string>
+                 </property>
+                 <property name="popupMode">
+                  <enum>QToolButton::InstantPopup</enum>
+                 </property>
+                 <property name="toolTip">
+                  <string>Скопировать w(t)</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QWidget" name="wtHost" native="true"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="deCard">
+         <property name="objectName">
+          <string notr="true">tfCard</string>
+         </property>
+         <property name="tfRole" stdset="0">
+          <string notr="true">de</string>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <layout class="QVBoxLayout" name="deCardLayout">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <property name="leftMargin">
+           <number>14</number>
+          </property>
+          <property name="topMargin">
+           <number>8</number>
+          </property>
+          <property name="rightMargin">
+           <number>14</number>
+          </property>
+          <property name="bottomMargin">
+           <number>12</number>
+          </property>
+          <item>
+           <widget class="QToolButton" name="deToggle">
+            <property name="objectName">
+             <string notr="true">tfSectionToggle</string>
+            </property>
+            <property name="text">
+             <string>Дифференциальные уравнения</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+            <property name="toolButtonStyle">
+             <enum>Qt::ToolButtonTextBesideIcon</enum>
+            </property>
+            <property name="autoRaise">
+             <bool>true</bool>
+            </property>
+            <property name="toolTip">
+             <string>Уравнение вход–выход, уравнения состояния и дискретное решение неявным Эйлером</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="deBody" native="true">
+            <layout class="QVBoxLayout" name="deBodyLayout">
+             <property name="spacing">
+              <number>10</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>10</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>2</number>
+             </property>
+             <item>
+              <widget class="QFrame" name="odeBlock">
+               <property name="objectName">
+                <string notr="true">tfEqBlock</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <layout class="QVBoxLayout" name="odeBlockLayout">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="leftMargin">
+                 <number>12</number>
+                </property>
+                <property name="topMargin">
+                 <number>8</number>
+                </property>
+                <property name="rightMargin">
+                 <number>12</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>10</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="odeToolLayout">
+                  <item>
+                   <widget class="QLabel" name="odeCaption">
+                    <property name="objectName">
+                     <string notr="true">tfEqTitle</string>
+                    </property>
+                    <property name="text">
+                     <string>Дифференциальное уравнение вход–выход</string>
+                    </property>
+                    <property name="toolTip">
+                     <string>Одно уравнение, связывающее выход y(t) и вход u(t) через производные: D(p)·y = N(p)·u</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="odeSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>8</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="odeCopyButton">
+                    <property name="objectName">
+                     <string notr="true">tfCopyButton</string>
+                    </property>
+                    <property name="text">
+                     <string>Копировать</string>
+                    </property>
+                    <property name="popupMode">
+                     <enum>QToolButton::InstantPopup</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="odeHost" native="true"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="firstOrderBlock">
+               <property name="objectName">
+                <string notr="true">tfEqBlock</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <layout class="QVBoxLayout" name="firstOrderBlockLayout">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="leftMargin">
+                 <number>12</number>
+                </property>
+                <property name="topMargin">
+                 <number>8</number>
+                </property>
+                <property name="rightMargin">
+                 <number>12</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>10</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="firstOrderToolLayout">
+                  <item>
+                   <widget class="QLabel" name="firstOrderCaption">
+                    <property name="objectName">
+                     <string notr="true">tfEqTitle</string>
+                    </property>
+                    <property name="text">
+                     <string>Уравнения состояния</string>
+                    </property>
+                    <property name="toolTip">
+                     <string>Нормальная форма Коши: каскад по полюсам, каждое звено — уравнение первого порядка</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="firstOrderSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>8</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="firstOrderCopyButton">
+                    <property name="objectName">
+                     <string notr="true">tfCopyButton</string>
+                    </property>
+                    <property name="text">
+                     <string>Копировать</string>
+                    </property>
+                    <property name="popupMode">
+                     <enum>QToolButton::InstantPopup</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="firstOrderHost" native="true"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item>
+              <widget class="QFrame" name="eulerBlock">
+               <property name="objectName">
+                <string notr="true">tfEqBlock</string>
+               </property>
+               <property name="frameShape">
+                <enum>QFrame::NoFrame</enum>
+               </property>
+               <layout class="QVBoxLayout" name="eulerBlockLayout">
+                <property name="spacing">
+                 <number>6</number>
+                </property>
+                <property name="leftMargin">
+                 <number>12</number>
+                </property>
+                <property name="topMargin">
+                 <number>8</number>
+                </property>
+                <property name="rightMargin">
+                 <number>12</number>
+                </property>
+                <property name="bottomMargin">
+                 <number>10</number>
+                </property>
+                <item>
+                 <layout class="QHBoxLayout" name="eulerToolLayout">
+                  <item>
+                   <widget class="QLabel" name="eulerCaption">
+                    <property name="objectName">
+                     <string notr="true">tfEqTitle</string>
+                    </property>
+                    <property name="text">
+                     <string>Дискретное решение неявным методом Эйлера</string>
+                    </property>
+                    <property name="toolTip">
+                     <string>Неявная (обратная) разность: x₁ — текущий шаг, x₀ — предыдущий; dt — шаг интегрирования</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <spacer name="eulerSpacer">
+                    <property name="orientation">
+                     <enum>Qt::Horizontal</enum>
+                    </property>
+                    <property name="sizeHint" stdset="0">
+                     <size>
+                      <width>40</width>
+                      <height>8</height>
+                     </size>
+                    </property>
+                   </spacer>
+                  </item>
+                  <item>
+                   <widget class="QToolButton" name="eulerCopyButton">
+                    <property name="objectName">
+                     <string notr="true">tfCopyButton</string>
+                    </property>
+                    <property name="text">
+                     <string>Копировать</string>
+                    </property>
+                    <property name="popupMode">
+                     <enum>QToolButton::InstantPopup</enum>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <widget class="QWidget" name="eulerHost" native="true"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="bodyTail">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>

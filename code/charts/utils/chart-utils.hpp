@@ -5,6 +5,7 @@
 #include "code/series/axis-bounds.hpp"
 
 #include <complex>
+#include <QAbstractSeries>
 #include <QChart>
 #include <QChartView>
 #include <QPen>
@@ -37,6 +38,8 @@ enum class GridMode {
 };
 
 QPen penForIndex(std::size_t index);
+/// Origin guides and QAreaSeries boundary lines (not user data).
+[[nodiscard]] bool isAccessorySeries(QChart* chart, QAbstractSeries* series);
 
 void createAxes(QChart* chart, const QString& titleX, const QString& titleY);
 void createChartContextMenu(QChartView* chartView);
@@ -57,6 +60,9 @@ void tightenChartFrame(QChart* chart);
 /// One pass: QLineSeries points + AxisBounds. wrote=false if empty / no chart / no series to replace.
 [[nodiscard]] SeriesWrite addRealSeries(QChart* chart, const VecPair& points, const QString& title,
                                         std::size_t index = 0);
+/// Filled band between two polylines (deadzone tube). Not a data-curve colour slot.
+[[nodiscard]] SeriesWrite addBandSeries(QChart* chart, const VecPair& lower, const VecPair& upper,
+                                        const QString& title);
 [[nodiscard]] SeriesWrite addComplexSeries(QChart* chart, const VecComp& points, const QString& title,
                                            std::size_t index = 0);
 [[nodiscard]] SeriesWrite replaceLastRealSeries(QChart* chart, const VecPair& points, const QString& title);

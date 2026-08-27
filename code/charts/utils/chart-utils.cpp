@@ -5,10 +5,12 @@
 #include <algorithm>
 #include <QAbstractAxis>
 #include <QAbstractSeries>
+#include <QAreaSeries>
 #include <QBrush>
 #include <QFontMetrics>
 #include <QGraphicsLayout>
 #include <QLegend>
+#include <QLegendMarker>
 #include <QLineSeries>
 #include <QMargins>
 #include <QPainter>
@@ -72,6 +74,14 @@ void applyChartTheme(QChart* chart, QChartView* view) {
 
 QPen penForIndex(std::size_t index) {
     return penForIndexTheme(index, isDarkTheme());
+}
+
+bool isAccessorySeries(QChart* chart, QAbstractSeries* series) {
+    if (!series)
+        return true;
+    if (detail::isGuideSeries(series->name()))
+        return true;
+    return detail::isAreaEdge(chart, series);
 }
 
 void tightenChartFrame(QChart* chart) {
@@ -141,7 +151,7 @@ QChart* cloneChart(QChart* src) {
     createAxes(dst, title_x, title_y);
 
     for (auto* s : src->series()) {
-        if (detail::isGuideSeries(s->name()))
+        if (isAccessorySeries(src, s))
             continue;
         QAbstractSeries* copy = nullptr;
         if (auto* line = qobject_cast<QLineSeries*>(s)) {
@@ -164,6 +174,33 @@ QChart* cloneChart(QChart* src) {
             out->setLightMarker(scatter->lightMarker());
             out->replace(scatter->points());
             copy = out;
+        }
+        else if (auto* area = qobject_cast<QAreaSeries*>(s)) {
+            auto* up = new QLineSeries;
+            auto* lo = new QLineSeries;
+            if (QLineSeries* src_up = area->upperSeries())
+                up->replace(src_up->points());
+            if (QLineSeries* src_lo = area->lowerSeries())
+                lo->replace(src_lo->points());
+            dst->addSeries(up);
+            dst->addSeries(lo);
+            auto* out = new QAreaSeries(up, lo);
+            out->setName(area->name());
+            out->setBrush(area->brush());
+            out->setPen(area->pen());
+            dst->addSeries(out);
+            up->setPen(Qt::NoPen);
+            lo->setPen(Qt::NoPen);
+            detail::attachToAxes(dst, up);
+            detail::attachToAxes(dst, lo);
+            detail::attachToAxes(dst, out);
+            if (QLegend* legend = dst->legend()) {
+                for (auto* marker : legend->markers(up))
+                    marker->setVisible(false);
+                for (auto* marker : legend->markers(lo))
+                    marker->setVisible(false);
+            }
+            continue;
         }
         if (!copy)
             continue;

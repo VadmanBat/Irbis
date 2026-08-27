@@ -1,15 +1,10 @@
 #include "code/tabs/id-tab.h"
-#include "code/tabs/tab-shell.hpp"
 #include "code/util/data-file-parser.hpp"
-#include "code/util/tf-builder.hpp"
-#include "numina/classes/control/duhamel-solver.h"
-#include "numina/classes/control/simoyu-identifier.h"
-#include "numina/classes/control/simoyu-identifier/dead-time-estimator.h"
+#include "numina/classes/control/identification/duhamel-solver.h"
 #include "ui_id-tab.h"
 
-#include <algorithm>
+#include <exception>
 #include <QFileInfo>
-#include <QMessageBox>
 #include <utility>
 
 bool IdTab::load_step_file(const QString& path) {
@@ -23,6 +18,40 @@ bool IdTab::load_step_file(const QString& path) {
     step_series_ = std::move(*opt);
     valve_series_.clear();
     signal_series_.clear();
+    return true;
+}
+
+bool IdTab::preview_loaded_file() {
+    const auto method = static_cast<Method>(ui->methodCombo->currentIndex());
+    const bool loaded =
+        (method == Method::StepResponse) ? load_step_file(file_path_) : load_valve_signal_file(file_path_);
+    if (!loaded)
+        return false;
+
+    if (method == Method::StepResponse) {
+        if (step_series_.size() < 2) {
+            show_error(tr("Недостаточно точек переходной характеристики."));
+            return false;
+        }
+    }
+    else {
+        if (valve_series_.size() < 2 || signal_series_.size() < 2) {
+            show_error(tr("Недостаточно точек клапана/сигнала (строк: %1).").arg(valve_series_.size()));
+            return false;
+        }
+        const std::size_t n_valve = valve_series_.size();
+        for (std::size_t i = 1; i < n_valve; ++i) {
+            if (valve_series_[i].first < valve_series_[i - 1].first) {
+                show_error(tr("Время должно быть неубывающим (нарушение около точки %1).").arg(i));
+                return false;
+            }
+        }
+    }
+
+    has_data_ = true;
+    display_->clear();
+    maybe_show_structure_template();
+    show_file_preview();
     return true;
 }
 
@@ -52,92 +81,38 @@ void IdTab::runIdentification() {
         show_error(tr("Сначала выберите файл с экспериментальными данными."));
         return;
     }
-
-    const auto method = static_cast<Method>(ui->methodCombo->currentIndex());
-    const bool loaded =
-        (method == Method::StepResponse) ? load_step_file(file_path_) : load_valve_signal_file(file_path_);
-    if (!loaded)
+    if (!preview_loaded_file())
         return;
-    has_data_ = true;
+
+    const auto method   = static_cast<Method>(ui->methodCombo->currentIndex());
+    const auto settings = read_id_settings();
 
     try {
-        numina::SimoyuIdentifier simoyu;
-        Series experimental_h;
-        const bool auto_order   = id_settings_.autoOrder;
-        const std::size_t den_n = static_cast<std::size_t>(std::clamp(id_settings_.denOrder, 1, 6));
-        const std::size_t num_m =
-            static_cast<std::size_t>(std::clamp(id_settings_.numOrder, 0, static_cast<int>(den_n)));
-        // Plant structure order is independent of Padé approxOrder (model settings).
-        const std::size_t max_order = static_cast<std::size_t>(std::clamp(id_settings_.maxAutoOrder, 2, 6));
-        const bool want_tau         = id_settings_.estimateTau;
-
-        if (method == Method::StepResponse) {
-            if (step_series_.size() < 2) {
-                show_error(tr("Недостаточно точек переходной характеристики."));
-                return;
-            }
-            experimental_h = step_series_;
+        if (settings.plantKind == IdSettings::PlantKind::Astatic) {
+            run_astatic(method);
         }
         else {
-            if (valve_series_.size() < 2 || signal_series_.size() < 2) {
-                show_error(tr("Недостаточно точек клапана/сигнала (строк: %1).").arg(valve_series_.size()));
-                return;
+            Series experimental_h;
+            if (method == Method::StepResponse) {
+                experimental_h = step_series_;
             }
-            const std::size_t n_valve = valve_series_.size();
-            for (std::size_t i = 1; i < n_valve; ++i) {
-                if (valve_series_[i].first < valve_series_[i - 1].first) {
-                    show_error(tr("Время должно быть неубывающим (нарушение около точки %1).").arg(i));
+            else {
+                numina::DuhamelSolver duhamel;
+                experimental_h = duhamel.stepResponse(valve_series_, signal_series_);
+                if (experimental_h.size() < 2) {
+                    show_error(tr("Дюамель не восстановил h(t) (точек: %1).\n"
+                                  "Проверьте, что u(t) меняется и y(t) согласован по времени.")
+                                   .arg(experimental_h.size()));
                     return;
                 }
+                step_series_ = experimental_h;
             }
-            numina::DuhamelSolver duhamel;
-            experimental_h = duhamel.stepResponse(valve_series_, signal_series_);
-            if (experimental_h.size() < 2) {
-                show_error(tr("Дюамель не восстановил h(t) (точек: %1).\n"
-                              "Проверьте, что u(t) меняется и y(t) согласован по времени.")
-                               .arg(experimental_h.size()));
-                return;
-            }
-            step_series_ = experimental_h;
+            run_static(experimental_h);
         }
 
-        double dt    = 0.0;
-        const auto h = numina::StepNormalizer::seriesToUniform(experimental_h, dt);
-        if (h.size() < 2 || !(dt > 0.0)) {
-            show_error(tr("Не удалось привести h(t) к равномерной сетке (точек: %1).")
-                           .arg(experimental_h.size()));
-            return;
-        }
-
-        const double tau = want_tau ? numina::DeadTimeEstimator::estimate(h, dt) : 0.0;
-        const auto hs    = numina::DeadTimeEstimator::strip(h, dt, tau);
-        const auto plant = auto_order ? simoyu.identifyAuto(hs, dt, max_order, max_order)
-                                      : simoyu.identify(hs, dt, den_n, num_m);
-
-        if (plant.denominator().degree() < 1) {
-            show_error(tr("Идентификация не дала модели (deg D < 1).\n"
-                          "Точек h(t): %1. Проверьте данные и метод.")
-                           .arg(experimental_h.size()));
-            return;
-        }
-
-        apply_result(plant, tau > 0.0 ? tau : 0.0, experimental_h);
         ui->fileLabel->setText(QFileInfo(file_path_).fileName());
     }
     catch (const std::exception& ex) {
         show_error(tr("Ошибка идентификации: %1").arg(QString::fromUtf8(ex.what())));
     }
-}
-
-void IdTab::apply_result(const numina::TransferFunction& plant, double tau, const Series& experimental_h) {
-    numina::TransferFunction model = plant;
-    if (tau > 0.0)
-        model = numina::DelayedPlant(plant, tau).pade(static_cast<std::uint8_t>(model_param_.approxOrder));
-
-    display_->setTransferFunction(plant, tau);
-
-    ui->charts->clearAll();
-    ui->charts->appendTransientCurve(experimental_h, tr("Эксперимент"));
-    ui->charts->appendFromTf(model, model_param_, tr("Модель"));
-    tab_ui::applySettledPlantMetrics(metrics_, ui->charts);
 }

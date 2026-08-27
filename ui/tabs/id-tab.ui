@@ -2,248 +2,520 @@
 <ui version="4.0">
  <class>IdTab</class>
  <widget class="QWidget" name="IdTab">
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,1">
+  <layout class="QHBoxLayout" name="rootLayout" stretch="0,1">
+   <property name="spacing">
+    <number>12</number>
+   </property>
    <item>
-    <layout class="QHBoxLayout" name="topLayout" stretch="0,1,0">
-     <item>
-      <widget class="QWidget" name="formHost" native="true">
-       <layout class="QVBoxLayout" name="formHostLayout">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <spacer name="topSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QWidget" name="metricsHost" native="true">
-       <layout class="QVBoxLayout" name="metricsHostLayout">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-       </layout>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="buttonLayout">
-     <item>
-      <widget class="QLabel" name="methodLabel">
-       <property name="text">
-        <string>Метод:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="methodCombo">
-       <property name="toolTip">
-        <string>По переходной: time, value.
-По клапану/сигналу: time, valve, value (табы/пробелы/; и т.п.).</string>
-       </property>
-       <item>
-        <property name="text">
-         <string>По переходной h(t)</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>По клапану / сигналу</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="openFileButton">
-       <property name="objectName">
-        <string notr="true">openFileButton</string>
-       </property>
-       <property name="toolTip">
-        <string>Загрузить экспериментальные данные</string>
-       </property>
-       <property name="text">
-        <string>📂</string>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="fileLabel">
-       <property name="text">
-        <string>Файл не выбран</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="buttonSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QToolButton" name="chartsButton">
-       <property name="toolTip">
-        <string>Отображаемые графики</string>
-       </property>
-       <property name="text">
-        <string>◫</string>
-       </property>
-       <property name="popupMode">
-        <enum>QToolButton::InstantPopup</enum>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="idSettingsButton">
-       <property name="objectName">
-        <string notr="true">idSettingsButton</string>
-       </property>
-       <property name="toolTip">
-        <string>Настройки идентификации (структура ПФ, τ)</string>
-       </property>
-       <property name="text">
-        <string>∑</string>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="settingsButton">
-       <property name="objectName">
-        <string notr="true">settingsButton</string>
-       </property>
-       <property name="toolTip">
-        <string>Параметры моделирования</string>
-       </property>
-       <property name="text">
-        <string>⚙</string>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="identifyButton">
-       <property name="objectName">
-        <string notr="true">identifyButton</string>
-       </property>
-       <property name="toolTip">
-        <string>Идентифицировать ПФ</string>
-       </property>
-       <property name="text">
-        <string>▶</string>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="clearButton">
-       <property name="objectName">
-        <string notr="true">clearButton</string>
-       </property>
-       <property name="toolTip">
-        <string>Очистить</string>
-       </property>
-       <property name="text">
-        <string>×</string>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="ResponseChartBank" name="charts">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-       <horstretch>1</horstretch>
-       <verstretch>1</verstretch>
-      </sizepolicy>
+    <widget class="QFrame" name="idSidebar">
+     <property name="objectName">
+      <string notr="true">idSidebar</string>
      </property>
+     <property name="minimumWidth">
+      <number>280</number>
+     </property>
+     <property name="maximumWidth">
+      <number>320</number>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QVBoxLayout" name="sidebarLayout">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="dataTitle">
+        <property name="objectName">
+         <string notr="true">idCardTitle</string>
+        </property>
+        <property name="text">
+         <string>Входные данные</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="methodLabel">
+        <property name="text">
+         <string>Тип экспериментальных данных:</string>
+        </property>
+        <property name="buddy">
+         <cstring>methodCombo</cstring>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="methodCombo">
+        <property name="toolTip">
+         <string>Переходная характеристика: пары time, h(t).
+Входной и выходной сигналы: тройки time, u(t), y(t).</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Переходная характеристика h(t)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Входной и выходной сигналы u(t), y(t)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="openFileButton">
+        <property name="objectName">
+         <string notr="true">openFileButton</string>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="toolTip">
+         <string>Загрузить экспериментальные данные</string>
+        </property>
+        <property name="text">
+         <string>📂 Выбрать файл</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="fileLabel">
+        <property name="text">
+         <string>Файл не выбран</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+        <property name="textInteractionFlags">
+         <set>Qt::TextSelectableByMouse</set>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-size: 9pt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="plantTitle">
+        <property name="objectName">
+         <string notr="true">idCardTitle</string>
+        </property>
+        <property name="text">
+         <string>Объект</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="plantKindLabel">
+        <property name="text">
+         <string>Тип</string>
+        </property>
+        <property name="buddy">
+         <cstring>plantKindCombo</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="plantKindCombo">
+        <property name="toolTip">
+         <string>Статический объект — это объект, у которого выходная величина стабилизируется.
+Астатический объект — это объект, у которого выходная величина непрерывно изменяется и не стабилизируется сама по себе.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Статический</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Астатический (интегратор)</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="structGroup" native="true">
+        <layout class="QVBoxLayout" name="structLayout">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>4</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="structTitle">
+           <property name="objectName">
+            <string notr="true">idCardTitle</string>
+           </property>
+           <property name="text">
+            <string>Параметры</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="autoOrderCheck">
+           <property name="text">
+            <string>Подбирать структуру автоматически</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string>Вкл. — порядки n и m выбираются сами.
+Выкл. — задаёте n и m вручную.</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="structHint">
+           <property name="text">
+            <string>Задайте порядки знаменателя и числителя</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font-size: 9pt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QGridLayout" name="orderGrid">
+           <property name="horizontalSpacing">
+            <number>8</number>
+           </property>
+           <property name="verticalSpacing">
+            <number>4</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QLabel" name="denOrderLabel">
+             <property name="text">
+              <string>n</string>
+             </property>
+             <property name="buddy">
+              <cstring>denOrderSpin</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QSpinBox" name="denOrderSpin">
+             <property name="toolTip">
+              <string>Степень знаменателя (deg D)</string>
+             </property>
+             <property name="minimum">
+              <number>1</number>
+             </property>
+             <property name="maximum">
+              <number>6</number>
+             </property>
+             <property name="value">
+              <number>2</number>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLabel" name="numOrderLabel">
+             <property name="text">
+              <string>m</string>
+             </property>
+             <property name="buddy">
+              <cstring>numOrderSpin</cstring>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QSpinBox" name="numOrderSpin">
+             <property name="toolTip">
+              <string>Степень числителя (deg N), m ≤ n</string>
+             </property>
+             <property name="minimum">
+              <number>0</number>
+             </property>
+             <property name="maximum">
+              <number>6</number>
+             </property>
+             <property name="value">
+              <number>0</number>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="estimateTauCheck">
+           <property name="text">
+            <string>Оценивать запаздывание τ</string>
+           </property>
+           <property name="checked">
+            <bool>true</bool>
+           </property>
+           <property name="toolTip">
+            <string>Вкл. — τ оценивается по началу h(t).
+Выкл. — модель без запаздывания (τ = 0).</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="delayHint">
+           <property name="text">
+            <string>τ будет оценено по данным.</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font-size: 9pt;</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <spacer name="sidebarSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>12</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="identifyButton">
+        <property name="objectName">
+         <string notr="true">identifyButton</string>
+        </property>
+        <property name="toolTip">
+         <string>Идентифицировать передаточную функцию</string>
+        </property>
+        <property name="text">
+         <string>Идентифицировать</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearButton">
+        <property name="objectName">
+         <string notr="true">clearButton</string>
+        </property>
+        <property name="toolTip">
+         <string>Очистить файл, модель и график</string>
+        </property>
+        <property name="text">
+         <string>Очистить</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="mainCol" native="true">
+     <layout class="QVBoxLayout" name="mainColLayout" stretch="0,1">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="idModelCard">
+        <property name="objectName">
+         <string notr="true">idModelCard</string>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <layout class="QVBoxLayout" name="modelCardLayout">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>12</number>
+         </property>
+         <property name="topMargin">
+          <number>10</number>
+         </property>
+         <property name="rightMargin">
+          <number>12</number>
+         </property>
+         <property name="bottomMargin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="modelTitle">
+           <property name="objectName">
+            <string notr="true">idCardTitle</string>
+           </property>
+           <property name="text">
+            <string>Идентифицированная ПФ</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="tfBodyLayout" stretch="1,0">
+           <property name="spacing">
+            <number>16</number>
+           </property>
+           <item>
+            <widget class="QWidget" name="formHost" native="true">
+             <layout class="QVBoxLayout" name="formHostLayout">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+             </layout>
+            </widget>
+           </item>
+           <item alignment="Qt::AlignVCenter">
+            <widget class="QWidget" name="tfActionsHost" native="true">
+             <layout class="QVBoxLayout" name="tfActionsLayout">
+              <property name="spacing">
+               <number>8</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="copyTfButton">
+                <property name="objectName">
+                 <string notr="true">copyTfButton</string>
+                </property>
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Скопировать передаточную функцию в буфер обмена</string>
+                </property>
+                <property name="text">
+                 <string>Копировать</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="equationsButton">
+                <property name="objectName">
+                 <string notr="true">equationsButton</string>
+                </property>
+                <property name="enabled">
+                 <bool>false</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Полюса, h(t), w(t) и дифференциальные уравнения</string>
+                </property>
+                <property name="text">
+                 <string>Просмотр уравнений</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="chartHost" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="chartHostLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>ResponseChartBank</class>
-   <extends>QWidget</extends>
-   <header>code/charts/response-chart-bank.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

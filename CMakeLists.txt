@@ -102,6 +102,12 @@ if (IRBIS_BUILD_TESTS)
     target_link_libraries(tf_builder_test PRIVATE numina::numina)
     add_test(NAME tf_builder_test COMMAND tf_builder_test)
 
+    add_executable(tf_stepper_test tests/tf-stepper-test.cpp)
+    target_include_directories(tf_stepper_test PRIVATE ${CMAKE_SOURCE_DIR})
+    target_compile_features(tf_stepper_test PRIVATE cxx_std_23)
+    target_link_libraries(tf_stepper_test PRIVATE numina::numina)
+    add_test(NAME tf_stepper_test COMMAND tf_stepper_test)
+
     add_executable(data_file_parser_test tests/data-file-parser-test.cpp)
     target_include_directories(data_file_parser_test PRIVATE ${CMAKE_SOURCE_DIR})
     target_compile_features(data_file_parser_test PRIVATE cxx_std_23)

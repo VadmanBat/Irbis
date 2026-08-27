@@ -3,6 +3,7 @@
 #include "code/charts/utils/chart-utils.hpp"
 #include "code/series/axis-bounds.hpp"
 
+#include <QAreaSeries>
 #include <QChart>
 #include <QLineSeries>
 #include <QList>
@@ -18,6 +19,17 @@ struct PointsWithBounds {
 
 [[nodiscard]] inline bool isGuideSeries(const QString& name) {
     return name == QLatin1String(kHorGuide) || name == QLatin1String(kVerGuide);
+}
+
+[[nodiscard]] inline bool isAreaEdge(const QChart* chart, const QAbstractSeries* series) {
+    if (!chart || !series)
+        return false;
+    for (auto* s : chart->series()) {
+        auto* area = qobject_cast<QAreaSeries*>(s);
+        if (area && (area->upperSeries() == series || area->lowerSeries() == series))
+            return true;
+    }
+    return false;
 }
 
 /// One pass: QPointF list + axis extents (avoids boundsOf + toPoints double scan).
@@ -80,7 +92,7 @@ struct PointsWithBounds {
     const auto n_series = all.size();
     for (auto i = n_series; i > 0; --i) {
         auto* s = qobject_cast<QLineSeries*>(all[i - 1]);
-        if (!s || isGuideSeries(s->name()))
+        if (!s || isGuideSeries(s->name()) || isAreaEdge(chart, s))
             continue;
         return s;
     }

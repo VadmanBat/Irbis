@@ -5,8 +5,8 @@
 #include "code/series/axis-bounds.hpp"
 #include "code/series/bounds-set.hpp"
 #include "code/util/tf-builder.hpp"
-#include "numina/classes/control/transfer-function.h"
-#include "numina/classes/control/transfer-function/quality-report.h"
+#include "numina/classes/control/models/quality-report.h"
+#include "numina/classes/control/models/transfer-function.h"
 
 #include <array>
 #include <cstdint>

@@ -2,45 +2,49 @@
 
 #include "code/util/dialog-icons.hxx"
 #include "code/util/format.hxx"
+#include "code/widgets/formula-view.h"
+#include "code/widgets/tf-display-widget.h"
+#include "numina/classes/calculus/laplace-solution.h"
 #include "ui_tran-func-dialog.h"
 
-#include "numina/classes/calculus/laplace-solution.h"
-
-#include <cmath>
-#include <complex>
-#include <numbers>
-#include <utility>
 #include <QAbstractItemView>
+#include <QAbstractScrollArea>
 #include <QApplication>
-#include <QBrush>
 #include <QClipboard>
+#include <QFrame>
 #include <QHeaderView>
+#include <QLayout>
 #include <QMenu>
-#include <QTableWidgetItem>
+#include <QShowEvent>
+#include <QStyle>
+#include <QToolButton>
 #include <QToolTip>
+#include <QVBoxLayout>
+#include <QWidget>
+#include <utility>
 
 namespace {
-enum class SolutionFormat { Html, Plain, Latex };
+using TfFormat = numina::TransferFunction::Format;
 
 QString shift_time_variable(QString text, const QString& t_sub) {
     text.replace(QStringLiteral(" t"), QStringLiteral(" ") + t_sub);
     return text;
 }
 
-QString apply_exact_delay(QString body, double tau, SolutionFormat format) {
+QString apply_exact_delay(QString body, double tau, TfFormat format) {
     if (!(tau > 0.0))
         return body;
     const QString tau_s = num_format::format(tau);
     switch (format) {
-        case SolutionFormat::Html: {
+        case TfFormat::Html: {
             const QString t_sub = QStringLiteral("(t−%1)").arg(tau_s);
             return QStringLiteral("1(t−%1)&nbsp;&middot;&nbsp;(%2)").arg(tau_s, shift_time_variable(body, t_sub));
         }
-        case SolutionFormat::Plain: {
+        case TfFormat::Plain: {
             const QString t_sub = QStringLiteral("(t-%1)").arg(tau_s);
             return QStringLiteral("1(t-%1) * (%2)").arg(tau_s, shift_time_variable(body, t_sub));
         }
-        case SolutionFormat::Latex: {
+        case TfFormat::Latex: {
             const QString t_sub = QStringLiteral("(t-%1)").arg(tau_s);
             return QStringLiteral("1(t-%1)\\,(%2)").arg(tau_s, shift_time_variable(body, t_sub));
         }
@@ -48,30 +52,127 @@ QString apply_exact_delay(QString body, double tau, SolutionFormat format) {
     return body;
 }
 
-QString solution_text(const numina::LaplaceSolution& sol, SolutionFormat format, double delay_tau) {
+QString solution_text(const numina::LaplaceSolution& sol, TfFormat format, double delay_tau) {
     QString body;
     switch (format) {
-        case SolutionFormat::Html:
+        case TfFormat::Html:
             body = QString::fromStdString(sol.htmlString());
             break;
-        case SolutionFormat::Plain:
+        case TfFormat::Plain:
             body = QString::fromStdString(sol.plainString());
             break;
-        case SolutionFormat::Latex:
+        case TfFormat::Latex:
             body = QString::fromStdString(sol.latexString());
             break;
     }
     return apply_exact_delay(std::move(body), delay_tau, format);
 }
-} // namespace
+
+QString as_html(QString text) {
+    if (!text.contains(QStringLiteral("<br")) && text.contains(QLatin1Char('\n')))
+        text.replace(QLatin1Char('\n'), QStringLiteral("<br>"));
+    return text;
+}
+
+QString with_lhs_html(const QString& lhs, const QString& rhs) {
+    return lhs + QStringLiteral("&nbsp;=&nbsp;") + rhs;
+}
+
+enum class DeKind { HighOrder, FirstOrder, Euler };
+
+QString de_text(const numina::TransferFunction& tf, DeKind kind, TfFormat format) {
+    std::string raw;
+    switch (kind) {
+        case DeKind::HighOrder:
+            raw = tf.equation(format);
+            break;
+        case DeKind::FirstOrder:
+            raw = tf.firstOrderEquations(format);
+            break;
+        case DeKind::Euler:
+            raw = tf.implicitEulerEquations(format);
+            break;
+    }
+    QString text = QString::fromStdString(raw);
+    return format == TfFormat::Html ? as_html(std::move(text)) : text;
+}
+
+FormulaView* mount_formula(QWidget* host) {
+    auto* lay = new QVBoxLayout(host);
+    lay->setContentsMargins(0, 0, 0, 0);
+    lay->setSpacing(0);
+    auto* view = new FormulaView(host);
+    lay->addWidget(view);
+    return view;
+}
+}
 
 TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* parent, double delayTau)
     : QDialog(parent), ui(new Ui::TranFuncDialog), tf_(tf), delay_tau_(delayTau) {
     ui->setupUi(this);
+    setObjectName(QStringLiteral("TranFuncDialog"));
     dialog_icons::apply(this, dialog_icons::Kind::TransferFunction);
 
+    auto paint_bg = [](QWidget* w) {
+        w->setAttribute(Qt::WA_StyledBackground, true);
+        w->style()->unpolish(w);
+        w->style()->polish(w);
+    };
+    paint_bg(ui->headerCard);
+    paint_bg(ui->polesCard);
+    paint_bg(ui->solutionsCard);
+    paint_bg(ui->deCard);
+    paint_bg(ui->formulaHost);
+    paint_bg(ui->htBlock);
+    paint_bg(ui->wtBlock);
+    paint_bg(ui->odeBlock);
+    paint_bg(ui->firstOrderBlock);
+    paint_bg(ui->eulerBlock);
+
+    auto* formula_lay = new QVBoxLayout(ui->formulaHost);
+    formula_lay->setContentsMargins(12, 10, 12, 10);
+    formula_lay->setSpacing(0);
+    formula_ = new TfDisplayWidget(QStringLiteral("W(p) = "), ui->formulaHost);
+    formula_lay->addWidget(formula_);
+
+    ht_    = mount_formula(ui->htHost);
+    wt_    = mount_formula(ui->wtHost);
+    ode_   = mount_formula(ui->odeHost);
+    first_ = mount_formula(ui->firstOrderHost);
+    euler_ = mount_formula(ui->eulerHost);
+
+    ui->bodyScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->bodyScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+
     ui->polesTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->polesTable->verticalHeader()->setVisible(false);
+    ui->polesTable->setFrameShape(QFrame::NoFrame);
+    ui->polesTable->setAttribute(Qt::WA_StyledBackground, true);
+    ui->polesTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->polesTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     ui->polesTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->polesTable->horizontalHeader()->setStretchLastSection(true);
+    ui->polesTable->horizontalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    ui->polesTable->horizontalHeader()->setTextElideMode(Qt::ElideRight);
+
+    layout()->setSizeConstraint(QLayout::SetNoConstraint);
+    ui->bodyScroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
+    ui->bodyContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+
+    ui->deToggle->setArrowType(Qt::RightArrow);
+    ui->deToggle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+    ui->deToggle->setFocusPolicy(Qt::TabFocus);
+    ui->deCardLayout->setSpacing(0);
+    ui->deBody->show();
+    ui->deBody->setMaximumHeight(0);
+    connect(ui->deToggle, &QToolButton::toggled, this, [this](bool on) {
+        ui->deToggle->setArrowType(on ? Qt::DownArrow : Qt::RightArrow);
+        setUpdatesEnabled(false);
+        ui->deBody->setMaximumHeight(on ? QWIDGETSIZE_MAX : 0);
+        setUpdatesEnabled(true);
+    });
+
+    fill_formula();
     fill_poles();
     show_solutions();
     setup_copy_menus();
@@ -83,170 +184,72 @@ TranFuncDialog::~TranFuncDialog() {
     delete ui;
 }
 
+void TranFuncDialog::showEvent(QShowEvent* event) {
+    QDialog::showEvent(event);
+    fit_poles_table();
+}
+
+void TranFuncDialog::fill_formula() {
+    formula_->setTransferFunction(tf_, delay_tau_);
+}
+
 void TranFuncDialog::show_solutions() {
-    const auto& h = tf_.transientSolution();
-    const auto& w = tf_.impulseSolution();
-    ui->htTextEdit->setHtml(solution_text(h, SolutionFormat::Html, delay_tau_));
-    ui->wtTextEdit->setHtml(solution_text(w, SolutionFormat::Html, delay_tau_));
+    ht_->setHtml(
+        with_lhs_html(QStringLiteral("h(t)"), solution_text(tf_.transientSolution(), TfFormat::Html, delay_tau_)));
+    wt_->setHtml(
+        with_lhs_html(QStringLiteral("w(t)"), solution_text(tf_.impulseSolution(), TfFormat::Html, delay_tau_)));
+    ode_->setHtml(de_text(tf_, DeKind::HighOrder, TfFormat::Html));
+    first_->setHtml(de_text(tf_, DeKind::FirstOrder, TfFormat::Html));
+    euler_->setHtml(de_text(tf_, DeKind::Euler, TfFormat::Html));
 }
 
 void TranFuncDialog::setup_copy_menus() {
-    auto wire = [this](QToolButton* button, bool transient) {
+    enum class Kind { Transient, Impulse, Ode, FirstOrder, Euler };
+
+    auto wire = [this](QToolButton* button, Kind kind) {
         auto* menu = new QMenu(button);
 
-        const auto add = [&](const QString& title, SolutionFormat format) {
+        const auto add = [&](const QString& title, TfFormat format) {
             auto* act = menu->addAction(title);
-            connect(act, &QAction::triggered, this, [this, button, transient, format] {
-                const numina::LaplaceSolution& sol = transient ? tf_.transientSolution() : tf_.impulseSolution();
-                copy_solution_text(solution_text(sol, format, delay_tau_), button);
+            connect(act, &QAction::triggered, this, [this, button, kind, format] {
+                QString text;
+                switch (kind) {
+                    case Kind::Transient:
+                        text = solution_text(tf_.transientSolution(), format, delay_tau_);
+                        break;
+                    case Kind::Impulse:
+                        text = solution_text(tf_.impulseSolution(), format, delay_tau_);
+                        break;
+                    case Kind::Ode:
+                        text = de_text(tf_, DeKind::HighOrder, format);
+                        break;
+                    case Kind::FirstOrder:
+                        text = de_text(tf_, DeKind::FirstOrder, format);
+                        break;
+                    case Kind::Euler:
+                        text = de_text(tf_, DeKind::Euler, format);
+                        break;
+                }
+                copy_solution_text(text, button);
             });
         };
 
-        add(tr("Обычный текст"), SolutionFormat::Plain);
-        add(tr("LaTeX"), SolutionFormat::Latex);
-        add(tr("HTML"), SolutionFormat::Html);
-
+        add(tr("Обычный текст"), TfFormat::Plain);
+        add(tr("LaTeX"), TfFormat::Latex);
+        add(tr("HTML"), TfFormat::Html);
         button->setMenu(menu);
     };
 
-    wire(ui->htCopyButton, true);
-    wire(ui->wtCopyButton, false);
+    wire(ui->htCopyButton, Kind::Transient);
+    wire(ui->wtCopyButton, Kind::Impulse);
+    wire(ui->odeCopyButton, Kind::Ode);
+    wire(ui->firstOrderCopyButton, Kind::FirstOrder);
+    wire(ui->eulerCopyButton, Kind::Euler);
 }
 
 void TranFuncDialog::copy_solution_text(const QString& text, QWidget* anchor) {
     QApplication::clipboard()->setText(text);
     if (anchor) {
         QToolTip::showText(anchor->mapToGlobal(QPoint(0, anchor->height())), tr("Скопировано"), anchor, QRect(), 1500);
-    }
-}
-
-QColor TranFuncDialog::root_color(double value) {
-    if (value < 0)
-        return QColor(80, 80, 80);
-    if (value <= 0.5)
-        return {static_cast<int>(255 * (value * 2)), static_cast<int>(255 * (1 - value * 2)), 0};
-    return {255, static_cast<int>(255 * (1 - (value - 0.5) * 2)), 0};
-}
-
-void TranFuncDialog::fill_poles() {
-    ui->polesTable->setRowCount(0);
-
-    const auto& reals = tf_.poles().first;
-    const auto& comps = tf_.poles().second;
-
-    bool any_multi = false;
-    for (const auto& e : reals) {
-        if (e.second > 1) {
-            any_multi = true;
-            break;
-        }
-    }
-    if (!any_multi) {
-        for (const auto& e : comps) {
-            if (e.second > 1) {
-                any_multi = true;
-                break;
-            }
-        }
-    }
-
-    constexpr int kCol = 8;
-    ui->polesTable->setColumnCount(any_multi ? 9 : 8);
-    if (any_multi)
-        ui->polesTable->setHorizontalHeaderItem(kCol, new QTableWidgetItem(tr("k")));
-
-    // Tooltips on header hover (QTableWidgetItem::setToolTip).
-    const struct {
-        int col;
-        const char* tip;
-    } header_tips[] = {
-        {0, QT_TR_NOOP("Действительная часть полюса (1/с). Цвет: синий — Re < 0 (устойчиво), розовый — Re ≥ 0.")},
-        {1, QT_TR_NOOP("Мнимая часть. Для сопряжённой пары — ±|Im| в одной строке.")},
-        {2, QT_TR_NOOP("Модуль полюса |p| = √(Re² + Im²).")},
-        {3, QT_TR_NOOP("Аргумент полюса, градусы. Для пары — ±|Arg|.")},
-        {4, QT_TR_NOOP("Постоянная времени τ = −1/Re. При Re = 0 — ∞.")},
-        {5, QT_TR_NOOP("Коэффициент демпфирования ζ = −Re / |p|.")},
-        {6, QT_TR_NOOP("Период собственных колебаний T = 2π / |Im|.")},
-        {7, QT_TR_NOOP("Значимость относительно доминантного полюса (max Re): фон по отношению Re_dom / Re.")},
-        {8, QT_TR_NOOP("Кратность корня k (если есть кратные).")},
-    };
-    // Im, ζ, T — complex-related columns (subtle tint).
-    constexpr int kComplexCols[] = {1, 5, 6};
-    const QBrush complex_header_bg(QColor(0x4a, 0x3d, 0x66));
-    const QBrush complex_header_fg(QColor(0xce, 0x93, 0xd8));
-    const QBrush complex_cell_bg(QColor(0x3a, 0x32, 0x4e));
-
-    const int n_tip = any_multi ? 9 : 8;
-    for (int c = 0; c < n_tip; ++c) {
-        auto* item = ui->polesTable->horizontalHeaderItem(c);
-        if (!item) {
-            item = new QTableWidgetItem;
-            ui->polesTable->setHorizontalHeaderItem(c, item);
-        }
-        item->setToolTip(tr(header_tips[c].tip));
-        for (const int cc : kComplexCols) {
-            if (c == cc) {
-                item->setBackground(complex_header_bg);
-                item->setForeground(complex_header_fg);
-                break;
-            }
-        }
-    }
-
-    // Dominant = rightmost pole (max Re); numina keeps roots sorted, dominantPole() uses that.
-    const double dom_re = tf_.hasPoles() ? tf_.dominantPole().real() : 0.0;
-
-    auto add_row = [&](std::complex<double> pole, std::size_t mult) {
-        const int row = ui->polesTable->rowCount();
-        ui->polesTable->insertRow(row);
-
-        auto* re_item = new QTableWidgetItem(pole.real() < 0 ? num_format::format(pole.real())
-                                                             : QStringLiteral("+") + num_format::format(pole.real()));
-        re_item->setForeground(QBrush(pole.real() < 0 ? QColor(0x80, 0xd8, 0xff) : QColor(0xff, 0xb0, 0xc8)));
-        ui->polesTable->setItem(row, 0, re_item);
-
-        const double abs_p    = std::abs(pole);
-        const bool is_complex = std::abs(pole.imag()) > 1e-10;
-        const double arg_deg  = std::arg(pole) * 180.0 / std::numbers::pi;
-
-        ui->polesTable->setItem(row, 2, new QTableWidgetItem(num_format::format(abs_p)));
-        // Complex pair: Arg as ±|φ|; real pole — single signed angle.
-        ui->polesTable->setItem(
-            row, 3,
-            new QTableWidgetItem(is_complex ? QStringLiteral("±") + num_format::format(std::abs(arg_deg))
-                                            : num_format::format(arg_deg)));
-        ui->polesTable->setItem(
-            row, 4,
-            new QTableWidgetItem(pole.real() != 0.0 ? num_format::format(-1.0 / pole.real()) : QStringLiteral("∞")));
-
-        auto place_complex_cell = [&](int col, const QString& text) {
-            auto* item = new QTableWidgetItem(text);
-            item->setBackground(complex_cell_bg);
-            ui->polesTable->setItem(row, col, item);
-        };
-        // Keep complex columns tinted even when empty (real poles).
-        place_complex_cell(1, is_complex ? QStringLiteral("±") + num_format::format(std::abs(pole.imag())) : QString());
-        place_complex_cell(5, is_complex ? num_format::format(-pole.real() / abs_p) : QString());
-        place_complex_cell(6,
-                           is_complex ? num_format::format(2.0 * std::numbers::pi / std::abs(pole.imag())) : QString());
-
-        auto* color_item = new QTableWidgetItem;
-        if (dom_re != 0.0 && pole.real() != 0.0)
-            color_item->setBackground(root_color(dom_re / pole.real()));
-        ui->polesTable->setItem(row, 7, color_item);
-
-        if (any_multi)
-            ui->polesTable->setItem(row, kCol, new QTableWidgetItem(QString::number(static_cast<int>(mult))));
-    };
-
-    for (const auto& [r, mult] : reals)
-        add_row({r, 0.0}, mult);
-
-    // numina: complex roots come as consecutive conjugate pairs (z, conj(z)).
-    const std::size_t n_comp = comps.size();
-    for (std::size_t i = 0; i < n_comp; ++i) {
-        add_row(comps[i].first, comps[i].second);
-        if (i + 1 < n_comp && comps[i + 1].first == std::conj(comps[i].first))
-            ++i; // skip conjugate partner
     }
 }

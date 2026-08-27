@@ -10,7 +10,6 @@
 #include <numbers>
 
 namespace {
-
 int g_failed = 0;
 
 void expect_true(const char* name, bool cond) {
@@ -42,7 +41,6 @@ bool same_poly(const numina::Polynomial& a, const numina::Polynomial& b) {
     }
     return true;
 }
-
 } // namespace
 
 int main() {
@@ -115,12 +113,12 @@ int main() {
         p.freqMin           = 1.0;
         p.freqMax           = 2.0;
         p.freqIntervals     = 4;
-        const auto f0 = tf_builder::frequencyBundle(w0, p, 0.0);
-        const auto fd = tf_builder::frequencyBundle(w0, p, 0.5);
+        const auto f0       = tf_builder::frequencyBundle(w0, p, 0.0);
+        const auto fd       = tf_builder::frequencyBundle(w0, p, 0.5);
         expect_true("bundle has point", !f0.nyquist.empty() && !fd.nyquist.empty());
         if (!f0.nyquist.empty() && !fd.nyquist.empty()) {
-            const double w        = fd.amplitude[0].first;
-            const auto want       = f0.nyquist[0] * std::exp(std::complex<double>(0.0, -w * 0.5));
+            const double w  = fd.amplitude[0].first;
+            const auto want = f0.nyquist[0] * std::exp(std::complex<double>(0.0, -w * 0.5));
             expect_true("КЧХ · exp", std::abs(fd.nyquist[0] - want) <= 1e-12);
             expect_true("АЧХ |W₀|", std::abs(fd.amplitude[0].second - std::abs(f0.nyquist[0])) <= 1e-12);
         }
@@ -134,6 +132,18 @@ int main() {
         expect_true("h(t<τ)=0", std::abs(pts[0].second) <= 1e-15);
         expect_true("h(t<τ) mid", std::abs(pts[1].second) <= 1e-15);
         expect_true("h(t>τ)=h0(t−τ)", std::abs(pts[2].second - w0.transientResponse(0.25)) <= 1e-12);
+    }
+
+    {
+        const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
+        const tf_builder::VecPair times{{0.0, 99.0}, {1.0, 99.0}};
+        const auto pts = tf_builder::sampleTransientAt(w0, times);
+        expect_eq("sample n", static_cast<int>(pts.size()), 2);
+        expect_true("sample t1", !pts.empty() && std::abs(pts[1].first - 1.0) <= 1e-15);
+        expect_true("sample h0", pts.size() > 1 && std::abs(pts[0].second) <= 1e-12);
+        expect_true("sample h1", pts.size() > 1 && std::abs(pts[1].second - (1.0 - std::exp(-1.0))) <= 1e-9);
+        const auto delayed = tf_builder::sampleTransientAt(w0, times, 2.0);
+        expect_true("sample τ silences t<τ", delayed.size() > 1 && std::abs(delayed[1].second) <= 1e-12);
     }
 
     if (g_failed) {

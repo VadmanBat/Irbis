@@ -102,7 +102,6 @@ void ModParDialog::on_auto_freq_intervals_toggled(bool checked) {
 void ModParDialog::on_use_pade_toggled(bool checked) {
     ui->approxOrderLabel->setEnabled(checked);
     ui->approxOrderSpinBox->setEnabled(checked);
-    ui->approxHint->setText(checked ? tr("1…6, обычно 6")
-                                    : tr("Точное e^{−τp}: сдвиг h(t), фаза −ωτ"));
+    ui->approxHint->setText(checked ? tr("1…6, обычно 6") : tr("Точное e^{−τp}: сдвиг h(t), фаза −ωτ"));
     secondary_text::apply(ui->approxHint);
 }

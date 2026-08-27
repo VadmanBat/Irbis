@@ -45,6 +45,10 @@ AxisBounds ChartPanel::addComplexCurve(const VecComp& points, const QString& nam
     return w.bounds;
 }
 
+AxisBounds ChartPanel::addBand(const VecPair& lower, const VecPair& upper, const QString& name) {
+    return chart_utils::addBandSeries(chart_, lower, upper, name).bounds;
+}
+
 AxisBounds ChartPanel::replaceLastRealCurve(const VecPair& points, const QString& name) {
     if (curve_count_ == 0)
         return addRealCurve(points, name);

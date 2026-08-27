@@ -2,25 +2,738 @@
 <ui version="4.0">
  <class>RimTab</class>
  <widget class="QWidget" name="RimTab">
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QHBoxLayout" name="rootLayout" stretch="0,1">
+   <property name="spacing">
+    <number>12</number>
+   </property>
    <item>
-    <widget class="QLabel" name="placeholderLabel">
-     <property name="text">
-      <string>&lt;h2&gt;Настройка РИМ&lt;/h2&gt;&lt;p&gt;Раздел в разработке (планирование).&lt;/p&gt;</string>
+    <widget class="QFrame" name="rimSidebar">
+     <property name="objectName">
+      <string notr="true">rimSidebar</string>
      </property>
-     <property name="alignment">
-      <set>Qt::AlignCenter</set>
+     <property name="minimumWidth">
+      <number>300</number>
      </property>
-     <property name="textFormat">
-      <enum>Qt::RichText</enum>
+     <property name="maximumWidth">
+      <number>340</number>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
+     <property name="frameShadow">
+      <enum>QFrame::Plain</enum>
+     </property>
+     <layout class="QVBoxLayout" name="sidebarLayout">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <property name="leftMargin">
+       <number>12</number>
+      </property>
+      <property name="topMargin">
+       <number>12</number>
+      </property>
+      <property name="rightMargin">
+       <number>12</number>
+      </property>
+      <property name="bottomMargin">
+       <number>12</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="regTitle">
+        <property name="objectName">
+         <string notr="true">rimCardTitle</string>
+        </property>
+        <property name="text">
+         <string>Регулятор (РИМ)</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QScrollArea" name="settingsScroll">
+        <property name="widgetResizable">
+         <bool>true</bool>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
+        </property>
+        <property name="horizontalScrollBarPolicy">
+         <enum>Qt::ScrollBarAlwaysOff</enum>
+        </property>
+        <widget class="QWidget" name="settingsContent">
+         <layout class="QFormLayout" name="settingsForm">
+          <property name="horizontalSpacing">
+           <number>8</number>
+          </property>
+          <property name="verticalSpacing">
+           <number>4</number>
+          </property>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="lawLabel">
+            <property name="text">
+             <string>Закон</string>
+            </property>
+            <property name="buddy">
+             <cstring>lawCombo</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="lawCombo">
+            <property name="toolTip">
+             <string>Закон РИМ: П / ПД / ПИ / ПИД / И</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>П</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ПД</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ПИ</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>ПИД</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>И</string>
+             </property>
+            </item>
+            <property name="currentIndex">
+             <number>3</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="kpLabel">
+            <property name="text">
+             <string>Kp</string>
+            </property>
+            <property name="buddy">
+             <cstring>kpSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="CompactDoubleSpinBox" name="kpSpin">
+            <property name="toolTip">
+             <string>Коэффициент усиления Kp</string>
+            </property>
+            <property name="decimals">
+             <number>6</number>
+            </property>
+            <property name="minimum">
+             <double>0</double>
+            </property>
+            <property name="maximum">
+             <double>1000000</double>
+            </property>
+            <property name="value">
+             <double>1</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="tiLabel">
+            <property name="text">
+             <string>Ti</string>
+            </property>
+            <property name="buddy">
+             <cstring>tiSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="CompactDoubleSpinBox" name="tiSpin">
+            <property name="toolTip">
+             <string>Постоянная интегрирования Ti, с</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0.0001</double>
+            </property>
+            <property name="maximum">
+             <double>1000000</double>
+            </property>
+            <property name="value">
+             <double>10</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="tdLabel">
+            <property name="text">
+             <string>Td</string>
+            </property>
+            <property name="buddy">
+             <cstring>tdSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="CompactDoubleSpinBox" name="tdSpin">
+            <property name="toolTip">
+             <string>Постоянная дифференцирования Td, с. 0 — канал Д выключен.</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0</double>
+            </property>
+            <property name="maximum">
+             <double>1000000</double>
+            </property>
+            <property name="value">
+             <double>0</double>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="travelLabel">
+            <property name="text">
+             <string>Tим</string>
+            </property>
+            <property name="buddy">
+             <cstring>travelSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="CompactDoubleSpinBox" name="travelSpin">
+            <property name="toolTip">
+             <string>Время полного хода ИМ, с</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0.01</double>
+            </property>
+            <property name="maximum">
+             <double>1000000</double>
+            </property>
+            <property name="value">
+             <double>25</double>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <widget class="QLabel" name="pulseLabel">
+            <property name="text">
+             <string>tимп</string>
+            </property>
+            <property name="buddy">
+             <cstring>pulseSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="CompactDoubleSpinBox" name="pulseSpin">
+            <property name="toolTip">
+             <string>Минимальная длительность импульса ШИМ, с</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0.0001</double>
+            </property>
+            <property name="maximum">
+             <double>1000</double>
+            </property>
+            <property name="value">
+             <double>0.25</double>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="deadzoneLabel">
+            <property name="text">
+             <string>ЗН</string>
+            </property>
+            <property name="buddy">
+             <cstring>deadzoneSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="CompactDoubleSpinBox" name="deadzoneSpin">
+            <property name="toolTip">
+             <string>Ширина зоны нечувствительности H, доли шкалы (0–1)</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0</double>
+            </property>
+            <property name="maximum">
+             <double>1</double>
+            </property>
+            <property name="value">
+             <double>0</double>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="filterLabel">
+            <property name="text">
+             <string>Tφ</string>
+            </property>
+            <property name="buddy">
+             <cstring>filterSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="CompactDoubleSpinBox" name="filterSpin">
+            <property name="toolTip">
+             <string>Постоянная времени фильтра ошибки Tφ, с. 0 — без фильтра.</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0</double>
+            </property>
+            <property name="maximum">
+             <double>1000000</double>
+            </property>
+            <property name="value">
+             <double>0</double>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="0">
+           <widget class="QLabel" name="diffLabel">
+            <property name="text">
+             <string>Tдиф</string>
+            </property>
+            <property name="buddy">
+             <cstring>diffSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="CompactDoubleSpinBox" name="diffSpin">
+            <property name="toolTip">
+             <string>Постоянная времени дифференцирования Tдиф, с. 0 — чистая флюксия.</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0</double>
+            </property>
+            <property name="maximum">
+             <double>1000000</double>
+            </property>
+            <property name="value">
+             <double>0</double>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <widget class="QLabel" name="valve0Label">
+            <property name="text">
+             <string>μ(0)</string>
+            </property>
+            <property name="buddy">
+             <cstring>valve0Spin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="CompactDoubleSpinBox" name="valve0Spin">
+            <property name="toolTip">
+             <string>Начальное положение ОР, доли шкалы [−0.5, +0.5]</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>-0.5</double>
+            </property>
+            <property name="maximum">
+             <double>0.5</double>
+            </property>
+            <property name="value">
+             <double>0</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="simTitle">
+        <property name="objectName">
+         <string notr="true">rimCardTitle</string>
+        </property>
+        <property name="text">
+         <string>Моделирование</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QFormLayout" name="simForm">
+        <property name="horizontalSpacing">
+         <number>8</number>
+        </property>
+        <property name="verticalSpacing">
+         <number>4</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="QLabel" name="setpointLabel">
+          <property name="text">
+           <string>Уставка</string>
+          </property>
+          <property name="buddy">
+           <cstring>setpointSpin</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="CompactDoubleSpinBox" name="setpointSpin">
+          <property name="toolTip">
+           <string>Задание регулирования (в единицах выхода объекта)</string>
+          </property>
+          <property name="decimals">
+           <number>6</number>
+          </property>
+          <property name="minimum">
+           <double>-1000000</double>
+          </property>
+          <property name="maximum">
+           <double>1000000</double>
+          </property>
+          <property name="value">
+           <double>0.2</double>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="durationLabel">
+          <property name="text">
+           <string>Время</string>
+          </property>
+          <property name="buddy">
+           <cstring>durationSpin</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="CompactDoubleSpinBox" name="durationSpin">
+          <property name="toolTip">
+           <string>Длительность первого прогона или продолжения, с</string>
+          </property>
+          <property name="suffix">
+           <string> с</string>
+          </property>
+          <property name="decimals">
+           <number>4</number>
+          </property>
+          <property name="minimum">
+           <double>0.001</double>
+          </property>
+          <property name="maximum">
+           <double>1000000</double>
+          </property>
+          <property name="value">
+           <double>50</double>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="dtLabel">
+          <property name="text">
+           <string>Шаг dt</string>
+          </property>
+          <property name="buddy">
+           <cstring>dtSpin</cstring>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="CompactDoubleSpinBox" name="dtSpin">
+          <property name="toolTip">
+           <string>Шаг интегрирования, с. Задаётся в начале прогона.</string>
+          </property>
+          <property name="suffix">
+           <string> с</string>
+          </property>
+          <property name="decimals">
+           <number>6</number>
+          </property>
+          <property name="minimum">
+           <double>0.000001</double>
+          </property>
+          <property name="maximum">
+           <double>10</double>
+          </property>
+          <property name="value">
+           <double>0.05</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="statusLabel">
+        <property name="text">
+         <string>Прогон не начат</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font-size: 9pt;</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="sidebarSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>8</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="runButton">
+        <property name="objectName">
+         <string notr="true">runButton</string>
+        </property>
+        <property name="toolTip">
+         <string>Новый прогон: объект, РИМ и dt считываются заново, график очищается</string>
+        </property>
+        <property name="text">
+         <string>Моделировать</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="continueButton">
+        <property name="objectName">
+         <string notr="true">continueButton</string>
+        </property>
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>Продолжить с текущим состоянием. Можно сменить уставку. Старые точки графика сохраняются.</string>
+        </property>
+        <property name="text">
+         <string>Продолжить</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="clearButton">
+        <property name="objectName">
+         <string notr="true">clearButton</string>
+        </property>
+        <property name="toolTip">
+         <string>Сбросить прогон и графики</string>
+        </property>
+        <property name="text">
+         <string>Сброс</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="mainCol" native="true">
+     <layout class="QVBoxLayout" name="mainColLayout" stretch="0,3,2">
+      <property name="spacing">
+       <number>12</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="rimModelCard">
+        <property name="objectName">
+         <string notr="true">rimModelCard</string>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Plain</enum>
+        </property>
+        <layout class="QVBoxLayout" name="modelCardLayout">
+         <property name="spacing">
+          <number>6</number>
+         </property>
+         <property name="leftMargin">
+          <number>12</number>
+         </property>
+         <property name="topMargin">
+          <number>10</number>
+         </property>
+         <property name="rightMargin">
+          <number>12</number>
+         </property>
+         <property name="bottomMargin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="modelTitle">
+           <property name="objectName">
+            <string notr="true">rimCardTitle</string>
+           </property>
+           <property name="text">
+            <string>Объект</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QWidget" name="formHost" native="true">
+           <layout class="QVBoxLayout" name="formHostLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="yChartHost" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="yChartHostLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="muChartHost" native="true">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+          <horstretch>1</horstretch>
+          <verstretch>1</verstretch>
+         </sizepolicy>
+        </property>
+        <layout class="QVBoxLayout" name="muChartHostLayout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CompactDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>code/widgets/compact-double-spin-box.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

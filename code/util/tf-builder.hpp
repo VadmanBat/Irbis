@@ -1,10 +1,10 @@
 #pragma once
 
 #include "code/model/model-param.hpp"
-#include "numina/classes/control/delayed-plant.h"
-#include "numina/classes/control/transfer-function.h"
-#include "numina/classes/control/transfer-function/quality-report.h"
-#include "numina/classes/control/transfer-function/response-lab.h"
+#include "numina/classes/control/models/delayed-plant.h"
+#include "numina/classes/control/models/quality-report.h"
+#include "numina/classes/control/models/response-lab.h"
+#include "numina/classes/control/models/transfer-function.h"
 #include "numina/classes/polynomial/polynomial.h"
 #include "numina/core/space.hpp"
 
@@ -76,6 +76,21 @@ inline void apply_delayed_impulse_samples(VecPair& pts, const numina::DelayedPla
     }
     for (auto& pt : pts)
         pt.second = plant.impulseResponse(pt.first);
+}
+
+/// Evaluate the step response at the given time stamps (exact e^{−τp} via DelayedPlant).
+inline VecPair sampleTransientAt(const numina::TransferFunction& tf, const VecPair& times, double tau = 0.0) {
+    VecPair out;
+    out.reserve(times.size());
+    if (tau > 0.0) {
+        const numina::DelayedPlant plant(tf, tau);
+        for (const auto& pt : times)
+            out.emplace_back(pt.first, plant.transientResponse(pt.first));
+        return out;
+    }
+    for (const auto& pt : times)
+        out.emplace_back(pt.first, tf.transientResponse(pt.first));
+    return out;
 }
 
 inline void shiftTimeByDelay(VecPair& pts, double tau) {
@@ -190,7 +205,7 @@ inline bool hasZeroDenConstant(const numina::TransferFunction& tf) noexcept {
 inline FrequencyBundle frequencyBundle(numina::ResponseLab& lab, const ModelParam& p, double tau = 0.0) {
     const numina::TransferFunction& tf = lab.tf();
     const numina::DelayedPlant plant(tf, tau);
-    std::pair<double, double> range    = p.autoFreqRange ? lab.frequencyRange() : std::make_pair(p.freqMin, p.freqMax);
+    std::pair<double, double> range = p.autoFreqRange ? lab.frequencyRange() : std::make_pair(p.freqMin, p.freqMax);
 
     if (hasZeroDenConstant(tf)) {
         constexpr double w_min_floor = 1e-4;

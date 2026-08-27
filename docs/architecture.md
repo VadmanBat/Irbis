@@ -11,10 +11,10 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 
 **Irbis** is a Qt 6 desktop app for control-engineering workflows:
 
-1. **Identification** — experimental data → plant TF (Simoyu / Duhamel + optional τ)
+1. **Identification** — experimental data → plant TF (static: Simoyu / Duhamel + optional τ; astatic: integrator k/p)
 2. **Analysis** — plant TF → time/frequency responses + quality metrics
 3. **Synthesis** — plant + PID-family regulator → closed loop + metrics
-4. **RIM / RKCH** — planned (placeholder tab / modes)
+4. **RIM** — discrete relay-pulse controller vs ideal W_reg(p) on the same plant
 
 **Math** lives in external static library **[numina](https://github.com/VadmanBat/numina)**.  
 **Irbis** is the UI + thin adapters (builders, factories, chart presentation).
@@ -39,10 +39,10 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 │    InteractiveChartView (viewer zoom/pan)               │
 ├─────────────────────────────────────────────────────────┤
 │  Adapters (header-mostly)                                │
-│    tf_builder | data_file_parser | num_format | nice_axis│
-│    BoundsSet                                              │
+│    tf_builder | TfStepper | rim (idealPair / Regulator)  │
+│    data_file_parser | num_format | nice_axis | BoundsSet │
 ├─────────────────────────────────────────────────────────┤
-│  numina (TransferFunction, ResponseLab, Simoyu, …)      │
+│  numina (TransferFunction, ResponseLab, PidController, …)│
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -57,7 +57,7 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 | `main.cpp` | `QApplication`, locale, `MainWindow` |
 | `code/app/` | Main window shell only |
 | `code/tabs/` | One feature screen per tab (+ `*-run.cpp` for heavy logic) |
-| `code/widgets/` | Single-file controls (`double-slider`, `reg-parameter`, …) |
+| `code/widgets/` | Single-file controls (`double-slider`, `reg-parameter`, `formula-view`, …) |
 | `code/widgets/tf-form/` | **Module:** `TranFuncForm` (multi-cpp) |
 | `code/dialogs/` | Modal dialogs (one class ≈ one pair of files) |
 | `code/dialogs/chart-viewer/` | **Module:** detached chart viewer window |
@@ -65,8 +65,8 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 | `code/charts/utils/` | **Module:** `chart_utils`, nice axes, clone |
 | `code/series/` | Axis bounds aggregation (`AxisBounds`, `BoundsSet`) |
 | `code/model/` | POD settings (`ModelParam`, `IdSettings`) |
-| `code/control/` | Thin adapter `controller_design` (locus, Pi/Pid/Auto, Γ) |
-| `code/util/` | Parsing, formatting, TF builders |
+| `code/control/` | Thin adapters `controller_design` (locus, Pi/Pid/Auto, Γ), `rim` (ideal W_reg / PidController variant) |
+| `code/util/` | Parsing, formatting, TF builders, `TfStepper` |
 | `ui/` | Qt Designer forms (kebab-case), parallel to `code/` |
 | `data/` | QSS, fonts (copied next to exe on build) |
 | `docs/` | Architecture, UX, sketches |
@@ -129,14 +129,34 @@ plant + TransferFunction::makeController(Kp,Ti,Td)
 
 ```
 file → data_file_parser → step or (valve, signal)
-    → DuhamelSolver? → h(t)
-    → DeadTimeEstimator? (τ + strip) → SimoyuIdentifier → W₀
-    → TfDisplayWidget + charts overlay (experiment vs model)
+    static:  DuhamelSolver? → h(t) → DeadTimeEstimator? → SimoyuIdentifier (Mode::Refined) → W₀
+    astatic: IntegratorIdentifier (h or (u,y); no Duhamel) → k/p
+    → TfDisplayWidget + one ChartPanel (experiment vs model at file times)
 ```
+
+Layout: left sidebar (method, file, plant kind, ID settings, run) / right: formula + h(t).  
+No quality metrics, chart-type menu, or model-parameter grid on this tab.
 
 Logic lives in `id-tab-run.cpp` (keep UI wiring in `id-tab.cpp`).
 
-### 4.4 Charts
+### 4.4 RIM (relay-pulse controller)
+
+Left sidebar: `PidSettings` + law + setpoint + horizon `T` + step `dt`.  
+Top: plant `TranFuncForm`. Charts: `y(t)` (setpoint + ЗН tube / real / ideal) and `μ(t)` (real / ideal).
+
+```
+W_ОУ + τ
+    → TfStepper (backward Euler via Polynomial::compose + delay line)
+real:  e → numina::PidController (filter, ЗН, ПДД2, PWM, ИМ)
+ideal: e → TfStepper of TransferFunction::makeController (эталонный ПИД, без Td/8)
+```
+
+**Моделировать** starts a new `Session` (resets state and charts).  
+**Продолжить** keeps controller/plant state and old points; only setpoint and extra time change. `dt` and RIM settings stay those of the first run.
+
+Do not reimplement PWM / PDD2 — call `numina::PidController`. `TfStepper` is the thin discrete plant (numina prints the Euler equations, Irbis runs them).
+
+### 4.5 Charts
 
 Ownership (top → bottom):
 
@@ -175,13 +195,14 @@ Per **cpp-my-style**: class implementations split into **~100–150 line** `.cpp
 | Class / area | Files (under module path) |
 |--------------|---------------------------|
 | `TranFuncForm` | `widgets/tf-form/tran-func-form.cpp` (+ `-edit`, `-io`, `-name`, `*-line-edit.hpp`) |
+| `TranFuncDialog` | `dialogs/tran-func-dialog.cpp` (+ `-poles.cpp`) |
 | `ChartViewerWindow` | `dialogs/chart-viewer/chart-viewer-window.cpp` (+ `-ui.cpp`) |
 | `InteractiveChartView` | `charts/interactive-chart-view.h/.cpp` |
 | `chart_utils` | `charts/utils/chart-utils.cpp` (+ `-axes`, `-series`, `-menu`, `*-detail.hpp`, `nice-axis`) |
 | `ResponseChartBank` | `charts/response-chart-bank.cpp` (+ `-data.cpp`) |
 | `C0C1Chart` | `charts/c0-c1-chart.h` + `.cpp` / `-axes` / `-pointer` |
 | `controller_design` | `control/controller-design.hpp/.cpp` |
-| `IdTab` / `SynthesisTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`, synthesis `*-synth.cpp` / `*-face.cpp`) |
+| `IdTab` / `SynthesisTab` / `RimTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`, id `*-identify.cpp`, synthesis `*-synth.cpp` / `*-face.cpp`) |
 
 When adding a large method: **new cpp unit**, not grow past ~150 lines.
 
@@ -217,9 +238,11 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | New chart type | `ResponseChartBank`, `ChartVisibility`, menu labels |
 | Axis styling / nice limits | `nice-axis.hpp`, `chart-utils` guides |
 | TF clipboard format | `widgets/tf-form/*` IO (`Irbis-TF-v1`, reads legacy `RegValve-TF-v1`) |
-| Identification algorithm | prefer **numina**; UI only in `id-tab-run` |
+| Identification algorithm | prefer **numina** (`SimoyuIdentifier` / `IntegratorIdentifier`); UI in `id-tab` + `id-tab-run` |
+| RIM closed-loop sim | `RimTab` + `TfStepper` + `rim::idealPair`; math: `numina::PidController` |
 | Auto-synthesis PI/PID (РКЧХ / Γ) | `controller_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` / `Wр` face (`*-face.cpp`), φ, criterion, law, region |
 | Slider range / intervals | `SliderSettingsDialog` from `RegParameter` ⚙ |
+| TF inspector (poles, h(t), w(t), DE) | `dialogs/tran-func-dialog*`, `widgets/formula-view` |
 | Global chrome / buttons | `data/styles/app.qss` |
 | Window shell / tabs list | `ui/mainwindow.ui` + `mainwindow.cpp` (styles, fonts) |
 | Chart zoom window | `dialogs/chart-viewer/*`, `charts/interactive-chart-view.*` |
@@ -233,14 +256,14 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 - MSYS2 UCRT64 helpers: `cmake/msys-qt-env.cmake`
 - Runtime assets: `data/` copied next to exe (POST_BUILD)
 
-Tests (optional): `IRBIS_BUILD_TESTS` → `nice_axis_test` (pure math, no Qt UI).
+Tests (optional): `IRBIS_BUILD_TESTS` → `nice_axis_test`, `tf_builder_test`, `tf_stepper_test`.
 
 ---
 
 ## 9. Known gaps / future architecture
 
 1. **No shared session model** — each tab holds its own `ModelParam` / TF; UX doc recommends a session `PlantModel`.
-2. **RimTab / RKCH** — placeholder; keep modes under Synthesis when implementing.
+2. **RKCH** lives under Synthesis (`C0C1Chart`); RimTab is the discrete РИМ loop.
 3. **ПИ / ПИД / Авто** — `designPi` / `designPid` / `design()` (закон не подменяется); ПИД на `C₂*(ω)`; Γ — сектор только для ПИ. СКО настройки — H₂, не `QualityReport::sigma`.
 4. **UI polish** — see `docs/ux-ui-recommendations.md` (cards, TF read/edit modes).
 

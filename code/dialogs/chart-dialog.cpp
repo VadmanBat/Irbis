@@ -1,5 +1,6 @@
 #include "code/dialogs/chart-dialog.h"
 
+#include "code/charts/utils/chart-utils.hpp"
 #include "code/util/dialog-icons.hxx"
 #include "code/util/secondary-text.hxx"
 #include "ui_chart-dialog.h"
@@ -80,8 +81,7 @@ void ChartDialog::build_series_editors() {
     int index = 0;
     for (auto* series : chart_->series()) {
         auto* line_series = qobject_cast<QLineSeries*>(series);
-        if (!line_series || line_series->name() == QLatin1String("hor-line") ||
-            line_series->name() == QLatin1String("ver-line"))
+        if (!line_series || chart_utils::isAccessorySeries(chart_, series))
             continue;
 
         auto* name_edit    = new QLineEdit(line_series->name());

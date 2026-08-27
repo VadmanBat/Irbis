@@ -1,6 +1,7 @@
 #include "code/charts/utils/chart-utils-axes-detail.hpp"
 #include "code/charts/utils/chart-utils-detail.hpp"
 
+#include <QAreaSeries>
 #include <QLegend>
 #include <QLegendMarker>
 #include <QLineSeries>
@@ -68,8 +69,15 @@ void updateOriginGuides(QChart* chart, const Pair& range_x, const Pair& range_y)
 void removeAllSeries(QChart* chart) {
     if (!chart)
         return;
-    const auto all = chart->series();
-    for (auto* series : all) {
+    const auto snapshot = chart->series();
+    for (auto* series : snapshot) {
+        if (qobject_cast<QAreaSeries*>(series) == nullptr)
+            continue;
+        chart->removeSeries(series);
+        delete series;
+    }
+    const auto rest = chart->series();
+    for (auto* series : rest) {
         if (detail::isGuideSeries(series->name()))
             continue;
         chart->removeSeries(series);

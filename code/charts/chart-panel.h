@@ -41,6 +41,8 @@ public:
     /// One-pass series build + extents. Empty data → default bounds, no series, count unchanged.
     [[nodiscard]] AxisBounds addRealCurve(const VecPair& points, const QString& name);
     [[nodiscard]] AxisBounds addComplexCurve(const VecComp& points, const QString& name);
+    /// Deadzone / envelope band; does not consume a series colour index.
+    [[nodiscard]] AxisBounds addBand(const VecPair& lower, const VecPair& upper, const QString& name);
     /// Replace last data curve (or add if none); returns extents of written data.
     [[nodiscard]] AxisBounds replaceLastRealCurve(const VecPair& points, const QString& name);
     [[nodiscard]] AxisBounds replaceLastComplexCurve(const VecComp& points, const QString& name);

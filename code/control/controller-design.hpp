@@ -1,6 +1,6 @@
 #pragma once
 
-#include "numina/classes/control/controller-designer.h"
+#include "numina/classes/control/design/controller-designer.h"
 
 #include <vector>
 

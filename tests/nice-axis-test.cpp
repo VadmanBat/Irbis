@@ -9,14 +9,14 @@
 #include <cstring>
 
 namespace {
-
 int g_failed = 0;
 
 void expect_near(const char* name, double got, double expected, double eps = 1e-9) {
     if (!(std::abs(got - expected) <= eps * std::max(1.0, std::abs(expected)))) {
         std::fprintf(stderr, "FAIL %s: got %.12g, expected %.12g\n", name, got, expected);
         ++g_failed;
-    } else {
+    }
+    else {
         std::printf("ok   %s\n", name);
     }
 }
@@ -25,11 +25,11 @@ void expect_true(const char* name, bool cond) {
     if (!cond) {
         std::fprintf(stderr, "FAIL %s\n", name);
         ++g_failed;
-    } else {
+    }
+    else {
         std::printf("ok   %s\n", name);
     }
 }
-
 } // namespace
 
 int main() {

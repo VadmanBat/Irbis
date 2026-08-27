@@ -99,11 +99,11 @@ void ResponseChartBank::recomputeAll(const ModelParam& params) {
 
     for (Batch& batch : history_) {
         // Delay mode is per series (how it was added). Grid/sample settings are shared.
-        const bool use_pade = batch.params.usePadeApprox;
-        const int order     = batch.params.approxOrder;
-        batch.params                = params;
-        batch.params.usePadeApprox  = use_pade;
-        batch.params.approxOrder    = order;
+        const bool use_pade        = batch.params.usePadeApprox;
+        const int order            = batch.params.approxOrder;
+        batch.params               = params;
+        batch.params.usePadeApprox = use_pade;
+        batch.params.approxOrder   = order;
         batch.clear_channels();
         ensure_visible_channels(batch);
     }

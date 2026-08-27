@@ -8,12 +8,7 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QPushButton>
-#include <QResizeEvent>
-#include <QShowEvent>
 #include <QStringList>
-#include <QTimer>
-#include <QToolTip>
 #include <QVBoxLayout>
 
 TfDisplayWidget::TfDisplayWidget(const QString& title, QWidget* parent) : QWidget(parent) {
@@ -55,15 +50,6 @@ TfDisplayWidget::TfDisplayWidget(const QString& title, QWidget* parent) : QWidge
     delayLabel_->setVisible(false);
     delay_root->addWidget(delayLabel_);
 
-    copyBtn_ = new QPushButton(QStringLiteral("📋"), this);
-    copyBtn_->setObjectName(QStringLiteral("tfCopyButton"));
-    copyBtn_->setToolTip(tr("Копировать ПФ"));
-    copyBtn_->setFixedSize(28, 28);
-    copyBtn_->setFocusPolicy(Qt::NoFocus);
-    copyBtn_->setEnabled(false);
-    copyBtn_->raise();
-    connect(copyBtn_, &QPushButton::clicked, this, &TfDisplayWidget::copyToClipboard);
-
     auto* frac = new QGridLayout;
     frac->setContentsMargins(0, 0, 0, 0);
     frac->setHorizontalSpacing(8);
@@ -80,7 +66,7 @@ TfDisplayWidget::TfDisplayWidget(const QString& title, QWidget* parent) : QWidge
     row->addStretch(1);
 
     auto* root = new QVBoxLayout(this);
-    root->setContentsMargins(0, 0, 0, 12); // room for overlay copy
+    root->setContentsMargins(0, 0, 0, 0);
     root->addLayout(row);
 }
 
@@ -106,15 +92,54 @@ void TfDisplayWidget::set_polys(const Vec& num, const Vec& den, double tau) {
         delayLabel_->setVisible(false);
         delayGroup_->setVisible(false);
     }
-    copyBtn_->setEnabled(!empty_);
-    QTimer::singleShot(0, this, &TfDisplayWidget::reposition_copy_button);
+    emit contentsChanged();
 }
 
 void TfDisplayWidget::setTransferFunction(const numina::TransferFunction& tf, double tau) {
+    tf_ = tf;
     set_polys(tf.numerator().coeffs(), tf.denominator().coeffs(), tau);
 }
 
+void TfDisplayWidget::setStructureTemplate(int numDegree, int denDegree) {
+    if (denDegree < 1)
+        denDegree = 1;
+    if (numDegree < 0)
+        numDegree = 0;
+    if (numDegree > denDegree)
+        numDegree = denDegree;
+
+    auto term = [](QChar letter, int power) -> QString {
+        const QString c = QStringLiteral("%1<sub>%2</sub>").arg(letter).arg(power);
+        if (power == 0)
+            return c;
+        if (power == 1)
+            return c + QStringLiteral(" p");
+        return c + QStringLiteral(" p<sup>%1</sup>").arg(power);
+    };
+
+    QString num = term(QLatin1Char('b'), 0);
+    for (int k = 1; k <= numDegree; ++k)
+        num += QStringLiteral(" + ") + term(QLatin1Char('b'), k);
+
+    QString den = QStringLiteral("1");
+    for (int k = 1; k <= denDegree; ++k)
+        den += QStringLiteral(" + ") + term(QLatin1Char('a'), k);
+
+    tf_    = {};
+    empty_ = true;
+    num_.clear();
+    den_.clear();
+    tau_ = 0.0;
+    numLabel_->setText(num);
+    denLabel_->setText(den);
+    delayLabel_->clear();
+    delayLabel_->setVisible(false);
+    delayGroup_->setVisible(false);
+    emit contentsChanged();
+}
+
 void TfDisplayWidget::clear() {
+    tf_ = {};
     set_polys({}, {}, 0.0);
 }
 
@@ -152,50 +177,4 @@ void TfDisplayWidget::copyToClipboard() {
     if (empty_)
         return;
     QApplication::clipboard()->setText(export_text());
-    QToolTip::showText(copyBtn_->mapToGlobal(QPoint(0, copyBtn_->height())), tr("ПФ скопирована"), copyBtn_, QRect(),
-                       1500);
-}
-
-void TfDisplayWidget::reposition_copy_button() {
-    if (!copyBtn_)
-        return;
-    constexpr int btn = 28;
-
-    int x = 0;
-    int y = 0;
-
-    if (tau_ > 0.0 && delayGroup_->isVisible() && delayLabel_->isVisible()) {
-        // With e^{−τp}: under the delay block (same as before).
-        const QRect g = delayGroup_->geometry();
-        x             = g.right() - btn;
-        y             = g.bottom() + 2;
-    }
-    else {
-        // No delay: well to the right of N/D so the button never sits on the fraction.
-        constexpr int gap = 32;
-        const QRect den   = denLabel_->geometry();
-        x                 = den.right() + gap;
-        y                 = den.bottom() - btn;
-        if (y < den.top())
-            y = den.bottom() + 2;
-        // Ensure the widget is wide enough; do not clamp back onto the poly text.
-        const int need_w = x + btn + 8;
-        if (need_w > width())
-            setMinimumWidth(need_w);
-    }
-
-    if (y + btn > height())
-        y = qMax(0, height() - btn);
-    copyBtn_->move(qMax(0, x), y);
-    copyBtn_->raise();
-}
-
-void TfDisplayWidget::resizeEvent(QResizeEvent* event) {
-    QWidget::resizeEvent(event);
-    reposition_copy_button();
-}
-
-void TfDisplayWidget::showEvent(QShowEvent* event) {
-    QWidget::showEvent(event);
-    QTimer::singleShot(0, this, &TfDisplayWidget::reposition_copy_button);
 }

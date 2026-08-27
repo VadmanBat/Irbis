@@ -5,7 +5,6 @@ set(UI_FILES
         ${CMAKE_SOURCE_DIR}/ui/tabs/synthesis-tab.ui
         ${CMAKE_SOURCE_DIR}/ui/tabs/rim-tab.ui
         ${CMAKE_SOURCE_DIR}/ui/dialogs/mod-par-dialog.ui
-        ${CMAKE_SOURCE_DIR}/ui/dialogs/id-settings-dialog.ui
         ${CMAKE_SOURCE_DIR}/ui/dialogs/help-dialog.ui
         ${CMAKE_SOURCE_DIR}/ui/dialogs/chart-dialog.ui
         ${CMAKE_SOURCE_DIR}/ui/dialogs/tran-func-dialog.ui
@@ -20,20 +19,22 @@ set(SOURCES
 
         ${CMAKE_SOURCE_DIR}/code/tabs/id-tab.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/id-tab-run.cpp
+        ${CMAKE_SOURCE_DIR}/code/tabs/id-tab-identify.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/analysis-tab.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-run.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-synth.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/synthesis-tab-face.cpp
         ${CMAKE_SOURCE_DIR}/code/tabs/rim-tab.cpp
+        ${CMAKE_SOURCE_DIR}/code/tabs/rim-tab-run.cpp
 
         ${CMAKE_SOURCE_DIR}/code/control/controller-design.cpp
 
         ${CMAKE_SOURCE_DIR}/code/dialogs/mod-par-dialog.cpp
-        ${CMAKE_SOURCE_DIR}/code/dialogs/id-settings-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/help-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/chart-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/tran-func-dialog.cpp
+        ${CMAKE_SOURCE_DIR}/code/dialogs/tran-func-dialog-poles.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/slider-settings-dialog.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/chart-viewer/chart-viewer-window.cpp
         ${CMAKE_SOURCE_DIR}/code/dialogs/chart-viewer/chart-viewer-window-ui.cpp
@@ -43,6 +44,7 @@ set(SOURCES
         ${CMAKE_SOURCE_DIR}/code/widgets/reg-parameter-range.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/regulation-widget.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-display-widget.cpp
+        ${CMAKE_SOURCE_DIR}/code/widgets/formula-view.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-form/tran-func-form.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-form/tran-func-form-edit.cpp
         ${CMAKE_SOURCE_DIR}/code/widgets/tf-form/tran-func-form-io.cpp

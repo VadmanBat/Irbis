@@ -1,6 +1,5 @@
-#include "code/widgets/reg-parameter.h"
-
 #include "code/dialogs/slider-settings-dialog.h"
+#include "code/widgets/reg-parameter.h"
 
 #include <algorithm>
 #include <cmath>
