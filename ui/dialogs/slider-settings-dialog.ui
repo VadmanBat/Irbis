@@ -243,7 +243,7 @@
   <customwidget>
    <class>CompactDoubleSpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header>code/widgets/compact-double-spin-box.h</header>
+   <header>irbis/widgets/compact-double-spin-box.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

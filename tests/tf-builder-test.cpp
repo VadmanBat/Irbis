@@ -1,10 +1,12 @@
 // closedLoop / plant: Padé order comes from the caller (model settings).
 // Build: see CMakeLists option IRBIS_BUILD_TESTS.
 
-#include "code/util/tf-builder.hpp"
+#include "irbis/util/tf-builder.hpp"
 
+#include <algorithm>
 #include <cmath>
 #include <complex>
+#include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 #include <numbers>
@@ -41,7 +43,7 @@ bool same_poly(const numina::Polynomial& a, const numina::Polynomial& b) {
     }
     return true;
 }
-} // namespace
+}
 
 int main() {
     // Plant 1/(p+1), P-controller Kp=1. Closed den degree = 1 + Padé order.
@@ -84,27 +86,6 @@ int main() {
     }
 
     {
-        tf_builder::VecPair pts{{0.0, 1.0}, {1.0, 2.0}};
-        tf_builder::shiftTimeByDelay(pts, 0.5);
-        expect_eq("shift prepends 0", static_cast<int>(pts.size()), 3);
-        expect_true("shift t0", std::abs(pts[0].first) <= 1e-15);
-        expect_true("shift t1", std::abs(pts[1].first - 0.5) <= 1e-15);
-        expect_true("shift t2", std::abs(pts[2].first - 1.5) <= 1e-15);
-    }
-
-    {
-        tf_builder::FrequencyBundle bundle;
-        bundle.nyquist.push_back({1.0, 0.0});
-        bundle.amplitude.push_back({2.0, 1.0});
-        bundle.phase.push_back({2.0, 0.0});
-        tf_builder::applyExactFreqDelay(bundle, 0.5);
-        const double want_deg = -2.0 * 0.5 * 180.0 / std::numbers::pi;
-        expect_true("exact phase −ωτ", std::abs(bundle.phase[0].second - want_deg) <= 1e-12);
-        expect_true("|W| unchanged", std::abs(bundle.amplitude[0].second - 1.0) <= 1e-15);
-    }
-
-    {
-        // W₀ = 1/(p+1): numina даёт W₀(jω), Irbis домножает КЧХ на e^{-jωτ}.
         const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
         ModelParam p;
         p.usePadeApprox     = false;
@@ -116,22 +97,113 @@ int main() {
         const auto f0       = tf_builder::frequencyBundle(w0, p, 0.0);
         const auto fd       = tf_builder::frequencyBundle(w0, p, 0.5);
         expect_true("bundle has point", !f0.nyquist.empty() && !fd.nyquist.empty());
-        if (!f0.nyquist.empty() && !fd.nyquist.empty()) {
-            const double w  = fd.amplitude[0].first;
-            const auto want = f0.nyquist[0] * std::exp(std::complex<double>(0.0, -w * 0.5));
-            expect_true("КЧХ · exp", std::abs(fd.nyquist[0] - want) <= 1e-12);
-            expect_true("АЧХ |W₀|", std::abs(fd.amplitude[0].second - std::abs(f0.nyquist[0])) <= 1e-12);
+        expect_true("same n", f0.nyquist.size() == fd.nyquist.size());
+        bool checked        = false;
+        const std::size_t n = std::min(fd.nyquist.size(), fd.amplitude.size());
+        for (std::size_t i = 0; i < n; ++i) {
+            const double w = fd.amplitude[i].first;
+            if (!(w > 0.0))
+                continue;
+            const auto want = f0.nyquist[i] * std::exp(std::complex<double>(0.0, -w * 0.5));
+            expect_true("КЧХ · exp", std::abs(fd.nyquist[i] - want) <= 1e-12);
+            expect_true("АЧХ |W₀|", std::abs(fd.amplitude[i].second - std::abs(f0.nyquist[i])) <= 1e-12);
+            const double want_deg = f0.phase[i].second - w * 0.5 * 180.0 / std::numbers::pi;
+            expect_true("ФЧХ −ωτ", std::abs(fd.phase[i].second - want_deg) <= 1e-9);
+            checked = true;
+            break;
         }
+        expect_true("found ω>0", checked);
     }
 
     {
         const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
-        numina::DelayedPlant plant(w0, 0.5);
-        tf_builder::VecPair pts{{0.0, 99.0}, {0.25, 99.0}, {0.75, 99.0}};
-        tf_builder::apply_delayed_time_samples(pts, plant, false);
-        expect_true("h(t<τ)=0", std::abs(pts[0].second) <= 1e-15);
-        expect_true("h(t<τ) mid", std::abs(pts[1].second) <= 1e-15);
-        expect_true("h(t>τ)=h0(t−τ)", std::abs(pts[2].second - w0.transientResponse(0.25)) <= 1e-12);
+        ModelParam p;
+        p.usePadeApprox = false;
+        const auto b    = tf_builder::frequencyBundle(w0, p);
+        expect_true("auto КЧХ nonempty", !b.nyquist.empty() && b.nyquist.size() == b.amplitude.size());
+        bool finite = !b.nyquist.empty();
+        for (const auto& z : b.nyquist)
+            finite = finite && std::isfinite(z.real()) && std::isfinite(z.imag());
+        expect_true("auto КЧХ finite", finite);
+        expect_true("auto ФЧХ ° near 0 at DC", !b.phase.empty() && std::abs(b.phase.front().second) < 5.0);
+    }
+
+    {
+        const auto integ = tf_builder::plant({1.0}, {1.0, 0.0});
+        expect_true("1/p D(0)=0", tf_builder::hasZeroDenConstant(integ));
+        const auto wr = tf_builder::astaticFreqRange(integ);
+        expect_true("1/p auto ω>0", wr.first > 0.0 && wr.second > wr.first);
+
+        ModelParam p;
+        p.usePadeApprox = false;
+        const auto b    = tf_builder::frequencyBundle(integ, p);
+        expect_true("astatic nonempty", !b.nyquist.empty() && !b.amplitude.empty());
+        bool ok = !b.amplitude.empty() && b.amplitude.front().first > 0.0;
+        for (std::size_t i = 0; i < b.amplitude.size(); ++i) {
+            const double w = b.amplitude[i].first;
+            const auto z   = b.nyquist[i];
+            ok             = ok && std::isfinite(w) && std::isfinite(z.real()) && std::isfinite(z.imag());
+            ok             = ok && std::abs(b.amplitude[i].second - 1.0 / w) <= 1e-9 * (1.0 + 1.0 / w);
+            ok             = ok && std::abs(b.phase[i].second + 90.0) <= 1e-6;
+        }
+        expect_true("astatic 1/p finite |W|=1/ω φ=−90°", ok);
+    }
+
+    {
+        const auto w = tf_builder::plant({1.0}, {1.0, 1.0, 0.0}); // 1/(p(p+1))
+        const auto r = tf_builder::astaticFreqRange(w);
+        expect_true("1/(p²+p) lo = ωc/1e3", r.first > 0.0 && std::abs(r.first - 1e-3) <= 1e-6);
+        expect_true("1/(p²+p) hi = ωc", std::abs(r.second - 1.0) <= 1e-6);
+    }
+
+    {
+        const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
+        ModelParam p;
+        p.usePadeApprox     = false;
+        p.autoFreqRange     = false;
+        p.autoFreqIntervals = true;
+        p.freqMin           = 0.1;
+        p.freqMax           = 10.0;
+        const auto b        = tf_builder::frequencyBundle(w0, p);
+        expect_true("range-adaptive nonempty", b.amplitude.size() >= 2);
+        expect_true("range-adaptive ω in span", !b.amplitude.empty() && b.amplitude.front().first >= 0.1 - 1e-12 &&
+                                                    b.amplitude.back().first <= 10.0 + 1e-9);
+    }
+
+    {
+        const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
+        ModelParam p;
+        p.usePadeApprox     = false;
+        p.autoTimeRange     = false;
+        p.autoTimeIntervals = false;
+        p.timeMin           = 0.0;
+        p.timeMax           = 2.0;
+        p.timeIntervals     = 9;
+        const auto pts      = tf_builder::transient(w0, p, 0.5);
+        expect_true("delay h nonempty", pts.size() >= 2);
+        bool dead  = true;
+        bool after = false;
+        for (const auto& pt : pts) {
+            if (pt.first < 0.5 - 1e-12 && std::abs(pt.second) > 1e-12)
+                dead = false;
+            if (pt.first > 0.5 + 1e-9) {
+                const double want = w0.transientResponse(pt.first - 0.5);
+                after             = after || std::abs(pt.second - want) <= 1e-9;
+            }
+        }
+        expect_true("h(t<τ)=0 via lab", dead);
+        expect_true("h(t>τ)=h0(t−τ) via lab", after);
+    }
+
+    {
+        const auto w0 = tf_builder::plant({1.0}, {1.0, 1.0});
+        ModelParam p;
+        p.usePadeApprox = false;
+        const auto q0   = tf_builder::quality(w0, p);
+        const auto q    = tf_builder::quality(w0, p, 0.5);
+        expect_true("ts += τ", std::abs(q.settling_time - q0.settling_time - 0.5) <= 1e-12);
+        expect_true("tr unchanged", std::abs(q.rise_time - q0.rise_time) <= 1e-12);
+        expect_true("iae += |y∞|τ", std::abs(q.iae - q0.iae - 0.5) <= 1e-9);
     }
 
     {

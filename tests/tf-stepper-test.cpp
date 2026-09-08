@@ -1,6 +1,6 @@
-#include "code/util/tf-stepper.hpp"
+#include "irbis/util/tf-stepper.hpp"
 
-#include "code/control/rim-law.hpp"
+#include "irbis/control/rim-law.hpp"
 #include "numina/classes/polynomial/polynomial.h"
 
 #include <cmath>

@@ -193,7 +193,7 @@
   <customwidget>
    <class>ResponseChartBank</class>
    <extends>QWidget</extends>
-   <header>code/charts/response-chart-bank.h</header>
+   <header>irbis/charts/response-chart-bank.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

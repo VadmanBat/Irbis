@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/irbis">
+        <file alias="fonts/font-awesome-6-free-solid-900.otf">fonts/font-awesome-6-free-solid-900.otf</file>
+        <file alias="styles/app.qss">styles/app.qss</file>
+        <file alias="styles/button-style.qss">styles/button-style.qss</file>
+    </qresource>
+</RCC>

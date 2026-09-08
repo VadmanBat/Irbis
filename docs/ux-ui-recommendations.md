@@ -263,11 +263,11 @@ Copy/paste ПФ — технично, но UX слабый.
 
 | Область | Файлы / места |
 |---------|----------------|
-| Вкладки | `ui/tabs/*`, `code/tabs/*` |
-| Форма ПФ | `code/widgets/tf-form/*` |
-| Отображение ПФ | `code/widgets/tf-display-widget.*` |
-| Метрики | `code/widgets/regulation-widget.*` |
-| Графики | `code/charts/*`, `code/charts/utils/*`, `code/dialogs/chart-viewer/*` |
+| Вкладки | `ui/tabs/*`, `include/irbis/tabs/*`, `src/irbis/tabs/*` |
+| Форма ПФ | `include/irbis/widgets/tf-form/*`, `src/irbis/widgets/tf-form/*` |
+| Отображение ПФ | `include/irbis/widgets/tf-display-widget.h`, `src/irbis/widgets/tf-display-widget.cpp` |
+| Метрики | `include/irbis/widgets/regulation-widget.h`, `src/irbis/widgets/regulation-widget.cpp` |
+| Графики | `include/irbis/charts/*`, `src/irbis/charts/*`, `include/irbis/dialogs/chart-viewer/*` |
 | Стили | `data/styles/app.qss` |
 
 При рефакторинге layout имеет смысл вынести **общий каркас вкладки** (helper / base

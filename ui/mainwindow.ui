@@ -59,22 +59,22 @@
   <customwidget>
    <class>IdTab</class>
    <extends>QWidget</extends>
-   <header>code/tabs/id-tab.h</header>
+   <header>irbis/tabs/id-tab.h</header>
   </customwidget>
   <customwidget>
    <class>AnalysisTab</class>
    <extends>QWidget</extends>
-   <header>code/tabs/analysis-tab.h</header>
+   <header>irbis/tabs/analysis-tab.h</header>
   </customwidget>
   <customwidget>
    <class>SynthesisTab</class>
    <extends>QWidget</extends>
-   <header>code/tabs/synthesis-tab.h</header>
+   <header>irbis/tabs/synthesis-tab.h</header>
   </customwidget>
   <customwidget>
    <class>RimTab</class>
    <extends>QWidget</extends>
-   <header>code/tabs/rim-tab.h</header>
+   <header>irbis/tabs/rim-tab.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

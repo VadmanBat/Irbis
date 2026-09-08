@@ -1,7 +1,7 @@
 // Pure unit tests for chart_utils::niceNumber / niceAxisRange (no Qt).
 // Build: see CMakeLists option IRBIS_BUILD_TESTS.
 
-#include "code/charts/utils/nice-axis.hpp"
+#include "irbis/charts/utils/nice-axis.hpp"
 
 #include <cmath>
 #include <cstdio>

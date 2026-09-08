@@ -744,17 +744,17 @@
   <customwidget>
    <class>PercentSpinBox</class>
    <extends>QDoubleSpinBox</extends>
-   <header>code/widgets/percent-spin-box.h</header>
+   <header>irbis/widgets/percent-spin-box.h</header>
   </customwidget>
   <customwidget>
    <class>ResponseChartBank</class>
    <extends>QWidget</extends>
-   <header>code/charts/response-chart-bank.h</header>
+   <header>irbis/charts/response-chart-bank.h</header>
   </customwidget>
   <customwidget>
    <class>C0C1Chart</class>
    <extends>QWidget</extends>
-   <header>code/charts/c0-c1-chart.h</header>
+   <header>irbis/charts/c0-c1-chart.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

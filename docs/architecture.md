@@ -17,7 +17,8 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 4. **RIM** — discrete relay-pulse controller vs ideal W_reg(p) on the same plant
 
 **Math** lives in external static library **[numina](https://github.com/VadmanBat/numina)**.  
-**Irbis** is the UI + thin adapters (builders, factories, chart presentation).
+**Irbis** is a Qt UI library (`irbis::irbis` / target `irbis-ui`) plus the same desktop app as before (executable `irbis`, four tabs).  
+Another application can `add_subdirectory` this repo and instantiate the same tabs.
 
 ---
 
@@ -25,22 +26,11 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│  main.cpp  →  MainWindow (tabs shell, fonts, QSS)       │
+│  app/  main.cpp → MainWindow (optional desktop shell)   │
 ├─────────────────────────────────────────────────────────┤
-│  Tabs (QWidget + .ui)                                   │
-│    IdTab | AnalysisTab | SynthesisTab | RimTab          │
-├─────────────────────────────────────────────────────────┤
-│  Widgets / dialogs                                       │
-│    TranFuncForm, TfDisplayWidget, RegParameter, …       │
-│    ModParDialog, ChartViewerWindow, ChartDialog, …      │
-├─────────────────────────────────────────────────────────┤
-│  Charts                                                  │
-│    ResponseChartBank → ChartPanel → chart_utils         │
-│    InteractiveChartView (viewer zoom/pan)               │
-├─────────────────────────────────────────────────────────┤
-│  Adapters (header-mostly)                                │
-│    tf_builder | TfStepper | rim (idealPair / Regulator)  │
-│    data_file_parser | num_format | nice_axis | BoundsSet │
+│  irbis::irbis  (static Qt library)                      │
+│    Tabs: IdTab | AnalysisTab | SynthesisTab | RimTab    │
+│    Widgets / dialogs / charts / adapters                │
 ├─────────────────────────────────────────────────────────┤
 │  numina (TransferFunction, ResponseLab, PidController, …)│
 └─────────────────────────────────────────────────────────┘
@@ -52,43 +42,65 @@ Related: [UX/UI recommendations](ux-ui-recommendations.md), [UI sketches](sketch
 
 ## 3. Directory map
 
+Layout matches **numina**: public headers under `include/irbis/`, implementations under `src/irbis/`.
+
 | Path | Role |
 |------|------|
-| `main.cpp` | `QApplication`, locale, `MainWindow` |
-| `code/app/` | Main window shell only |
-| `code/tabs/` | One feature screen per tab (+ `*-run.cpp` for heavy logic) |
-| `code/widgets/` | Single-file controls (`double-slider`, `reg-parameter`, `formula-view`, …) |
-| `code/widgets/tf-form/` | **Module:** `TranFuncForm` (multi-cpp) |
-| `code/dialogs/` | Modal dialogs (one class ≈ one pair of files) |
-| `code/dialogs/chart-viewer/` | **Module:** detached chart viewer window |
-| `code/charts/` | `ChartPanel`, `ResponseChartBank`, `InteractiveChartView` |
-| `code/charts/utils/` | **Module:** `chart_utils`, nice axes, clone |
-| `code/series/` | Axis bounds aggregation (`AxisBounds`, `BoundsSet`) |
-| `code/model/` | POD settings (`ModelParam`, `IdSettings`) |
-| `code/control/` | Thin adapters `controller_design` (locus, Pi/Pid/Auto, Γ), `rim` (ideal W_reg / PidController variant) |
-| `code/util/` | Parsing, formatting, TF builders, `TfStepper` |
-| `ui/` | Qt Designer forms (kebab-case), parallel to `code/` |
-| `data/` | QSS, fonts (copied next to exe on build) |
+| `include/irbis/` | Public API (`#include "irbis/..."`) |
+| `src/irbis/` | Library `.cpp` (same relative tree as headers) |
+| `app/` | Desktop shell: `main.cpp`, `MainWindow` |
+| `include/irbis/tabs/` | One feature screen per tab (+ `src/.../*-run.cpp`) |
+| `include/irbis/widgets/` | Single-file controls (`double-slider`, `reg-parameter`, …) |
+| `include/irbis/widgets/tf-form/` | **Module:** `TranFuncForm` |
+| `include/irbis/dialogs/` | Modal dialogs |
+| `include/irbis/dialogs/chart-viewer/` | **Module:** detached chart viewer |
+| `include/irbis/charts/` | `ChartPanel`, `ResponseChartBank`, `InteractiveChartView` |
+| `include/irbis/charts/utils/` | **Module:** `chart_utils`, nice axes |
+| `include/irbis/series/` | `AxisBounds`, `BoundsSet` |
+| `include/irbis/model/` | POD settings (`ModelParam`, `IdSettings`) |
+| `include/irbis/control/` | `controller_design`, `rim` |
+| `include/irbis/util/` | Parsing, formatting, TF builders, `TfStepper` |
+| `include/irbis/style.hpp` | Fonts + QSS (`irbis::loadFonts` / `applyStyleSheet`) |
+| `include/irbis/irbis.h` | Umbrella: four tabs + style |
+| `ui/` | Qt Designer forms (kebab-case) |
+| `data/` | QSS, fonts, icons; `irbis_resources.qrc` baked into the library |
 | `docs/` | Architecture, UX, sketches |
-| `cmake/` | Source list, flags, MSYS Qt env |
+| `cmake/` | `sources.cmake` (library), `top-level.cmake` (app + tests) |
 
 ### 3.1 Module folders (multi-file classes)
 
 Rule: **one class / 1–2 files → flat domain folder**; **one class / 3+ sources → own subfolder**.
 
 ```
-code/widgets/tf-form/          TranFuncForm (+ edit, io, name, line-edit)
-code/charts/utils/             chart_utils (+ axes, series, menu), nice-axis
-code/dialogs/chart-viewer/     ChartViewerWindow (+ ui)
+include/irbis/widgets/tf-form/     TranFuncForm
+src/irbis/widgets/tf-form/
+include/irbis/charts/utils/        chart_utils, nice-axis
+src/irbis/charts/utils/
+include/irbis/dialogs/chart-viewer/
+src/irbis/dialogs/chart-viewer/
 ```
 
-Includes use the full path from project root, e.g.:
+Includes are rooted at `include/`:
 
 ```cpp
-#include "code/widgets/tf-form/tran-func-form.h"
-#include "code/charts/utils/chart-utils.hpp"
-#include "code/dialogs/chart-viewer/chart-viewer-window.h"
+#include "irbis/widgets/tf-form/tran-func-form.h"
+#include "irbis/charts/utils/chart-utils.hpp"
+#include "irbis/dialogs/chart-viewer/chart-viewer-window.h"
 ```
+
+### 3.2 Using Irbis from another CMake project
+
+```cmake
+add_subdirectory(path/to/Irbis)          # or FetchContent
+target_link_libraries(app2 PRIVATE irbis::irbis)
+```
+
+```cpp
+#include "irbis/tabs/analysis-tab.h"
+auto* tab = new AnalysisTab(parent);
+```
+
+Fonts load from tab constructors. Call `irbis::applyStyleSheet()` if the host wants the Irbis QSS. Do not set `CMAKE_SOURCE_DIR` paths inside Irbis — the library uses `CMAKE_CURRENT_SOURCE_DIR`.
 
 ---
 
@@ -96,13 +108,13 @@ Includes use the full path from project root, e.g.:
 
 ### 4.1 Model parameters
 
-`ModelParam` (`code/model/model-param.hpp`) — shared simulation settings:
+`ModelParam` (`include/irbis/model/model-param.hpp`) — shared simulation settings:
 
-- time: `autoTimeRange`, `timeMin`/`timeMax`, `autoTimeIntervals`, `timeIntervals`
-- frequency: same pattern; **always log ω-grid**
+- time: `autoTimeRange`, `timeMin`/`timeMax`, `autoTimeIntervals`, `timeIntervals` → `ResponseLab` auto / range / range+N
+- frequency: same three overloads (`frequency`, `amplitudeFrequency`, `phaseFrequency`). Auto + astatic \(D(0)=0\): range from pole cutoffs, lower bound several decades below (avoid \(W(j0)\))
 - `approxOrder` — Padé order for delay
 - `usePadeApprox` / `approxOrder` — per series at add time; `recomputeAll` updates only the time/freq grid
-- exact delay: `numina::DelayedPlant` (lab still on \(W_0\); Irbis samples \(h(t-\tau)\), \(W(j\omega)e^{-j\omega\tau}\))
+- exact delay: `tf_builder` binds `DelayedPlant` to `ResponseLab` (lab shifts \(h(t)\), \(W(j\omega)e^{-j\omega\tau}\), quality \(t_s\)/\(t_p\)/IAE/ISE). Irbis only converts ФЧХ rad→°
 
 Edited by `ModParDialog`. Analysis opens the dialog with `allowIdealDelay` (checkbox + gated order). Synthesis / ID always use Padé. Each tab owns a `ModelParam` instance (not yet a shared session).
 
@@ -113,8 +125,8 @@ UI coefficients (TranFuncForm)
     → W₀ = tf_builder::plant(num, den)          [analysis]
     → or plant(num, den, τ, order)              [Padé baked in: ID / synth plant]
     → ResponseChartBank::appendFromTf(..., τ)
-         → exact e^{-τp}  (shift h(t), W(jω)·e^{-jωτ})  if !usePadeApprox
-         → or W₀·Padé(τ, order)                         if  usePadeApprox
+         → ResponseLab(DelayedPlant(W₀, τ))             if !usePadeApprox
+         → ResponseLab(W₀·Padé(τ, order))               if  usePadeApprox
          → ChartPanel series + BoundsSet + niceAxisRange
 ```
 
@@ -194,19 +206,19 @@ Per **cpp-my-style**: class implementations split into **~100–150 line** `.cpp
 
 | Class / area | Files (under module path) |
 |--------------|---------------------------|
-| `TranFuncForm` | `widgets/tf-form/tran-func-form.cpp` (+ `-edit`, `-io`, `-name`, `*-line-edit.hpp`) |
-| `TranFuncDialog` | `dialogs/tran-func-dialog.cpp` (+ `-poles.cpp`) |
-| `ChartViewerWindow` | `dialogs/chart-viewer/chart-viewer-window.cpp` (+ `-ui.cpp`) |
-| `InteractiveChartView` | `charts/interactive-chart-view.h/.cpp` |
-| `chart_utils` | `charts/utils/chart-utils.cpp` (+ `-axes`, `-series`, `-menu`, `*-detail.hpp`, `nice-axis`) |
-| `ResponseChartBank` | `charts/response-chart-bank.cpp` (+ `-data.cpp`) |
-| `C0C1Chart` | `charts/c0-c1-chart.h` + `.cpp` / `-axes` / `-pointer` |
-| `controller_design` | `control/controller-design.hpp/.cpp` |
-| `IdTab` / `SynthesisTab` / `RimTab` | `tabs/*-tab.cpp` (+ `*-run.cpp`, id `*-identify.cpp`, synthesis `*-synth.cpp` / `*-face.cpp`) |
+| `TranFuncForm` | `src/irbis/widgets/tf-form/tran-func-form.cpp` (+ `-edit`, `-io`, `-name`) |
+| `TranFuncDialog` | `src/irbis/dialogs/tran-func-dialog.cpp` (+ `-poles.cpp`) |
+| `ChartViewerWindow` | `src/irbis/dialogs/chart-viewer/chart-viewer-window.cpp` (+ `-ui.cpp`) |
+| `InteractiveChartView` | `charts/interactive-chart-view.h` + `src/irbis/charts/...` |
+| `chart_utils` | `src/irbis/charts/utils/chart-utils.cpp` (+ `-axes`, `-series`, `-menu`, `*-detail.hpp`) |
+| `ResponseChartBank` | `src/irbis/charts/response-chart-bank.cpp` (+ `-data.cpp`) |
+| `C0C1Chart` | `c0-c1-chart.h` + `.cpp` / `-axes` / `-pointer` |
+| `controller_design` | `include/irbis/control/controller-design.hpp` + `src/...` |
+| `IdTab` / `SynthesisTab` / `RimTab` | `src/irbis/tabs/*-tab.cpp` (+ `*-run.cpp`, id `*-identify.cpp`, synthesis `*-synth.cpp` / `*-face.cpp`) |
 
 When adding a large method: **new cpp unit**, not grow past ~150 lines.
 
-CMake list: `cmake/source-files.cmake` — **register every new `.cpp`**.
+CMake list: `cmake/sources.cmake` — **register every new library `.cpp` / `.ui`**. App files go in `cmake/top-level.cmake`.
 
 ---
 
@@ -244,19 +256,21 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | Slider range / intervals | `SliderSettingsDialog` from `RegParameter` ⚙ |
 | TF inspector (poles, h(t), w(t), DE) | `dialogs/tran-func-dialog*`, `widgets/formula-view` |
 | Global chrome / buttons | `data/styles/app.qss` |
-| Window shell / tabs list | `ui/mainwindow.ui` + `mainwindow.cpp` (styles, fonts) |
+| Window shell / tabs list | `ui/mainwindow.ui` + `app/mainwindow.cpp` (styles, fonts) |
 | Chart zoom window | `dialogs/chart-viewer/*`, `charts/interactive-chart-view.*` |
 
 ---
 
 ## 8. Build & dependencies
 
-- **CMake ≥ 3.28**, **C++23**, **Qt6** Widgets + Charts
-- **numina** via `NUMINA_ROOT` (`CMakeLists.txt`)
-- MSYS2 UCRT64 helpers: `cmake/msys-qt-env.cmake`
-- Runtime assets: `data/` copied next to exe (POST_BUILD)
+- **CMake ≥ 3.28**, **C++23**, **Qt6** Widgets + Charts + Svg
+- Library target: `irbis` / alias **`irbis::irbis`**
+- Top-level executable: **`irbis`** (`irbis.exe`, CLion run target)
+- **numina** via `NUMINA_ROOT` unless `numina::numina` already exists
+- MSYS2 UCRT64 helpers: `cmake/msys-qt-env.cmake` (top-level only)
+- QSS/fonts: qrc in the library (`:/irbis/...`); `data/` still copied next to the desktop exe
 
-Tests (optional): `IRBIS_BUILD_TESTS` → `nice_axis_test`, `tf_builder_test`, `tf_stepper_test`.
+Tests (top-level, `IRBIS_BUILD_TESTS`): `nice_axis_test`, `tf_builder_test`, `tf_stepper_test`, `data_file_parser_test`.
 
 ---
 
@@ -275,10 +289,10 @@ Tests (optional): `IRBIS_BUILD_TESTS` → `nice_axis_test`, `tf_builder_test`, `
 2. Prefer **editing adapters** over reimplementing numina math.
 3. Keep **tabs thin**: move algorithms to `*-run.cpp` / `util/` / numina.
 4. Split large new code into **multiple kebab-case `.cpp`** (~100–150 lines).
-5. Update `cmake/source-files.cmake` when adding sources.
+5. Update `cmake/sources.cmake` when adding library sources.
 6. After chart/TF behavior changes, rebuild Release kit (watch for locked `Irbis.exe`).
 7. Do not expand scope into UX redesign unless asked — architecture here is structural.
 
 ---
 
-*Last structural refactor: chart stack coherence (`SeriesWrite`, one-pass bounds, `GridMode` Tab/Viewer, split `chart-utils-axes`).*
+*Last structural refactor: library layout `include/irbis` + `src/irbis`, CMake `irbis::irbis` for `add_subdirectory`.*
