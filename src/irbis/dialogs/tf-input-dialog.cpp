@@ -32,7 +32,7 @@ TfInputDialog::TfInputDialog(QWidget* parent) : QDialog(parent), ui(new Ui::TfIn
     ui->errorBanner->setAttribute(Qt::WA_StyledBackground, true);
     ui->errorLabel->setTextFormat(Qt::PlainText);
     ui->errorLabel->clear();
-    style_error_banner(false);
+    style_error_state(false, false, false);
 
     auto* coeff_validator = new QRegularExpressionValidator(
         QRegularExpression(QStringLiteral("^[0-9 .,+eE-]*$")), this);
@@ -106,8 +106,10 @@ void TfInputDialog::tryAccept() {
     Vec num, den;
     double tau = 0.0;
     QString error;
-    if (!collect_valid(num, den, tau, &error)) {
-        show_error(error);
+    bool num_bad = false;
+    bool den_bad = false;
+    if (!collect_valid(num, den, tau, &error, &num_bad, &den_bad)) {
+        show_error(error, num_bad, den_bad);
         return;
     }
     num_              = std::move(num);

@@ -28,10 +28,11 @@ private:
     void set_order(bool high_first);
     void fill_fields_from_value();
     void refresh_preview();
-    void style_error_banner(bool has_error);
-    void show_error(const QString& message);
+    void style_error_state(bool has_error, bool num_bad, bool den_bad);
+    void show_error(const QString& message, bool num_bad, bool den_bad);
     void clear_error();
-    [[nodiscard]] bool collect_valid(Vec& num, Vec& den, double& tau, QString* error) const;
+    [[nodiscard]] bool collect_valid(Vec& num, Vec& den, double& tau, QString* error, bool* num_bad,
+                                     bool* den_bad) const;
 
 private slots:
     void onFieldsChanged();

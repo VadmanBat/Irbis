@@ -34,41 +34,81 @@ void TfInputDialog::fill_fields_from_value() {
     ui->delayHint->setVisible(!(tau_ > 0.0));
 }
 
-void TfInputDialog::style_error_banner(bool has_error) {
-    const bool dark = palette().color(QPalette::Window).lightness() < 128;
+void TfInputDialog::style_error_state(bool has_error, bool num_bad, bool den_bad) {
+    const bool dark       = palette().color(QPalette::Window).lightness() < 128;
     const QString dark_ui = dark ? QStringLiteral("true") : QStringLiteral("false");
     const QString on      = has_error ? QStringLiteral("true") : QStringLiteral("false");
+    const QString num_on  = num_bad ? QStringLiteral("true") : QStringLiteral("false");
+    const QString den_on  = den_bad ? QStringLiteral("true") : QStringLiteral("false");
     style_util::setProperty(ui->errorBanner, "darkUi", dark_ui);
     style_util::setProperty(ui->errorBanner, "hasError", on);
     style_util::setProperty(ui->errorLabel, "darkUi", dark_ui);
     style_util::setProperty(ui->errorLabel, "hasError", on);
+    style_util::setProperty(ui->numEdit, "darkUi", dark_ui);
+    style_util::setProperty(ui->numEdit, "hasError", num_on);
+    style_util::setProperty(ui->denEdit, "darkUi", dark_ui);
+    style_util::setProperty(ui->denEdit, "hasError", den_on);
 }
 
-void TfInputDialog::show_error(const QString& message) {
+void TfInputDialog::show_error(const QString& message, bool num_bad, bool den_bad) {
     ui->errorLabel->setText(message);
-    style_error_banner(!message.isEmpty());
+    const bool on = !message.isEmpty();
+    style_error_state(on, on && num_bad, on && den_bad);
 }
 
 void TfInputDialog::clear_error() {
     ui->errorLabel->clear();
-    style_error_banner(false);
+    style_error_state(false, false, false);
 }
 
-bool TfInputDialog::collect_valid(Vec& num, Vec& den, double& tau, QString* error) const {
-    if (!parse_poly(ui->numEdit->text(), num, error))
+bool TfInputDialog::collect_valid(Vec& num, Vec& den, double& tau, QString* error, bool* num_bad,
+                                  bool* den_bad) const {
+    if (num_bad)
+        *num_bad = false;
+    if (den_bad)
+        *den_bad = false;
+
+    if (!parse_poly(ui->numEdit->text(), num, error)) {
+        if (num_bad)
+            *num_bad = true;
         return false;
-    if (!parse_poly(ui->denEdit->text(), den, error))
+    }
+    if (!parse_poly(ui->denEdit->text(), den, error)) {
+        if (den_bad)
+            *den_bad = true;
         return false;
+    }
     tau = ui->delaySpin->value();
     if (tau < 0.0)
         tau = 0.0;
     const QString plant_err = tab_ui::plantInputError(num, den);
-    if (!plant_err.isEmpty()) {
-        if (error)
-            *error = plant_err;
-        return false;
+    if (plant_err.isEmpty())
+        return true;
+    if (error)
+        *error = plant_err;
+
+    bool num_ok = false;
+    for (double c : num) {
+        if (c != 0.0) {
+            num_ok = true;
+            break;
+        }
     }
-    return true;
+    if (!num_ok) {
+        if (num_bad)
+            *num_bad = true;
+    }
+    else if (den.size() < 2) {
+        if (den_bad)
+            *den_bad = true;
+    }
+    else {
+        if (num_bad)
+            *num_bad = true;
+        if (den_bad)
+            *den_bad = true;
+    }
+    return false;
 }
 
 void TfInputDialog::refresh_preview() {
@@ -77,11 +117,13 @@ void TfInputDialog::refresh_preview() {
     Vec num, den;
     double tau = 0.0;
     QString error;
-    if (!collect_valid(num, den, tau, &error)) {
+    bool num_bad = false;
+    bool den_bad = false;
+    if (!collect_valid(num, den, tau, &error, &num_bad, &den_bad)) {
         ui->preview->clear();
         ui->applyButton->setEnabled(false);
         if (!ui->numEdit->text().trimmed().isEmpty() || !ui->denEdit->text().trimmed().isEmpty())
-            show_error(error);
+            show_error(error, num_bad, den_bad);
         else
             clear_error();
         return;

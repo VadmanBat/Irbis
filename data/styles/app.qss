@@ -879,6 +879,27 @@ QDialog#TfInputDialog QLineEdit#denEdit {
     font-size: 13pt;
     min-height: 32px;
     padding: 6px 10px;
+    border: 1px solid palette(mid);
+    border-radius: 4px;
+    background-color: palette(base);
+}
+QDialog#TfInputDialog QLineEdit#numEdit[hasError="true"][darkUi="true"],
+QDialog#TfInputDialog QLineEdit#denEdit[hasError="true"][darkUi="true"],
+QDialog#TfInputDialog QLineEdit#numEdit[hasError="true"][darkUi="true"]:focus,
+QDialog#TfInputDialog QLineEdit#denEdit[hasError="true"][darkUi="true"]:focus,
+QDialog#TfInputDialog QLineEdit#numEdit[hasError="true"][darkUi="true"]:hover,
+QDialog#TfInputDialog QLineEdit#denEdit[hasError="true"][darkUi="true"]:hover {
+    border: 1px solid #ef9a9a;
+    background-color: #3d1f1f;
+}
+QDialog#TfInputDialog QLineEdit#numEdit[hasError="true"][darkUi="false"],
+QDialog#TfInputDialog QLineEdit#denEdit[hasError="true"][darkUi="false"],
+QDialog#TfInputDialog QLineEdit#numEdit[hasError="true"][darkUi="false"]:focus,
+QDialog#TfInputDialog QLineEdit#denEdit[hasError="true"][darkUi="false"]:focus,
+QDialog#TfInputDialog QLineEdit#numEdit[hasError="true"][darkUi="false"]:hover,
+QDialog#TfInputDialog QLineEdit#denEdit[hasError="true"][darkUi="false"]:hover {
+    border: 1px solid #e57373;
+    background-color: #fdecea;
 }
 
 QDialog#TfInputDialog QFrame#errorBanner {
