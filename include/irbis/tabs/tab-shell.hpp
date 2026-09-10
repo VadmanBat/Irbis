@@ -2,6 +2,7 @@
 
 #include "irbis/charts/response-chart-bank.h"
 #include "irbis/dialogs/chart-vis-dialog.h"
+#include "irbis/dialogs/help-dialog.h"
 #include "irbis/dialogs/mod-par-dialog.h"
 #include "irbis/model/model-param.hpp"
 #include "irbis/style.hpp"
@@ -48,6 +49,11 @@ inline void mountInHost(QWidget* host, QWidget* child, Qt::Alignment align, int 
 
 inline void showError(QWidget* parent, const QString& title, const QString& message) {
     QMessageBox::critical(parent, title, message);
+}
+
+inline void showHelp(QWidget* parent, HelpDialog::Topic topic) {
+    HelpDialog dialog(topic, parent);
+    dialog.exec();
 }
 
 [[nodiscard]] inline QString plantInputError(const std::vector<double>& num, const std::vector<double>& den) {

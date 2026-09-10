@@ -448,7 +448,7 @@ QToolButton#chartsButton:pressed {
     border-style: inset;
 }
 
-/* Tab bar: tabs left, small settings / charts icons right */
+/* Tab bar: tabs left, small help | settings / charts icons right */
 QTabWidget::tab-bar {
     alignment: left;
 }
@@ -461,9 +461,10 @@ QFrame#tabCornerSep {
     color: palette(mid);
     max-width: 1px;
     min-width: 1px;
-    margin: 4px 6px 4px 0;
+    margin: 4px 6px;
 }
 
+QToolButton#tabHelpButton,
 QToolButton#tabSettingsButton,
 QToolButton#tabChartsButton {
     min-width: 24px;
@@ -480,22 +481,26 @@ QToolButton#tabChartsButton {
     font-size: 11pt;
     text-align: center;
 }
+QToolButton#tabHelpButton::menu-indicator,
 QToolButton#tabSettingsButton::menu-indicator,
 QToolButton#tabChartsButton::menu-indicator {
     image: none;
     width: 0px;
     height: 0px;
 }
+QToolButton#tabHelpButton:hover,
 QToolButton#tabSettingsButton:hover,
 QToolButton#tabChartsButton:hover {
     background: rgba(127, 127, 127, 0.18);
     border-radius: 4px;
 }
+QToolButton#tabHelpButton:pressed,
 QToolButton#tabSettingsButton:pressed,
 QToolButton#tabChartsButton:pressed {
     background: rgba(127, 127, 127, 0.28);
     border-radius: 4px;
 }
+QToolButton#tabHelpButton:disabled,
 QToolButton#tabSettingsButton:disabled,
 QToolButton#tabChartsButton:disabled {
     color: palette(placeholder-text);

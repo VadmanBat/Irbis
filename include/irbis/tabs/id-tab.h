@@ -60,4 +60,6 @@ private slots:
 public:
     explicit IdTab(QWidget* parent = nullptr);
     ~IdTab() override;
+
+    void openHelp();
 };

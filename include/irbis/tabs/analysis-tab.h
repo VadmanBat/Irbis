@@ -39,6 +39,7 @@ public:
     explicit AnalysisTab(QWidget* parent = nullptr);
     ~AnalysisTab() override;
 
+    void openHelp();
     void openSettings();
     void openChartSettings();
 };

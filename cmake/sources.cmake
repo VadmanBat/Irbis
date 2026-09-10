@@ -17,6 +17,7 @@ set(irbis_SOURCES
 
         src/irbis/dialogs/mod-par-dialog.cpp
         src/irbis/dialogs/help-dialog.cpp
+        src/irbis/dialogs/help-dialog-topics.cpp
         src/irbis/dialogs/chart-dialog.cpp
         src/irbis/dialogs/chart-vis-dialog.cpp
         src/irbis/dialogs/tran-func-dialog.cpp

@@ -80,4 +80,6 @@ private slots:
 public:
     explicit RimTab(QWidget* parent = nullptr);
     ~RimTab() override;
+
+    void openHelp();
 };

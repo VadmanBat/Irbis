@@ -58,7 +58,6 @@ private slots:
     void addTransferFunction();
     void replaceTransferFunction();
     void clearCharts();
-    void openHelp();
     void autoSynthesize();
     void onSamplePicked(const C0C1Chart::Sample& sample);
     void editPlant();
@@ -68,6 +67,7 @@ public:
     explicit SynthesisTab(QWidget* parent = nullptr);
     ~SynthesisTab() override;
 
+    void openHelp();
     void openSettings();
     void openChartSettings();
 };

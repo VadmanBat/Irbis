@@ -468,7 +468,7 @@ QToolButton#chartsButton:pressed {
     border-style: inset;
 }
 
-/* Tab bar: tabs left, small settings / charts icons right */
+/* Tab bar: tabs left, small help | settings / charts icons right */
 QTabWidget::tab-bar {
     alignment: left;
 }
@@ -481,9 +481,10 @@ QFrame#tabCornerSep {
     color: palette(mid);
     max-width: 1px;
     min-width: 1px;
-    margin: 4px 6px 4px 0;
+    margin: 4px 6px;
 }
 
+QToolButton#tabHelpButton,
 QToolButton#tabSettingsButton,
 QToolButton#tabChartsButton {
     min-width: 24px;
@@ -500,22 +501,26 @@ QToolButton#tabChartsButton {
     font-size: 11pt;
     text-align: center;
 }
+QToolButton#tabHelpButton::menu-indicator,
 QToolButton#tabSettingsButton::menu-indicator,
 QToolButton#tabChartsButton::menu-indicator {
     image: none;
     width: 0px;
     height: 0px;
 }
+QToolButton#tabHelpButton:hover,
 QToolButton#tabSettingsButton:hover,
 QToolButton#tabChartsButton:hover {
     background: rgba(127, 127, 127, 0.18);
     border-radius: 4px;
 }
+QToolButton#tabHelpButton:pressed,
 QToolButton#tabSettingsButton:pressed,
 QToolButton#tabChartsButton:pressed {
     background: rgba(127, 127, 127, 0.28);
     border-radius: 4px;
 }
+QToolButton#tabHelpButton:disabled,
 QToolButton#tabSettingsButton:disabled,
 QToolButton#tabChartsButton:disabled {
     color: palette(placeholder-text);
@@ -876,9 +881,33 @@ QDialog#TfInputDialog QLineEdit#denEdit {
     padding: 6px 10px;
 }
 
+QDialog#TfInputDialog QFrame#errorBanner {
+    min-height: 56px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    background: transparent;
+}
 QDialog#TfInputDialog QLabel#errorLabel {
-    color: #c62828;
-    font-size: 10pt;
+    font-size: 10.5pt;
+    background: transparent;
+}
+QDialog#TfInputDialog QFrame#errorBanner[hasError="true"][darkUi="true"] {
+    background-color: #3d1f1f;
+    border: 1px solid #ef9a9a;
+    border-left: 4px solid #ff8a80;
+}
+QDialog#TfInputDialog QFrame#errorBanner[hasError="true"][darkUi="false"] {
+    background-color: #fdecea;
+    border: 1px solid #e57373;
+    border-left: 4px solid #c62828;
+}
+QDialog#TfInputDialog QLabel#errorLabel[hasError="true"][darkUi="true"] {
+    color: #ffcdd2;
+    font-weight: 600;
+}
+QDialog#TfInputDialog QLabel#errorLabel[hasError="true"][darkUi="false"] {
+    color: #b71c1c;
+    font-weight: 600;
 }
 
 QDialog#TfInputDialog QToolButton#orderHighButton,

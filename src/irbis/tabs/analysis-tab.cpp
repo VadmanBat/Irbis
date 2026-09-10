@@ -61,6 +61,10 @@ bool AnalysisTab::apply_plant(std::vector<double> num, std::vector<double> den, 
     return true;
 }
 
+void AnalysisTab::openHelp() {
+    tab_ui::showHelp(this, HelpDialog::Topic::Analysis);
+}
+
 void AnalysisTab::openSettings() {
     if (!tab_ui::editModelParam(this, model_param_, /*allowIdealDelay=*/true) || ui->charts->empty())
         return;

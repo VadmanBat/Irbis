@@ -2,6 +2,8 @@
 
 #include "irbis/style.hpp"
 #include "irbis/tabs/analysis-tab.h"
+#include "irbis/tabs/id-tab.h"
+#include "irbis/tabs/rim-tab.h"
 #include "irbis/tabs/synthesis-tab.h"
 #include "irbis/util/dialog-icons.hxx"
 #include "ui_mainwindow.h"
@@ -57,12 +59,6 @@ void MainWindow::install_tab_corner() {
     lay->setSpacing(2);
     lay->setAlignment(Qt::AlignVCenter);
 
-    auto* sep = new QFrame(corner);
-    sep->setObjectName(QStringLiteral("tabCornerSep"));
-    sep->setFrameShape(QFrame::VLine);
-    sep->setFrameShadow(QFrame::Sunken);
-    lay->addWidget(sep);
-
     auto make_btn = [corner](const QString& name, QChar glyph, const QString& tip) {
         auto* btn = new QToolButton(corner);
         btn->setObjectName(name);
@@ -76,14 +72,24 @@ void MainWindow::install_tab_corner() {
         return btn;
     };
 
+    help_btn_     = make_btn(QStringLiteral("tabHelpButton"), QChar(0xf059), tr("Справка"));
     settings_btn_ = make_btn(QStringLiteral("tabSettingsButton"), QChar(0xf013),
                              tr("Параметры моделирования"));
     charts_btn_   = make_btn(QStringLiteral("tabChartsButton"), QChar(0xf201), tr("Настройка графиков"));
+
+    auto* sep = new QFrame(corner);
+    sep->setObjectName(QStringLiteral("tabCornerSep"));
+    sep->setFrameShape(QFrame::VLine);
+    sep->setFrameShadow(QFrame::Sunken);
+
+    lay->addWidget(help_btn_, 0, Qt::AlignVCenter);
+    lay->addWidget(sep);
     lay->addWidget(settings_btn_, 0, Qt::AlignVCenter);
     lay->addWidget(charts_btn_, 0, Qt::AlignVCenter);
 
     ui->tabWidget->setCornerWidget(corner, Qt::TopRightCorner);
 
+    connect(help_btn_, &QToolButton::clicked, this, &MainWindow::open_help);
     connect(settings_btn_, &QToolButton::clicked, this, &MainWindow::open_model_settings);
     connect(charts_btn_, &QToolButton::clicked, this, &MainWindow::open_chart_settings);
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, [this](int) { sync_tab_corner(); });
@@ -95,6 +101,18 @@ void MainWindow::sync_tab_corner() {
     const bool on  = qobject_cast<AnalysisTab*>(page) || qobject_cast<SynthesisTab*>(page);
     settings_btn_->setEnabled(on);
     charts_btn_->setEnabled(on);
+}
+
+void MainWindow::open_help() {
+    auto* page = ui->tabWidget->currentWidget();
+    if (auto* id = qobject_cast<IdTab*>(page))
+        id->openHelp();
+    else if (auto* analysis = qobject_cast<AnalysisTab*>(page))
+        analysis->openHelp();
+    else if (auto* synthesis = qobject_cast<SynthesisTab*>(page))
+        synthesis->openHelp();
+    else if (auto* rim = qobject_cast<RimTab*>(page))
+        rim->openHelp();
 }
 
 void MainWindow::open_model_settings() {

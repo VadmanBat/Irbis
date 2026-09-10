@@ -34,6 +34,10 @@ RimTab::~RimTab() {
     delete ui;
 }
 
+void RimTab::openHelp() {
+    tab_ui::showHelp(this, HelpDialog::Topic::Rim);
+}
+
 void RimTab::install_custom_widgets() {
     panel_ = new TfFormulaPanel(ui->formHost);
     panel_->setTitle(QStringLiteral("W<sub>ОУ</sub>(p) = "));

@@ -1,12 +1,15 @@
 #include "irbis/dialogs/tf-input-dialog.h"
 
 #include "irbis/tabs/tab-shell.hpp"
+#include "irbis/util/style-core.hpp"
 #include "irbis/util/tf-builder.hpp"
 #include "irbis/util/tf-clipboard.hpp"
 #include "irbis/widgets/tf-display-widget.h"
 #include "ui_tf-input-dialog.h"
 
+#include <QFrame>
 #include <QLineEdit>
+#include <QPalette>
 #include <QPushButton>
 #include <QSignalBlocker>
 
@@ -31,14 +34,24 @@ void TfInputDialog::fill_fields_from_value() {
     ui->delayHint->setVisible(!(tau_ > 0.0));
 }
 
+void TfInputDialog::style_error_banner(bool has_error) {
+    const bool dark = palette().color(QPalette::Window).lightness() < 128;
+    const QString dark_ui = dark ? QStringLiteral("true") : QStringLiteral("false");
+    const QString on      = has_error ? QStringLiteral("true") : QStringLiteral("false");
+    style_util::setProperty(ui->errorBanner, "darkUi", dark_ui);
+    style_util::setProperty(ui->errorBanner, "hasError", on);
+    style_util::setProperty(ui->errorLabel, "darkUi", dark_ui);
+    style_util::setProperty(ui->errorLabel, "hasError", on);
+}
+
 void TfInputDialog::show_error(const QString& message) {
     ui->errorLabel->setText(message);
-    ui->errorLabel->setVisible(!message.isEmpty());
+    style_error_banner(!message.isEmpty());
 }
 
 void TfInputDialog::clear_error() {
     ui->errorLabel->clear();
-    ui->errorLabel->setVisible(false);
+    style_error_banner(false);
 }
 
 bool TfInputDialog::collect_valid(Vec& num, Vec& den, double& tau, QString* error) const {
@@ -82,3 +95,4 @@ void TfInputDialog::refresh_preview() {
 void TfInputDialog::onFieldsChanged() {
     refresh_preview();
 }
+

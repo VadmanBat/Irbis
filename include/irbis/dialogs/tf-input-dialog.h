@@ -28,6 +28,7 @@ private:
     void set_order(bool high_first);
     void fill_fields_from_value();
     void refresh_preview();
+    void style_error_banner(bool has_error);
     void show_error(const QString& message);
     void clear_error();
     [[nodiscard]] bool collect_valid(Vec& num, Vec& den, double& tau, QString* error) const;
@@ -51,3 +52,4 @@ public:
     static bool edit(QWidget* parent, Vec& num, Vec& den, double& tau,
                      const QString& symbolHtml = QStringLiteral("W(p)"));
 };
+

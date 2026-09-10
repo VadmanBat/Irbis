@@ -201,25 +201,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="helpButton">
-       <property name="objectName">
-        <string notr="true">helpButton</string>
-       </property>
-       <property name="toolTip">
-        <string>Справка</string>
-       </property>
-       <property name="text">
-        <string>?</string>
-       </property>
-       <property name="minimumSize">
-        <size>
-         <width>40</width>
-         <height>40</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="autoSynthButton">
        <property name="objectName">
         <string notr="true">autoSynthButton</string>

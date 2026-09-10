@@ -1,6 +1,5 @@
 #include "irbis/tabs/synthesis-tab.h"
 
-#include "irbis/dialogs/help-dialog.h"
 #include "irbis/dialogs/tf-input-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/dialog-icons.hxx"
@@ -26,7 +25,6 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
 
     ui->charts->setTransientTitle(tr("Переходный процесс"));
 
-    connect(ui->helpButton, &QPushButton::clicked, this, &SynthesisTab::openHelp);
     connect(ui->autoSynthButton, &QPushButton::clicked, this, &SynthesisTab::autoSynthesize);
     connect(ui->addButton, &QPushButton::clicked, this, &SynthesisTab::addTransferFunction);
     connect(ui->clearButton, &QPushButton::clicked, this, &SynthesisTab::clearCharts);
@@ -141,8 +139,7 @@ void SynthesisTab::show_error(const QString& message) {
 }
 
 void SynthesisTab::openHelp() {
-    HelpDialog dialog(this);
-    dialog.exec();
+    tab_ui::showHelp(this, HelpDialog::Topic::Synthesis);
 }
 
 void SynthesisTab::addTransferFunction() {

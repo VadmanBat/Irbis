@@ -55,6 +55,10 @@ IdTab::~IdTab() {
     delete ui;
 }
 
+void IdTab::openHelp() {
+    tab_ui::showHelp(this, HelpDialog::Topic::Identification);
+}
+
 void IdTab::install_custom_widgets() {
     panel_ = new TfFormulaPanel(ui->formHost);
     panel_->setCardFrame(false);

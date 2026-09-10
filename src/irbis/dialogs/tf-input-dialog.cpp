@@ -10,8 +10,12 @@
 #include <QAbstractButton>
 #include <QButtonGroup>
 #include <QDoubleSpinBox>
+#include <QFrame>
+#include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QRegularExpression>
+#include <QRegularExpressionValidator>
 #include <QSignalBlocker>
 #include <QToolButton>
 #include <utility>
@@ -21,12 +25,19 @@ bool TfInputDialog::high_first_pref_ = false;
 TfInputDialog::TfInputDialog(QWidget* parent) : QDialog(parent), ui(new Ui::TfInputDialog) {
     ui->setupUi(this);
     dialog_icons::apply(this, dialog_icons::Kind::TransferFunction);
-    setMinimumWidth(480);
-    resize(560, 560);
+    setMinimumSize(480, 540);
+    resize(560, 620);
 
     secondary_text::applyAll({ui->hintLabel, ui->delayHint});
+    ui->errorBanner->setAttribute(Qt::WA_StyledBackground, true);
+    ui->errorLabel->setTextFormat(Qt::PlainText);
     ui->errorLabel->clear();
-    ui->errorLabel->setVisible(false);
+    style_error_banner(false);
+
+    auto* coeff_validator = new QRegularExpressionValidator(
+        QRegularExpression(QStringLiteral("^[0-9 .,+eE-]*$")), this);
+    ui->numEdit->setValidator(coeff_validator);
+    ui->denEdit->setValidator(coeff_validator);
 
     auto* order_group = new QButtonGroup(this);
     order_group->setExclusive(true);
@@ -105,3 +116,4 @@ void TfInputDialog::tryAccept() {
     high_first_pref_  = high_first_;
     accept();
 }
+
