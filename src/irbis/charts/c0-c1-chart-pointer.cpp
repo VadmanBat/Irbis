@@ -50,7 +50,11 @@ void C0C1Chart::handle_pointer(const QPoint& viewport_pos, bool force_emit) {
     if (!value_at_pixel(viewport_pos, c0, c1))
         return;
 
-    setSelection(c0, c1);
+    const bool pd = plane_ == Plane::Pd;
+    if (pd)
+        setSelection(0.0, c1, c0);
+    else
+        setSelection(c0, c1);
 
     double eps0 = 0.0;
     double eps1 = 0.0;
@@ -73,11 +77,17 @@ void C0C1Chart::handle_pointer(const QPoint& viewport_pos, bool force_emit) {
     last_emit_c1_ = c1;
 
     Sample s;
-    s.c0    = c0;
     s.c1    = c1;
     s.kp    = c1;
-    s.ti    = (c0 > 0.0 && c1 > 0.0) ? (c1 / c0) : 0.0;
     s.omega = 0.0;
+    if (pd) {
+        s.c2 = c0;
+        s.td = (c1 > 0.0) ? (c0 / c1) : 0.0;
+    }
+    else {
+        s.c0 = c0;
+        s.ti = (c0 > 0.0 && c1 > 0.0) ? (c1 / c0) : 0.0;
+    }
     emit samplePicked(s);
 }
 

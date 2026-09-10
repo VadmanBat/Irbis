@@ -71,4 +71,18 @@ if (IRBIS_BUILD_TESTS)
     target_compile_features(data_file_parser_test PRIVATE cxx_std_23)
     target_link_libraries(data_file_parser_test PRIVATE Qt6::Core)
     add_test(NAME data_file_parser_test COMMAND data_file_parser_test)
+
+    add_executable(tf_clipboard_test tests/tf-clipboard-test.cpp)
+    target_include_directories(tf_clipboard_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_compile_features(tf_clipboard_test PRIVATE cxx_std_23)
+    target_link_libraries(tf_clipboard_test PRIVATE Qt6::Core)
+    add_test(NAME tf_clipboard_test COMMAND tf_clipboard_test)
+
+    add_executable(controller_design_test
+            tests/controller-design-test.cpp
+            src/irbis/control/controller-design.cpp)
+    target_include_directories(controller_design_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_compile_features(controller_design_test PRIVATE cxx_std_23)
+    target_link_libraries(controller_design_test PRIVATE numina::numina)
+    add_test(NAME controller_design_test COMMAND controller_design_test)
 endif ()

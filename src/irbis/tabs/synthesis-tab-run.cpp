@@ -5,6 +5,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <exception>
 #include <sstream>
 #include <utility>
 
@@ -89,6 +90,10 @@ void SynthesisTab::openSettings() {
     }
 }
 
+void SynthesisTab::openChartSettings() {
+    tab_ui::editChartVisibility(this, ui->charts);
+}
+
 numina::ControllerDesigner::Criterion SynthesisTab::selected_criterion() const noexcept {
     using C = numina::ControllerDesigner::Criterion;
     switch (ui->criterionCombo->currentIndex()) {
@@ -104,12 +109,18 @@ numina::ControllerDesigner::Criterion SynthesisTab::selected_criterion() const n
 numina::ControllerDesigner::Law SynthesisTab::selected_law() const noexcept {
     using L = numina::ControllerDesigner::Law;
     switch (ui->lawCombo->currentIndex()) {
+        case 0:
+            return L::P;
         case 1:
-            return L::Pid;
+            return L::I;
         case 2:
-            return L::Auto;
-        default:
+            return L::Pd;
+        case 3:
             return L::Pi;
+        case 4:
+            return L::Pid;
+        default:
+            return L::Auto;
     }
 }
 
@@ -119,22 +130,33 @@ numina::ControllerDesigner::Region SynthesisTab::selected_region() const noexcep
 }
 
 bool SynthesisTab::build_plant(numina::TransferFunction& out) {
-    auto plant_num = form_->numerator();
-    auto plant_den = form_->denominator();
-    if (!tf_builder::validInput(plant_num, plant_den))
+    if (!has_plant_ || !tf_builder::validInput(plant_num_, plant_den_))
         return false;
-    out = tf_builder::plant(std::move(plant_num), std::move(plant_den), form_->delayTime(), model_param_.approxOrder);
+    out = tf_builder::plant(plant_num_, plant_den_, plant_tau_, model_param_.approxOrder);
     plant_tf_ = out;
-    form_->setTransferFunction(&plant_tf_);
     return true;
 }
 
-void SynthesisTab::apply_current_controller(bool replace_last) {
-    update_c0c1_visibility();
-    auto plant_num = form_->numerator();
-    auto plant_den = form_->denominator();
-    if (!tf_builder::validInput(plant_num, plant_den))
-        return;
+bool SynthesisTab::apply_plant(std::vector<double> num, std::vector<double> den, double tau) {
+    if (const QString err = tab_ui::plantInputError(num, den); !err.isEmpty()) {
+        show_error(err);
+        return false;
+    }
+    plant_num_  = std::move(num);
+    plant_den_  = std::move(den);
+    plant_tau_  = tau < 0.0 ? 0.0 : tau;
+    has_plant_  = true;
+    refresh_closed_display();
+    if (!ui->charts->empty())
+        replaceTransferFunction();
+    return true;
+}
+
+bool SynthesisTab::refresh_closed_display() {
+    if (!has_plant_ || !tf_builder::validInput(plant_num_, plant_den_)) {
+        panel_->clear();
+        return false;
+    }
 
     const bool p_on = parameters_[0]->enabled();
     const bool i_on = parameters_[1]->enabled();
@@ -146,14 +168,32 @@ void SynthesisTab::apply_current_controller(bool replace_last) {
         numina::TransferFunction::makeController(p_on ? kp : -1.0, i_on ? ti : -1.0, d_on ? td : -1.0);
 
     try {
-        const double tau = form_->delayTime();
-        const int order  = model_param_.approxOrder;
-        plant_tf_        = tf_builder::plant(plant_num, plant_den, tau, order);
-        current_tf_ =
-            tf_builder::closedLoop(std::move(plant_num), std::move(plant_den), std::move(ctrl_num).extractCoeffs(),
-                                   std::move(ctrl_den).extractCoeffs(), tau, order);
-        form_->setTransferFunction(&plant_tf_);
+        const int order = model_param_.approxOrder;
+        plant_tf_       = tf_builder::plant(plant_num_, plant_den_, plant_tau_, order);
+        current_tf_     = tf_builder::closedLoop(plant_num_, plant_den_, std::move(ctrl_num).extractCoeffs(),
+                                                std::move(ctrl_den).extractCoeffs(), plant_tau_, order);
+        panel_->setTransferFunction(current_tf_);
+        return true;
+    }
+    catch (const std::exception& ex) {
+        show_error(QString::fromUtf8(ex.what()));
+        return false;
+    }
+}
 
+void SynthesisTab::apply_current_controller(bool replace_last) {
+    update_c0c1_visibility();
+    if (!refresh_closed_display())
+        return;
+
+    const bool p_on = parameters_[0]->enabled();
+    const bool i_on = parameters_[1]->enabled();
+    const bool d_on = parameters_[2]->enabled();
+    const double kp = parameters_[0]->value();
+    const double ti = parameters_[1]->value();
+    const double td = parameters_[2]->value();
+
+    try {
         const QString title  = controller_title(p_on, i_on, d_on, kp, ti, td);
         const bool had       = !ui->charts->empty();
         const bool appending = !(replace_last && had);

@@ -407,82 +407,22 @@
           </widget>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="tfBodyLayout" stretch="1,0">
-           <property name="spacing">
-            <number>16</number>
-           </property>
-           <item>
-            <widget class="QWidget" name="formHost" native="true">
-             <layout class="QVBoxLayout" name="formHostLayout">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-             </layout>
-            </widget>
-           </item>
-           <item alignment="Qt::AlignVCenter">
-            <widget class="QWidget" name="tfActionsHost" native="true">
-             <layout class="QVBoxLayout" name="tfActionsLayout">
-              <property name="spacing">
-               <number>8</number>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <widget class="QPushButton" name="copyTfButton">
-                <property name="objectName">
-                 <string notr="true">copyTfButton</string>
-                </property>
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Скопировать передаточную функцию в буфер обмена</string>
-                </property>
-                <property name="text">
-                 <string>Копировать</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <widget class="QPushButton" name="equationsButton">
-                <property name="objectName">
-                 <string notr="true">equationsButton</string>
-                </property>
-                <property name="enabled">
-                 <bool>false</bool>
-                </property>
-                <property name="toolTip">
-                 <string>Полюса, h(t), w(t) и дифференциальные уравнения</string>
-                </property>
-                <property name="text">
-                 <string>Просмотр уравнений</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QWidget" name="formHost" native="true">
+           <layout class="QVBoxLayout" name="formHostLayout">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+           </layout>
+          </widget>
          </item>
         </layout>
        </widget>

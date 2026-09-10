@@ -4,14 +4,12 @@
 #include "irbis/model/model-param.hpp"
 #include "irbis/widgets/reg-parameter.h"
 #include "irbis/widgets/regulation-widget.h"
-#include "irbis/widgets/tf-form/tran-func-form.h"
+#include "irbis/widgets/tf-formula-panel.h"
 #include "numina/classes/control/design/controller-designer.h"
 #include "numina/classes/control/models/transfer-function.h"
 
 #include <QWidget>
 #include <vector>
-
-class QMenu;
 
 namespace Ui {
 class SynthesisTab;
@@ -22,12 +20,15 @@ class SynthesisTab : public QWidget {
 
 private:
     Ui::SynthesisTab* ui;
-    TranFuncForm* form_{nullptr};
+    TfFormulaPanel* panel_{nullptr};
     RegulationWidget* metrics_{nullptr};
     std::vector<RegParameter*> parameters_;
-    QMenu* charts_menu_{nullptr};
     bool show_plane_{true};
+    bool has_plant_{false};
     ModelParam model_param_;
+    std::vector<double> plant_num_;
+    std::vector<double> plant_den_;
+    double plant_tau_{0.0};
     numina::TransferFunction plant_tf_;
     numina::TransferFunction current_tf_;
 
@@ -35,30 +36,39 @@ private:
     void setup_metrics();
     void show_error(const QString& message);
     void apply_current_controller(bool replace_last);
+    bool refresh_closed_display();
     void update_metrics_from_bank();
     void block_param_signals(bool block);
+    void apply_controller_params(bool p_on, double kp, bool i_on, double ti, bool d_on, double td, bool replace_last);
     void apply_pi_settings(double kp, double ti, bool replace_last);
+    void apply_pd_settings(double kp, double td, bool replace_last);
     void apply_design(const numina::ControllerDesigner::Design& d, bool replace_last);
     void sync_c0c1_selection_from_params();
     void update_c0c1_visibility();
     void update_regulator_face();
     void changeEvent(QEvent* event) override;
     [[nodiscard]] bool is_pi_structure() const noexcept;
+    [[nodiscard]] bool is_pd_structure() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Criterion selected_criterion() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Law selected_law() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Region selected_region() const noexcept;
     [[nodiscard]] bool build_plant(numina::TransferFunction& out);
+    bool apply_plant(std::vector<double> num, std::vector<double> den, double tau);
 
 private slots:
     void addTransferFunction();
     void replaceTransferFunction();
     void clearCharts();
-    void openSettings();
     void openHelp();
     void autoSynthesize();
     void onSamplePicked(const C0C1Chart::Sample& sample);
+    void editPlant();
+    void pastePlant();
 
 public:
     explicit SynthesisTab(QWidget* parent = nullptr);
     ~SynthesisTab() override;
+
+    void openSettings();
+    void openChartSettings();
 };

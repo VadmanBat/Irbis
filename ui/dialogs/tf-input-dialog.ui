@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TfInputDialog</class>
+ <widget class="QDialog" name="TfInputDialog">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>560</width>
+    <height>560</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>480</width>
+    <height>460</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Ввод передаточной функции</string>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>12</number>
+   </property>
+   <property name="leftMargin">
+    <number>16</number>
+   </property>
+   <property name="topMargin">
+    <number>16</number>
+   </property>
+   <property name="rightMargin">
+    <number>16</number>
+   </property>
+   <property name="bottomMargin">
+    <number>16</number>
+   </property>
+   <item>
+    <widget class="QLabel" name="symbolLabel">
+     <property name="objectName">
+      <string notr="true">symbolLabel</string>
+     </property>
+     <property name="text">
+      <string>W(p)</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="hintLabel">
+     <property name="text">
+      <string>Коэффициенты через пробел. Запятая — десятичный разделитель.</string>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="orderLayout">
+     <property name="spacing">
+      <number>8</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="orderLabel">
+       <property name="text">
+        <string>Порядок:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="orderLowButton">
+       <property name="objectName">
+        <string notr="true">orderLowButton</string>
+       </property>
+       <property name="text">
+        <string>1 → pⁿ</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>Сначала свободный член.
+1 2 1 → 1 + 2p + p²</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QToolButton" name="orderHighButton">
+       <property name="objectName">
+        <string notr="true">orderHighButton</string>
+       </property>
+       <property name="text">
+        <string>pⁿ → 1</string>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+       <property name="toolTip">
+        <string>Сначала коэффициент при старшей степени.
+1 2 1 → p² + 2p + 1</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="orderSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="numGroup">
+     <property name="title">
+      <string>Числитель N(p)</string>
+     </property>
+     <layout class="QVBoxLayout" name="numGroupLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="numEdit">
+        <property name="objectName">
+         <string notr="true">numEdit</string>
+        </property>
+        <property name="placeholderText">
+         <string>1 2 1</string>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Коэффициенты числителя через пробел</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="denGroup">
+     <property name="title">
+      <string>Знаменатель D(p)</string>
+     </property>
+     <layout class="QVBoxLayout" name="denGroupLayout">
+      <property name="spacing">
+       <number>6</number>
+      </property>
+      <item>
+       <widget class="QLineEdit" name="denEdit">
+        <property name="objectName">
+         <string notr="true">denEdit</string>
+        </property>
+        <property name="placeholderText">
+         <string>1 3 2</string>
+        </property>
+        <property name="clearButtonEnabled">
+         <bool>true</bool>
+        </property>
+        <property name="toolTip">
+         <string>Коэффициенты знаменателя через пробел</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="delayGroup">
+     <property name="title">
+      <string>Запаздывание</string>
+     </property>
+     <layout class="QHBoxLayout" name="delayGroupLayout">
+      <property name="spacing">
+       <number>8</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="tauLabel">
+        <property name="text">
+         <string>τ</string>
+        </property>
+        <property name="buddy">
+         <cstring>delaySpin</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="CompactDoubleSpinBox" name="delaySpin">
+        <property name="objectName">
+         <string notr="true">delaySpin</string>
+        </property>
+        <property name="toolTip">
+         <string>Постоянная запаздывания τ, с. 0 — без запаздывания.</string>
+        </property>
+        <property name="suffix">
+         <string> с</string>
+        </property>
+        <property name="decimals">
+         <number>4</number>
+        </property>
+        <property name="minimum">
+         <double>0</double>
+        </property>
+        <property name="maximum">
+         <double>30</double>
+        </property>
+        <property name="singleStep">
+         <double>0.1</double>
+        </property>
+        <property name="minimumWidth">
+         <number>120</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="delayHint">
+        <property name="text">
+         <string>без запаздывания</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="delaySpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="previewGroup">
+     <property name="title">
+      <string>Предпросмотр</string>
+     </property>
+     <layout class="QVBoxLayout" name="previewGroupLayout">
+      <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
+       <widget class="TfDisplayWidget" name="preview"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="errorLabel">
+     <property name="objectName">
+      <string notr="true">errorLabel</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextSelectableByMouse</set>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="vSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>8</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="buttonLayout">
+     <item>
+      <spacer name="btnSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton">
+       <property name="text">
+        <string>Отмена</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="applyButton">
+       <property name="text">
+        <string>Применить</string>
+       </property>
+       <property name="default">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CompactDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>irbis/widgets/compact-double-spin-box.h</header>
+  </customwidget>
+  <customwidget>
+   <class>TfDisplayWidget</class>
+   <extends>QWidget</extends>
+   <header>irbis/widgets/tf-display-widget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <tabstops>
+  <tabstop>orderLowButton</tabstop>
+  <tabstop>orderHighButton</tabstop>
+  <tabstop>numEdit</tabstop>
+  <tabstop>denEdit</tabstop>
+  <tabstop>delaySpin</tabstop>
+  <tabstop>applyButton</tabstop>
+  <tabstop>cancelButton</tabstop>
+ </tabstops>
+ <connections/>
+</ui>

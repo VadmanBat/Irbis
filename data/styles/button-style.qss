@@ -92,6 +92,18 @@ QPushButton#clearButton:pressed {
     padding: 3px;
 }
 
+/* Analysis: labeled action column next to quality metrics */
+QWidget#analysisActions QPushButton#addButton,
+QWidget#analysisActions QPushButton#replaceButton,
+QWidget#analysisActions QPushButton#clearButton {
+    min-width: 132px;
+    min-height: 32px;
+    max-height: 36px;
+    padding: 4px 12px;
+    font-size: 10.5pt;
+    text-align: left;
+}
+
 /* ---- Identification sidebar (text buttons, not 40×40 icons) ---- */
 QFrame#idSidebar,
 QFrame#idModelCard {
@@ -126,48 +138,100 @@ QFrame#idSidebar QPushButton#identifyButton {
     font-weight: 600;
 }
 
+QFrame#tfModelCard {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-radius: 8px;
+}
+
+QLabel#tfLinkName {
+    font-size: 9.5pt;
+    padding-top: 2px;
+}
+
 QFrame#idModelCard QPushButton#copyTfButton,
 QFrame#idModelCard QPushButton#equationsButton {
-    min-width: 132px;
-    min-height: 32px;
-    padding: 5px 14px;
-    font-size: 10.5pt;
+    min-width: 180px;
+}
+
+QPushButton#editTfButton,
+QPushButton#copyTfButton,
+QPushButton#pasteTfButton,
+QPushButton#equationsButton {
+    min-width: 120px;
+    min-height: 0;
+    padding: 1px 10px;
+    font-size: 9.5pt;
     color: white;
     border-style: outset;
     border-width: 2px;
-    border-radius: 5px;
+    border-radius: 4px;
 }
 
-QFrame#idModelCard QPushButton#copyTfButton {
-    background-color: #2e7d32;
-    border-color: #1b5e20;
+QPushButton#editTfButton {
+    background-color: #1565c0;
+    border-color: #0d47a1;
 }
-QFrame#idModelCard QPushButton#copyTfButton:hover {
-    background-color: #388e3c;
+QPushButton#editTfButton:hover {
+    background-color: #1e88e5;
     border-style: inset;
 }
-QFrame#idModelCard QPushButton#copyTfButton:pressed {
-    background-color: #1b5e20;
+QPushButton#editTfButton:pressed {
+    background-color: #0d47a1;
     border-style: inset;
 }
-QFrame#idModelCard QPushButton#copyTfButton:disabled {
+QPushButton#editTfButton:disabled {
     background-color: #9e9e9e;
     border-color: #757575;
 }
 
-QFrame#idModelCard QPushButton#equationsButton {
+QPushButton#copyTfButton {
+    background-color: #2e7d32;
+    border-color: #1b5e20;
+}
+QPushButton#copyTfButton:hover {
+    background-color: #388e3c;
+    border-style: inset;
+}
+QPushButton#copyTfButton:pressed {
+    background-color: #1b5e20;
+    border-style: inset;
+}
+QPushButton#copyTfButton:disabled {
+    background-color: #9e9e9e;
+    border-color: #757575;
+}
+
+QPushButton#pasteTfButton {
+    background-color: #00796b;
+    border-color: #004d40;
+}
+QPushButton#pasteTfButton:hover {
+    background-color: #00897b;
+    border-style: inset;
+}
+QPushButton#pasteTfButton:pressed {
+    background-color: #004d40;
+    border-style: inset;
+}
+QPushButton#pasteTfButton:disabled {
+    background-color: #9e9e9e;
+    border-color: #757575;
+}
+
+QPushButton#equationsButton {
     background-color: #6a1b9a;
     border-color: #4a148c;
 }
-QFrame#idModelCard QPushButton#equationsButton:hover {
+QPushButton#equationsButton:hover {
     background-color: #8e24aa;
     border-style: inset;
 }
-QFrame#idModelCard QPushButton#equationsButton:pressed {
+QPushButton#equationsButton:pressed {
     background-color: #4a148c;
     border-style: inset;
 }
-QFrame#idModelCard QPushButton#equationsButton:disabled {
+QPushButton#equationsButton:disabled {
     background-color: #9e9e9e;
     border-color: #757575;
 }
@@ -353,7 +417,7 @@ TranFuncForm QWidget#tfDelayExp {
     padding-top: 0;
 }
 
-/* Charts visibility tool button */
+/* Charts visibility tool button (legacy in-tab popup) */
 QToolButton#chartsButton {
     min-width: 40px;
     max-width: 40px;
@@ -374,6 +438,52 @@ QToolButton#chartsButton:hover {
 QToolButton#chartsButton:pressed {
     background-color: #4a148c;
     border-style: inset;
+}
+
+/* Tab bar: tabs left, small settings / charts icons right */
+QTabWidget::tab-bar {
+    alignment: left;
+}
+
+QWidget#tabCornerBar {
+    background: transparent;
+}
+
+QFrame#tabCornerSep {
+    color: palette(mid);
+    max-width: 1px;
+    min-width: 1px;
+    margin: 4px 6px 4px 0;
+}
+
+QToolButton#tabSettingsButton,
+QToolButton#tabChartsButton {
+    min-width: 24px;
+    max-width: 24px;
+    min-height: 24px;
+    max-height: 24px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: transparent;
+    color: palette(window-text);
+    font-family: "Font Awesome 6 Free Solid", "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 11pt;
+}
+QToolButton#tabSettingsButton:hover,
+QToolButton#tabChartsButton:hover {
+    background: rgba(127, 127, 127, 0.18);
+    border-radius: 4px;
+}
+QToolButton#tabSettingsButton:pressed,
+QToolButton#tabChartsButton:pressed {
+    background: rgba(127, 127, 127, 0.28);
+    border-radius: 4px;
+}
+QToolButton#tabSettingsButton:disabled,
+QToolButton#tabChartsButton:disabled {
+    color: palette(placeholder-text);
 }
 
 /* Overlay clipboard buttons under delay / display copy */

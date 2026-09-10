@@ -1,11 +1,16 @@
 #include "irbis/tabs/analysis-tab.h"
 
+#include "irbis/dialogs/tf-input-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/tf-builder.hpp"
+#include "irbis/util/tf-clipboard.hpp"
 #include "ui_analysis-tab.h"
 
-#include <QMenu>
+#include <QApplication>
+#include <QClipboard>
+#include <QMessageBox>
 #include <QPushButton>
+#include <utility>
 
 AnalysisTab::AnalysisTab(QWidget* parent) : QWidget(parent), ui(new Ui::AnalysisTab) {
     tab_ui::ensureFonts();
@@ -13,13 +18,6 @@ AnalysisTab::AnalysisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Analysis
     model_param_.usePadeApprox = false;
     install_custom_widgets();
 
-    charts_menu_ = new QMenu(this);
-    tab_ui::wireChartsButton(ui->chartsButton, ui->charts, charts_menu_);
-
-    form_->bindNameLabel(ui->nameLabel);
-    form_->setTransferFunction(&current_tf_);
-
-    connect(ui->settingsButton, &QPushButton::clicked, this, &AnalysisTab::openSettings);
     connect(ui->addButton, &QPushButton::clicked, this, &AnalysisTab::addTransferFunction);
     connect(ui->replaceButton, &QPushButton::clicked, this, &AnalysisTab::replaceTransferFunction);
     connect(ui->clearButton, &QPushButton::clicked, this, &AnalysisTab::clearCharts);
@@ -30,12 +28,16 @@ AnalysisTab::~AnalysisTab() {
 }
 
 void AnalysisTab::install_custom_widgets() {
-    form_ = new TranFuncForm(6, 6, QStringLiteral("W(p) = "), ui->formHost);
-    form_->setExactDelaySolutions(true);
+    panel_   = new TfFormulaPanel(ui->formHost);
     metrics_ = new RegulationWidget(3, 2, ui->metricsHost);
-    tab_ui::mountInHost(ui->formHost, form_, Qt::AlignLeft | Qt::AlignVCenter);
+    panel_->setTitle(QStringLiteral("W(p) = "));
+    panel_->setExactDelaySolutions(true);
+    panel_->setPasteVisible(true);
+    tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft | Qt::AlignVCenter);
     tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight | Qt::AlignVCenter);
     tab_ui::setupPlantQualityMetrics(metrics_);
+    connect(panel_, &TfFormulaPanel::editRequested, this, &AnalysisTab::editPlant);
+    connect(panel_, &TfFormulaPanel::pasteRequested, this, &AnalysisTab::pastePlant);
 }
 
 void AnalysisTab::show_error(const QString& message) {
@@ -44,6 +46,17 @@ void AnalysisTab::show_error(const QString& message) {
 
 void AnalysisTab::update_metrics() {
     tab_ui::applySettledPlantMetrics(metrics_, ui->charts);
+}
+
+bool AnalysisTab::apply_plant(std::vector<double> num, std::vector<double> den, double tau) {
+    if (const QString err = tab_ui::plantInputError(num, den); !err.isEmpty()) {
+        show_error(err);
+        return false;
+    }
+    current_tf_ = tf_builder::plant(num, den);
+    delay_      = tau < 0.0 ? 0.0 : tau;
+    panel_->setTransferFunction(current_tf_, delay_);
+    return true;
 }
 
 void AnalysisTab::openSettings() {
@@ -58,18 +71,37 @@ void AnalysisTab::openSettings() {
     }
 }
 
-void AnalysisTab::addTransferFunction() {
-    auto num = form_->numerator();
-    auto den = form_->denominator();
-    if (const QString err = tab_ui::plantInputError(num, den); !err.isEmpty()) {
-        show_error(err);
+void AnalysisTab::openChartSettings() {
+    tab_ui::editChartVisibility(this, ui->charts);
+}
+
+void AnalysisTab::editPlant() {
+    auto num    = panel_->display()->numerator();
+    auto den    = panel_->display()->denominator();
+    double tau  = panel_->display()->delay();
+    if (!TfInputDialog::edit(this, num, den, tau, QStringLiteral("W(p)")))
+        return;
+    apply_plant(std::move(num), std::move(den), tau);
+}
+
+void AnalysisTab::pastePlant() {
+    const auto data = tf_clipboard::parse(QApplication::clipboard()->text());
+    if (!data.ok) {
+        QMessageBox::information(this, tr("Вставка ПФ"),
+                                 tr("В буфере нет данных формата Irbis-TF-v1.\n"
+                                    "Скопируйте ПФ кнопкой «Копировать»."));
         return;
     }
+    apply_plant(data.num, data.den, data.tau);
+}
 
+void AnalysisTab::addTransferFunction() {
+    if (panel_->isEmpty()) {
+        show_error(tr("Задайте передаточную функцию (кнопка «Изменить»)."));
+        return;
+    }
     try {
-        current_tf_ = tf_builder::plant(std::move(num), std::move(den));
-        form_->setTransferFunction(&current_tf_);
-        ui->charts->appendFromTf(current_tf_, model_param_, form_->linkName(), form_->delayTime());
+        ui->charts->appendFromTf(current_tf_, model_param_, panel_->linkName(), delay_);
         update_metrics();
     }
     catch (const std::exception& ex) {
@@ -82,16 +114,12 @@ void AnalysisTab::replaceTransferFunction() {
         addTransferFunction();
         return;
     }
-    auto num = form_->numerator();
-    auto den = form_->denominator();
-    if (const QString err = tab_ui::plantInputError(num, den); !err.isEmpty()) {
-        show_error(err);
+    if (panel_->isEmpty()) {
+        show_error(tr("Задайте передаточную функцию (кнопка «Изменить»)."));
         return;
     }
     try {
-        current_tf_ = tf_builder::plant(std::move(num), std::move(den));
-        form_->setTransferFunction(&current_tf_);
-        ui->charts->replaceLastFromTf(current_tf_, model_param_, form_->linkName(), form_->delayTime());
+        ui->charts->replaceLastFromTf(current_tf_, model_param_, panel_->linkName(), delay_);
         update_metrics();
     }
     catch (const std::exception& ex) {

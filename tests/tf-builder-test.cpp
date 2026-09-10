@@ -73,6 +73,13 @@ int main() {
     expect_true("tau=0 ignores order", same_poly(z2.denominator(), z6.denominator()));
     expect_eq("tau=0 den deg", z2.denominator().degree(), 1);
 
+    expect_true("valid 1/(p+1)", tf_builder::validInput({1.0}, {1.0, 1.0}));
+    expect_true("zero num invalid", !tf_builder::validInput({}, {1.0, 1.0}));
+    expect_true("zero num {0} invalid", !tf_builder::validInput({0.0}, {1.0, 1.0}));
+    expect_true("zero num {0,0} invalid", !tf_builder::validInput({0.0, 0.0}, {1.0, 1.0}));
+    expect_true("den degree 0 invalid", !tf_builder::validInput({1.0}, {2.0}));
+    expect_true("num deg > den invalid", !tf_builder::validInput({1.0, 1.0, 1.0}, {1.0, 1.0}));
+
     {
         const auto w0 = tf_builder::plant(plant_num, plant_den);
         ModelParam pade;

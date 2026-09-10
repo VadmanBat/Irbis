@@ -15,6 +15,11 @@ using Settings  = Designer::Settings;
 
 [[nodiscard]] bool usesPidFace(const Designer& des, Law law, Designer::Type w_hi_hint = 1e3) noexcept;
 
+/// 2D ЛРЗ: ПИ (C₀–C₁), ПД (C₁–C₂), ПИД/Авто-грань. П и И — точка, без области.
+[[nodiscard]] constexpr bool drawsRegion(Law law) noexcept {
+    return law == Law::Pd || law == Law::Pi || law == Law::Pid || law == Law::Auto;
+}
+
 [[nodiscard]] std::vector<Settings> locus(const Designer& des, Law law, std::size_t n_points = 160);
 
 [[nodiscard]] Design run(const Designer& des, Spec spec, Criterion criterion);

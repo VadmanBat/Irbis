@@ -7,6 +7,7 @@
 #include <QLegend>
 #include <QLegendMarker>
 #include <QLineSeries>
+#include <QLocale>
 #include <QTextStream>
 #include <QXYSeries>
 #include <utility>
@@ -152,6 +153,7 @@ bool saveChartToFile(const QString& fileName, QChart* chart) {
     if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
         return false;
     QTextStream out(&file);
+    out.setLocale(QLocale::c());
     for (QAbstractSeries* series : chart->series()) {
         if (isAccessorySeries(chart, series))
             continue;
@@ -159,7 +161,7 @@ bool saveChartToFile(const QString& fileName, QChart* chart) {
         if (auto* xy = qobject_cast<QXYSeries*>(series)) {
             const int n = xy->count();
             for (int i = 0; i < n; ++i)
-                out << xy->at(i).x() << ", " << xy->at(i).y() << '\n';
+                out << xy->at(i).x() << '\t' << xy->at(i).y() << '\n';
         }
         out << '\n';
     }

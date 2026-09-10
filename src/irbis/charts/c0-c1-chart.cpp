@@ -14,6 +14,7 @@
 #include <QImage>
 #include <QLegend>
 #include <QLineSeries>
+#include <QList>
 #include <QPainter>
 #include <QScatterSeries>
 #include <QValueAxis>
@@ -249,6 +250,27 @@ void C0C1Chart::setSquareSide(int side) {
     setFixedSize(s, s);
 }
 
+void C0C1Chart::rebuild_locus_series() {
+    if (!locus_series_)
+        return;
+    QList<QPointF> pts;
+    pts.reserve(static_cast<int>(locus_.size()));
+    for (const auto& s : locus_)
+        pts.append(to_plot(s.c0, s.c1, s.c2));
+    locus_series_->replace(std::move(pts));
+}
+
+void C0C1Chart::setPlane(Plane plane) {
+    if (plane_ == plane)
+        return;
+    plane_ = plane;
+    apply_axis_titles();
+    rebuild_locus_series();
+    update_selection_marker();
+    refit_axes();
+    schedule_refit();
+}
+
 void C0C1Chart::clear() {
     locus_.clear();
     has_selection_ = false;
@@ -256,6 +278,7 @@ void C0C1Chart::clear() {
     last_pixel_    = {-1, -1};
     last_emit_c0_  = std::numeric_limits<double>::quiet_NaN();
     last_emit_c1_  = std::numeric_limits<double>::quiet_NaN();
+    sel_c2_        = 0.0;
     if (locus_series_)
         locus_series_->clear();
     if (opt_lik_)
@@ -278,20 +301,16 @@ void C0C1Chart::setLocus(std::vector<Sample> samples, const QString& name) {
         return;
     if (!name.isEmpty())
         locus_series_->setName(name);
-    QList<QPointF> pts;
-    pts.reserve(static_cast<int>(locus_.size()));
-    for (const auto& s : locus_)
-        pts.append(to_plot(s.c0, s.c1));
-    locus_series_->replace(std::move(pts));
+    rebuild_locus_series();
     refit_axes();
     update_selection_marker();
     schedule_refit();
 }
 
 void C0C1Chart::setOptima(const Optimum& lik, const Optimum& ikk, const Optimum& sko) {
-    QPointF p_lik = to_plot(lik.c0, lik.c1);
-    QPointF p_ikk = to_plot(ikk.c0, ikk.c1);
-    QPointF p_sko = to_plot(sko.c0, sko.c1);
+    QPointF p_lik = to_plot(lik.c0, lik.c1, lik.c2);
+    QPointF p_ikk = to_plot(ikk.c0, ikk.c1, ikk.c2);
+    QPointF p_sko = to_plot(sko.c0, sko.c1, sko.c2);
 
     auto put = [](QScatterSeries* series, bool valid, const QPointF& pt, const QString& label) {
         if (!series)
@@ -314,15 +333,18 @@ void C0C1Chart::setOptima(const Optimum& lik, const Optimum& ikk, const Optimum&
     schedule_refit();
 }
 
-void C0C1Chart::setSelection(double c0, double c1) {
-    if (has_selection_ && nearly_same(sel_c0_, c0, 0.0) && nearly_same(sel_c1_, c1, 0.0)) {
+void C0C1Chart::setSelection(double c0, double c1, double c2) {
+    if (has_selection_ && nearly_same(sel_c0_, c0, 0.0) && nearly_same(sel_c1_, c1, 0.0) &&
+        nearly_same(sel_c2_, c2, 0.0)) {
         if (selection_series_ && selection_series_->count() == 0)
             update_selection_marker();
         return;
     }
-    has_selection_ = std::isfinite(c0) && std::isfinite(c1);
+    const double y = plane_ == Plane::Pd ? c2 : c0;
+    has_selection_ = std::isfinite(c1) && std::isfinite(y);
     sel_c0_        = c0;
     sel_c1_        = c1;
+    sel_c2_        = c2;
     update_selection_marker();
     if (!dragging_)
         ensure_selection_visible();
@@ -339,7 +361,7 @@ void C0C1Chart::update_selection_marker() {
         return;
     selection_series_->clear();
     if (has_selection_)
-        selection_series_->append(to_plot(sel_c0_, sel_c1_));
+        selection_series_->append(to_plot(sel_c0_, sel_c1_, sel_c2_));
 }
 
 void C0C1Chart::style_live_marker() {
@@ -383,7 +405,7 @@ void C0C1Chart::pinSelection(const QString& name) {
 
     auto* pin = new QScatterSeries;
     pin->setName(name.isEmpty() ? tr("фикс. %1").arg(pin_series_.size() + 1) : name);
-    pin->append(to_plot(sel_c0_, sel_c1_));
+    pin->append(to_plot(sel_c0_, sel_c1_, sel_c2_));
     style_pin_marker(pin, live_index_);
 
     if (selection_series_)

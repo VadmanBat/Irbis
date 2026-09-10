@@ -1,9 +1,9 @@
 #include "irbis/tabs/id-tab.h"
 
 #include "irbis/charts/chart-panel.h"
-#include "irbis/dialogs/tran-func-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/secondary-text.hxx"
+#include "irbis/widgets/tf-display-widget.h"
 #include "ui_id-tab.h"
 
 #include <algorithm>
@@ -11,11 +11,8 @@
 #include <QComboBox>
 #include <QFileDialog>
 #include <QFileInfo>
-#include <QPoint>
 #include <QPushButton>
-#include <QRect>
 #include <QSpinBox>
-#include <QToolTip>
 
 IdTab::IdTab(QWidget* parent) : QWidget(parent), ui(new Ui::IdTab) {
     tab_ui::ensureFonts();
@@ -27,8 +24,6 @@ IdTab::IdTab(QWidget* parent) : QWidget(parent), ui(new Ui::IdTab) {
     connect(ui->openFileButton, &QPushButton::clicked, this, &IdTab::openFile);
     connect(ui->identifyButton, &QPushButton::clicked, this, &IdTab::runIdentification);
     connect(ui->clearButton, &QPushButton::clicked, this, &IdTab::clearAll);
-    connect(ui->copyTfButton, &QPushButton::clicked, this, &IdTab::copyIdentifiedTf);
-    connect(ui->equationsButton, &QPushButton::clicked, this, &IdTab::showEquations);
     connect(ui->plantKindCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
             [this](int) { sync_plant_kind_ui(); });
     connect(ui->autoOrderCheck, &QCheckBox::toggled, this, [this](bool) { sync_struct_ui(); });
@@ -61,10 +56,12 @@ IdTab::~IdTab() {
 }
 
 void IdTab::install_custom_widgets() {
-    display_ = new TfDisplayWidget(QStringLiteral("W(p) = "), ui->formHost);
-    tab_ui::mountInHost(ui->formHost, display_, Qt::AlignLeft | Qt::AlignVCenter);
-    connect(display_, &TfDisplayWidget::contentsChanged, this, &IdTab::sync_tf_actions);
-    sync_tf_actions();
+    panel_ = new TfFormulaPanel(ui->formHost);
+    panel_->setCardFrame(false);
+    panel_->setEditVisible(false);
+    panel_->setPasteVisible(false);
+    panel_->setExactDelaySolutions(true);
+    tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft | Qt::AlignVCenter);
 
     chart_ = new ChartPanel(tr("h(t): эксперимент / модель"), tr("t, с"), tr("h(t)"), ui->chartHost);
     chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -106,35 +103,14 @@ void IdTab::sync_struct_ui() {
 }
 
 void IdTab::maybe_show_structure_template() {
-    if (!display_ || !display_->isEmpty())
+    if (!panel_->isEmpty())
         return;
     const bool astatic = ui->plantKindCombo->currentIndex() == static_cast<int>(IdSettings::PlantKind::Astatic);
     if (astatic || ui->autoOrderCheck->isChecked()) {
-        display_->clear();
+        panel_->clear();
         return;
     }
-    display_->setStructureTemplate(ui->numOrderSpin->value(), ui->denOrderSpin->value());
-}
-
-void IdTab::sync_tf_actions() {
-    const bool on = display_ && !display_->isEmpty();
-    ui->copyTfButton->setEnabled(on);
-    ui->equationsButton->setEnabled(on);
-}
-
-void IdTab::copyIdentifiedTf() {
-    if (!display_ || display_->isEmpty())
-        return;
-    display_->copyToClipboard();
-    QToolTip::showText(ui->copyTfButton->mapToGlobal(QPoint(0, ui->copyTfButton->height())), tr("ПФ скопирована"),
-                       ui->copyTfButton, QRect(), 1500);
-}
-
-void IdTab::showEquations() {
-    if (!display_ || display_->isEmpty())
-        return;
-    TranFuncDialog dialog(display_->transferFunction(), this, display_->delay());
-    dialog.exec();
+    panel_->display()->setStructureTemplate(ui->numOrderSpin->value(), ui->denOrderSpin->value());
 }
 
 void IdTab::openFile() {
@@ -160,7 +136,7 @@ void IdTab::clearAll() {
     step_series_.clear();
     valve_series_.clear();
     signal_series_.clear();
-    display_->clear();
+    panel_->clear();
     maybe_show_structure_template();
     if (chart_)
         chart_->clearCurves();

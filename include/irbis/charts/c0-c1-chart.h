@@ -17,12 +17,14 @@ class QResizeEvent;
 class QScatterSeries;
 class QVBoxLayout;
 
-/// Interactive C₁–C₀ plane (РКЧХ): X = C₁, Y = C₀; click/drag free selection.
+/// Interactive coeff plane (РКЧХ): ПИ X=C₁ Y=C₀; ПД X=C₁ Y=C₂. Click/drag free selection.
 class C0C1Chart : public QWidget {
     Q_OBJECT
 
 public:
-    /// One sample of the positive C₀,C₁ band (logical coeffs, not plot order).
+    enum class Plane { Pi, Pd };
+
+    /// One sample of the positive band (logical coeffs, not plot order).
     struct Sample {
         double omega{};
         double c0{};
@@ -38,8 +40,10 @@ public:
         bool valid{false};
         double c0{};
         double c1{};
+        double c2{};
         double kp{};
         double ti{};
+        double td{};
         double omega{};
         QString label;
     };
@@ -57,10 +61,12 @@ private:
     QGraphicsSimpleTextItem* tag_c1_{nullptr};
     QGraphicsSimpleTextItem* tag_c0_{nullptr};
 
+    Plane plane_{Plane::Pi};
     std::vector<Sample> locus_{};
     bool has_selection_{false};
     double sel_c0_{};
     double sel_c1_{};
+    double sel_c2_{};
     std::size_t live_index_{0};
 
     bool dragging_{false};
@@ -82,8 +88,12 @@ private:
     void style_pin_marker(QScatterSeries* series, std::size_t color_index);
     void clear_pins();
     void restyle_pins();
-    /// Plot point: X = C₁, Y = C₀.
-    [[nodiscard]] static QPointF to_plot(double c0, double c1) noexcept { return {c1, c0}; }
+    void rebuild_locus_series();
+    /// Plot point: ПИ (C₁, C₀), ПД (C₁, C₂).
+    [[nodiscard]] QPointF to_plot(double c0, double c1, double c2 = 0) const noexcept {
+        return plane_ == Plane::Pd ? QPointF(c1, c2) : QPointF(c1, c0);
+    }
+    [[nodiscard]] double sel_y() const noexcept { return plane_ == Plane::Pd ? sel_c2_ : sel_c0_; }
     [[nodiscard]] static bool nearly_same(double a, double b, double eps) noexcept {
         if (!std::isfinite(a) || !std::isfinite(b))
             return false;
@@ -102,10 +112,11 @@ public:
 
     void clear();
     void setSquareSide(int side);
+    void setPlane(Plane plane);
     void setLocus(std::vector<Sample> samples, const QString& name = {});
     void setOptima(const Optimum& lik, const Optimum& ikk, const Optimum& sko);
-    /// Logical coeffs (C₀, C₁); drawn as (C₁, C₀) on the chart.
-    void setSelection(double c0, double c1);
+    /// Logical coeffs; ПИ drawn as (C₁, C₀), ПД as (C₁, C₂).
+    void setSelection(double c0, double c1, double c2 = 0);
     void clearSelection();
     void requestRefit();
     /// Freeze the live point (same color as the last closed-loop series) and start the next color.
@@ -113,11 +124,12 @@ public:
     void setLiveIndex(std::size_t index);
     void trimPins(std::size_t max_count);
 
+    [[nodiscard]] Plane plane() const noexcept { return plane_; }
     [[nodiscard]] bool hasLocus() const noexcept { return !locus_.empty(); }
     [[nodiscard]] bool hasSelection() const noexcept { return has_selection_; }
     [[nodiscard]] const std::vector<Sample>& locus() const noexcept { return locus_; }
 
 signals:
-    /// Pointer pick/drag: emitted only when (C₀, C₁) actually changed.
+    /// Pointer pick/drag: emitted only when the plotted pair actually changed.
     void samplePicked(const Sample& sample);
 };

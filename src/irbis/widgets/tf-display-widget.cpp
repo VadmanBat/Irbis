@@ -1,6 +1,8 @@
 #include "irbis/widgets/tf-display-widget.h"
 
 #include "irbis/util/format.hxx"
+#include "irbis/util/tf-builder.hpp"
+#include "irbis/util/tf-clipboard.hpp"
 
 #include <QApplication>
 #include <QClipboard>
@@ -11,11 +13,12 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-TfDisplayWidget::TfDisplayWidget(const QString& title, QWidget* parent) : QWidget(parent) {
+TfDisplayWidget::TfDisplayWidget(QWidget* parent) : QWidget(parent) {
     setObjectName(QStringLiteral("TfDisplayWidget"));
 
-    titleLabel_ = new QLabel(title, this);
+    titleLabel_ = new QLabel(QStringLiteral("W(p) = "), this);
     titleLabel_->setObjectName(QStringLiteral("tfTitle"));
+    titleLabel_->setTextFormat(Qt::RichText);
     titleLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
     numLabel_ = new QLabel(QStringLiteral("—"), this);
@@ -95,6 +98,10 @@ void TfDisplayWidget::set_polys(const Vec& num, const Vec& den, double tau) {
     emit contentsChanged();
 }
 
+void TfDisplayWidget::setTitle(const QString& html) {
+    titleLabel_->setText(html);
+}
+
 void TfDisplayWidget::setTransferFunction(const numina::TransferFunction& tf, double tau) {
     tf_ = tf;
     set_polys(tf.numerator().coeffs(), tf.denominator().coeffs(), tau);
@@ -143,11 +150,27 @@ void TfDisplayWidget::clear() {
     set_polys({}, {}, 0.0);
 }
 
+QString TfDisplayWidget::plain_title() const {
+    QString t = titleLabel_->text();
+    t.replace(QStringLiteral("<sub>"), QStringLiteral("_"));
+    t.replace(QStringLiteral("</sub>"), QString());
+    t.replace(QStringLiteral("<sup>"), QStringLiteral("^"));
+    t.replace(QStringLiteral("</sup>"), QString());
+    t.replace(QStringLiteral("&nbsp;"), QStringLiteral(" "));
+    return t.trimmed();
+}
+
 QString TfDisplayWidget::human_text() const {
     if (empty_)
         return {};
-    QString human = QStringLiteral("W(p) = (%1) / (%2)")
-                        .arg(num_format::polyPlainLowFirst(num_, num_format::SIGNIFICANT_DIGITS),
+    QString lhs = plain_title();
+    if (lhs.endsWith(QLatin1Char('=')))
+        lhs.chop(1);
+    lhs = lhs.trimmed();
+    if (lhs.isEmpty())
+        lhs = QStringLiteral("W(p)");
+    QString human = QStringLiteral("%1 = (%2) / (%3)")
+                        .arg(lhs, num_format::polyPlainLowFirst(num_, num_format::SIGNIFICANT_DIGITS),
                              num_format::polyPlainLowFirst(den_, num_format::SIGNIFICANT_DIGITS));
     if (tau_ > 0.0)
         human += QStringLiteral(" · e^(-%1 p)").arg(num_format::format(tau_, num_format::SIGNIFICANT_DIGITS));
@@ -157,24 +180,25 @@ QString TfDisplayWidget::human_text() const {
 QString TfDisplayWidget::export_text() const {
     if (empty_)
         return {};
-    QStringList num_parts, den_parts;
-    for (double v : num_)
-        num_parts << num_format::formatFull(v);
-    for (double v : den_)
-        den_parts << num_format::formatFull(v);
-    return QStringLiteral(
-               "Irbis-TF-v1\n"
-               "num: %1\n"
-               "den: %2\n"
-               "tau: %3\n"
-               "\n"
-               "%4\n")
-        .arg(num_parts.join(QLatin1Char(' ')), den_parts.join(QLatin1Char(' ')), num_format::formatFull(tau_),
-             human_text());
+    QString lhs = plain_title();
+    if (lhs.endsWith(QLatin1Char('=')))
+        lhs.chop(1);
+    lhs = lhs.trimmed();
+    if (lhs.isEmpty())
+        lhs = QStringLiteral("W(p)");
+    return tf_clipboard::format(num_, den_, tau_, lhs);
 }
 
 void TfDisplayWidget::copyToClipboard() {
     if (empty_)
         return;
     QApplication::clipboard()->setText(export_text());
+}
+
+bool TfDisplayWidget::importText(const QString& text) {
+    const auto data = tf_clipboard::parse(text);
+    if (!data.ok || !tf_builder::validInput(data.num, data.den))
+        return false;
+    setTransferFunction(tf_builder::plant(data.num, data.den), data.tau);
+    return true;
 }

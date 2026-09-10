@@ -16,7 +16,6 @@ RegulationWidget::RegulationWidget(int rows, int cols, QWidget* parent) : QWidge
     layout_->setContentsMargins(4, 4, 4, 4);
     layout_->setHorizontalSpacing(6);
     layout_->setVerticalSpacing(6);
-    setLayout(layout_);
 
     const auto size = rows * cols;
     labels_.reserve(size);

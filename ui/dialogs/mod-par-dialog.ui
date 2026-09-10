@@ -359,16 +359,6 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="approxHint">
-        <property name="text">
-         <string>1…6, обычно 6</string>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">color: palette(placeholder-text);</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <spacer name="approxSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>

@@ -58,12 +58,19 @@ bool SynthesisTab::is_pi_structure() const noexcept {
     return parameters_[0]->enabled() && parameters_[1]->enabled() && !parameters_[2]->enabled();
 }
 
+bool SynthesisTab::is_pd_structure() const noexcept {
+    return parameters_[0]->enabled() && !parameters_[1]->enabled() && parameters_[2]->enabled();
+}
+
 void SynthesisTab::update_c0c1_visibility() {
-    const bool pi    = is_pi_structure();
-    const bool plane = pi && show_plane_;
-    ui->viewPlaneButton->setVisible(pi);
-    ui->viewFaceButton->setVisible(pi);
-    ui->viewPlaneButton->setEnabled(pi);
+    const bool pi       = is_pi_structure();
+    const bool pd       = is_pd_structure();
+    const bool plane_ok = pi || pd;
+    const bool plane    = plane_ok && show_plane_;
+    ui->c0c1Chart->setPlane(pd ? C0C1Chart::Plane::Pd : C0C1Chart::Plane::Pi);
+    ui->viewPlaneButton->setVisible(plane_ok);
+    ui->viewFaceButton->setVisible(plane_ok);
+    ui->viewPlaneButton->setEnabled(plane_ok);
     {
         const QSignalBlocker b1(ui->viewPlaneButton);
         const QSignalBlocker b2(ui->viewFaceButton);

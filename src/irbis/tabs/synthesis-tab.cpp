@@ -1,16 +1,23 @@
 #include "irbis/tabs/synthesis-tab.h"
 
 #include "irbis/dialogs/help-dialog.h"
+#include "irbis/dialogs/tf-input-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/dialog-icons.hxx"
+#include "irbis/util/tf-clipboard.hpp"
 #include "ui_synthesis-tab.h"
 
 #include <QAbstractButton>
+#include <QApplication>
 #include <QButtonGroup>
 #include <QCheckBox>
-#include <QMenu>
+#include <QClipboard>
+#include <QComboBox>
+#include <QMessageBox>
 #include <QPushButton>
+#include <QSignalBlocker>
 #include <QToolButton>
+#include <utility>
 
 SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::SynthesisTab) {
     tab_ui::ensureFonts();
@@ -21,17 +28,23 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
 
     ui->charts->setTransientTitle(tr("Переходный процесс"));
 
-    charts_menu_ = new QMenu(this);
-    tab_ui::wireChartsButton(ui->chartsButton, ui->charts, charts_menu_);
-
-    form_->setTransferFunction(&plant_tf_);
-
     connect(ui->helpButton, &QPushButton::clicked, this, &SynthesisTab::openHelp);
-    connect(ui->settingsButton, &QPushButton::clicked, this, &SynthesisTab::openSettings);
     connect(ui->autoSynthButton, &QPushButton::clicked, this, &SynthesisTab::autoSynthesize);
     connect(ui->addButton, &QPushButton::clicked, this, &SynthesisTab::addTransferFunction);
     connect(ui->clearButton, &QPushButton::clicked, this, &SynthesisTab::clearCharts);
+    connect(panel_, &TfFormulaPanel::editRequested, this, &SynthesisTab::editPlant);
+    connect(panel_, &TfFormulaPanel::pasteRequested, this, &SynthesisTab::pastePlant);
     connect(ui->c0c1Chart, &C0C1Chart::samplePicked, this, &SynthesisTab::onSamplePicked);
+    connect(ui->lawCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
+        using L            = numina::ControllerDesigner::Law;
+        const auto law     = selected_law();
+        const bool gamma_ok = law == L::Pi || law == L::Auto;
+        ui->regionCombo->setEnabled(gamma_ok);
+        if (!gamma_ok && ui->regionCombo->currentIndex() != 0) {
+            const QSignalBlocker block(ui->regionCombo);
+            ui->regionCombo->setCurrentIndex(0);
+        }
+    });
 
     auto setup_view_btn = [](QToolButton* btn, QChar glyph) {
         dialog_icons::applyGlyph(btn, glyph);
@@ -67,9 +80,12 @@ SynthesisTab::~SynthesisTab() {
 }
 
 void SynthesisTab::install_custom_widgets() {
-    form_    = new TranFuncForm(6, 6, QStringLiteral("W<sub>ОУ</sub>(p) = "), ui->formHost);
+    panel_   = new TfFormulaPanel(ui->formHost);
     metrics_ = new RegulationWidget(3, 4, ui->metricsHost);
-    tab_ui::mountInHost(ui->formHost, form_, Qt::AlignLeft | Qt::AlignVCenter);
+    panel_->setTitle(QStringLiteral("W<sub>АСР</sub>(p) = "));
+    panel_->setExactDelaySolutions(false);
+    panel_->setPasteVisible(true);
+    tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft | Qt::AlignVCenter);
     tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight | Qt::AlignVCenter);
 
     parameters_ = {
@@ -85,11 +101,13 @@ void SynthesisTab::install_custom_widgets() {
         connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) {
             update_c0c1_visibility();
             sync_c0c1_selection_from_params();
+            refresh_closed_display();
             replaceTransferFunction();
         });
         connect(p, &RegParameter::valueChanged, this, [this](double) {
             update_regulator_face();
             sync_c0c1_selection_from_params();
+            refresh_closed_display();
             replaceTransferFunction();
         });
     }
@@ -140,6 +158,10 @@ void SynthesisTab::openHelp() {
 }
 
 void SynthesisTab::addTransferFunction() {
+    if (!has_plant_) {
+        show_error(tr("Задайте передаточную функцию объекта (кнопка «Изменить»)."));
+        return;
+    }
     apply_current_controller(false);
 }
 
@@ -153,4 +175,24 @@ void SynthesisTab::clearCharts() {
     ui->charts->clearAll();
     metrics_->updateValues({});
     ui->c0c1Chart->clear();
+}
+
+void SynthesisTab::editPlant() {
+    auto num   = plant_num_;
+    auto den   = plant_den_;
+    double tau = plant_tau_;
+    if (!TfInputDialog::edit(this, num, den, tau, QStringLiteral("W<sub>ОУ</sub>(p)")))
+        return;
+    apply_plant(std::move(num), std::move(den), tau);
+}
+
+void SynthesisTab::pastePlant() {
+    const auto data = tf_clipboard::parse(QApplication::clipboard()->text());
+    if (!data.ok) {
+        QMessageBox::information(this, tr("Вставка ПФ"),
+                                 tr("В буфере нет данных формата Irbis-TF-v1.\n"
+                                    "Скопируйте ПФ кнопкой «Копировать»."));
+        return;
+    }
+    apply_plant(data.num, data.den, data.tau);
 }

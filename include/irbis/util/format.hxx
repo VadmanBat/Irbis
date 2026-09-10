@@ -89,43 +89,29 @@ inline constexpr int FULL_DIGITS = std::numeric_limits<double>::max_digits10; //
     return roundSignificant(v, STORED_DIGITS);
 }
 
-/// HTML poly term powers: low→high display  c0 + c1·p + c2·p<sup>2</sup> …
-[[nodiscard]] inline QString polyHtmlLowFirst(const std::vector<double>& high_to_low, int digits = SIGNIFICANT_DIGITS) {
-    if (high_to_low.empty())
-        return QStringLiteral("0");
+enum class PolyOrder { LowFirst, HighFirst };
 
-    // Convert high→low to low→high for display order 1 + p + p²
-    const int deg = static_cast<int>(high_to_low.size()) - 1;
-    QStringList terms;
-    for (int power = 0; power <= deg; ++power) {
-        const double c = high_to_low[static_cast<std::size_t>(deg - power)];
-        if (c == 0.0)
-            continue;
-        QString term;
-        if (power == 0) {
-            term = format(c, digits);
-        }
-        else if (power == 1) {
-            if (c == 1.0)
-                term = QStringLiteral("p");
-            else if (c == -1.0)
-                term = QStringLiteral("−p");
-            else
-                term = format(c, digits) + QStringLiteral("·p");
-        }
-        else {
-            if (c == 1.0)
-                term = QStringLiteral("p<sup>%1</sup>").arg(power);
-            else if (c == -1.0)
-                term = QStringLiteral("−p<sup>%1</sup>").arg(power);
-            else
-                term = format(c, digits) + QStringLiteral("·p<sup>%1</sup>").arg(power);
-        }
-        terms.push_back(term);
+/// One polynomial term: 3, p, −p, 2·p<sup>2</sup>. Zero coefficients are skipped by the caller.
+[[nodiscard]] inline QString polyTermHtml(int power, double c, int digits = SIGNIFICANT_DIGITS) {
+    if (power == 0)
+        return format(c, digits);
+    if (power == 1) {
+        if (c == 1.0)
+            return QStringLiteral("p");
+        if (c == -1.0)
+            return QStringLiteral("−p");
+        return format(c, digits) + QStringLiteral("·p");
     }
+    if (c == 1.0)
+        return QStringLiteral("p<sup>%1</sup>").arg(power);
+    if (c == -1.0)
+        return QStringLiteral("−p<sup>%1</sup>").arg(power);
+    return format(c, digits) + QStringLiteral("·p<sup>%1</sup>").arg(power);
+}
+
+[[nodiscard]] inline QString joinPolyTerms(const QStringList& terms) {
     if (terms.isEmpty())
         return QStringLiteral("0");
-
     QString out       = terms.front();
     const int n_terms = terms.size();
     for (int i = 1; i < n_terms; ++i) {
@@ -138,12 +124,57 @@ inline constexpr int FULL_DIGITS = std::numeric_limits<double>::max_digits10; //
     return out;
 }
 
-/// Plain (non-HTML) poly for clipboard human line, low→high.
-[[nodiscard]] inline QString polyPlainLowFirst(const std::vector<double>& high_to_low,
+/// HTML poly. `high_to_low` is MATLAB-style (leading coeff = highest power). Zero terms omitted.
+[[nodiscard]] inline QString polyHtml(const std::vector<double>& high_to_low, PolyOrder order,
+                                      int digits = SIGNIFICANT_DIGITS) {
+    if (high_to_low.empty())
+        return QStringLiteral("0");
+    const int deg = static_cast<int>(high_to_low.size()) - 1;
+    QStringList terms;
+    const auto coeff = [&](int power) { return high_to_low[static_cast<std::size_t>(deg - power)]; };
+    if (order == PolyOrder::HighFirst) {
+        for (int power = deg; power >= 0; --power) {
+            const double c = coeff(power);
+            if (c != 0.0)
+                terms.push_back(polyTermHtml(power, c, digits));
+        }
+    }
+    else {
+        for (int power = 0; power <= deg; ++power) {
+            const double c = coeff(power);
+            if (c != 0.0)
+                terms.push_back(polyTermHtml(power, c, digits));
+        }
+    }
+    return joinPolyTerms(terms);
+}
+
+/// HTML poly term powers: low→high display  c0 + c1·p + c2·p<sup>2</sup> …
+[[nodiscard]] inline QString polyHtmlLowFirst(const std::vector<double>& high_to_low, int digits = SIGNIFICANT_DIGITS) {
+    return polyHtml(high_to_low, PolyOrder::LowFirst, digits);
+}
+
+[[nodiscard]] inline QString polyHtmlHighFirst(const std::vector<double>& high_to_low,
                                                int digits = SIGNIFICANT_DIGITS) {
-    QString html = polyHtmlLowFirst(high_to_low, digits);
+    return polyHtml(high_to_low, PolyOrder::HighFirst, digits);
+}
+
+[[nodiscard]] inline QString polyPlain(const std::vector<double>& high_to_low, PolyOrder order,
+                                       int digits = SIGNIFICANT_DIGITS) {
+    QString html = polyHtml(high_to_low, order, digits);
     html.replace(QStringLiteral("<sup>"), QStringLiteral("^"));
     html.replace(QStringLiteral("</sup>"), QString());
     return html;
+}
+
+/// Plain (non-HTML) poly for clipboard human line, low→high.
+[[nodiscard]] inline QString polyPlainLowFirst(const std::vector<double>& high_to_low,
+                                               int digits = SIGNIFICANT_DIGITS) {
+    return polyPlain(high_to_low, PolyOrder::LowFirst, digits);
+}
+
+[[nodiscard]] inline QString polyPlainHighFirst(const std::vector<double>& high_to_low,
+                                                int digits = SIGNIFICANT_DIGITS) {
+    return polyPlain(high_to_low, PolyOrder::HighFirst, digits);
 }
 } // namespace num_format

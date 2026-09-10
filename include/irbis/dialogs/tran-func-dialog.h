@@ -2,10 +2,8 @@
 
 #include "numina/classes/control/models/transfer-function.h"
 
+#include <QColor>
 #include <QDialog>
-
-class FormulaView;
-class TfDisplayWidget;
 
 namespace Ui {
 class TranFuncDialog;
@@ -18,12 +16,6 @@ private:
     Ui::TranFuncDialog* ui;
     numina::TransferFunction tf_;
     double delay_tau_{0.0};
-    TfDisplayWidget* formula_{nullptr};
-    FormulaView* ht_{nullptr};
-    FormulaView* wt_{nullptr};
-    FormulaView* ode_{nullptr};
-    FormulaView* first_{nullptr};
-    FormulaView* euler_{nullptr};
 
     void fill_formula();
     void fill_poles();

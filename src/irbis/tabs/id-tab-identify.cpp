@@ -2,6 +2,7 @@
 #include "irbis/series/bounds-set.hpp"
 #include "irbis/tabs/id-tab.h"
 #include "irbis/util/tf-builder.hpp"
+#include "irbis/widgets/tf-formula-panel.h"
 #include "numina/classes/control/identification/dead-time-estimator.h"
 #include "numina/classes/control/identification/integrator-identifier.h"
 #include "numina/classes/control/identification/simoyu-identifier.h"
@@ -61,7 +62,7 @@ void IdTab::show_overlay(const Series& experiment, const Series& model) {
 }
 
 void IdTab::apply_result(const numina::TransferFunction& plant, double tau, const Series& experiment) {
-    display_->setTransferFunction(plant, tau);
+    panel_->setTransferFunction(plant, tau);
     show_overlay(experiment, tf_builder::sampleTransientAt(plant, experiment, tau));
 }
 
@@ -131,7 +132,7 @@ void IdTab::run_astatic(Method method) {
                        ? numina::IntegratorIdentifier::fit(u, y, dt_u)
                        : numina::IntegratorIdentifier::Gain{};
 
-    display_->setTransferFunction(plant);
+    panel_->setTransferFunction(plant);
     if (chart_)
         chart_->setChartTitle(tr("y(t): эксперимент / модель"));
     show_overlay(signal_series_, integrator_output(valve_series_, signal_series_, g.k, g.u_eq));

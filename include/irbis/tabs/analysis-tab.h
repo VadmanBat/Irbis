@@ -2,12 +2,11 @@
 
 #include "irbis/model/model-param.hpp"
 #include "irbis/widgets/regulation-widget.h"
-#include "irbis/widgets/tf-form/tran-func-form.h"
+#include "irbis/widgets/tf-formula-panel.h"
 #include "numina/classes/control/models/transfer-function.h"
 
 #include <QWidget>
-
-class QMenu;
+#include <vector>
 
 namespace Ui {
 class AnalysisTab;
@@ -18,23 +17,28 @@ class AnalysisTab : public QWidget {
 
 private:
     Ui::AnalysisTab* ui;
-    TranFuncForm* form_{nullptr};
+    TfFormulaPanel* panel_{nullptr};
     RegulationWidget* metrics_{nullptr};
-    QMenu* charts_menu_{nullptr};
     ModelParam model_param_;
     numina::TransferFunction current_tf_;
+    double delay_{0.0};
 
     void show_error(const QString& message);
     void install_custom_widgets();
     void update_metrics();
+    bool apply_plant(std::vector<double> num, std::vector<double> den, double tau);
 
 private slots:
     void addTransferFunction();
     void replaceTransferFunction();
     void clearCharts();
-    void openSettings();
+    void editPlant();
+    void pastePlant();
 
 public:
     explicit AnalysisTab(QWidget* parent = nullptr);
     ~AnalysisTab() override;
+
+    void openSettings();
+    void openChartSettings();
 };

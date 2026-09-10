@@ -221,7 +221,16 @@ inline numina::QualityReport quality(const numina::TransferFunction& tf, const M
 }
 
 inline bool validInput(const std::vector<double>& num, const std::vector<double>& den) {
-    if (den.empty() || den.size() == 1)
+    bool num_ok = false;
+    for (double c : num) {
+        if (c != 0.0) {
+            num_ok = true;
+            break;
+        }
+    }
+    if (!num_ok)
+        return false;
+    if (den.size() < 2)
         return false;
     if (num.size() > den.size())
         return false;

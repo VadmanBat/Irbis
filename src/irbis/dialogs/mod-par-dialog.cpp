@@ -11,7 +11,7 @@ ModParDialog::ModParDialog(const ModelParam& values, QWidget* parent, bool allow
     : QDialog(parent), ui(new Ui::ModParDialog), allow_ideal_delay_(allowIdealDelay) {
     ui->setupUi(this);
     dialog_icons::apply(this, dialog_icons::Kind::ModelParams);
-    secondary_text::applyAll({ui->hintLabel, ui->approxHint});
+    secondary_text::apply(ui->hintLabel);
     // Compact default size; user may freely resize.
     setMinimumWidth(320);
     resize(400, height());
@@ -102,6 +102,4 @@ void ModParDialog::on_auto_freq_intervals_toggled(bool checked) {
 void ModParDialog::on_use_pade_toggled(bool checked) {
     ui->approxOrderLabel->setEnabled(checked);
     ui->approxOrderSpinBox->setEnabled(checked);
-    ui->approxHint->setText(checked ? tr("1…6, обычно 6") : tr("Точное e^{−τp}: сдвиг h(t), фаза −ωτ"));
-    secondary_text::apply(ui->approxHint);
 }

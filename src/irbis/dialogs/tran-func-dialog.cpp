@@ -7,19 +7,14 @@
 #include "numina/classes/calculus/laplace-solution.h"
 #include "ui_tran-func-dialog.h"
 
-#include <QAbstractItemView>
-#include <QAbstractScrollArea>
 #include <QApplication>
 #include <QClipboard>
-#include <QFrame>
-#include <QHeaderView>
-#include <QLayout>
 #include <QMenu>
+#include <QPushButton>
 #include <QShowEvent>
 #include <QStyle>
 #include <QToolButton>
 #include <QToolTip>
-#include <QVBoxLayout>
 #include <QWidget>
 #include <utility>
 
@@ -97,14 +92,6 @@ QString de_text(const numina::TransferFunction& tf, DeKind kind, TfFormat format
     return format == TfFormat::Html ? as_html(std::move(text)) : text;
 }
 
-FormulaView* mount_formula(QWidget* host) {
-    auto* lay = new QVBoxLayout(host);
-    lay->setContentsMargins(0, 0, 0, 0);
-    lay->setSpacing(0);
-    auto* view = new FormulaView(host);
-    lay->addWidget(view);
-    return view;
-}
 }
 
 TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* parent, double delayTau)
@@ -128,43 +115,8 @@ TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* pare
     paint_bg(ui->odeBlock);
     paint_bg(ui->firstOrderBlock);
     paint_bg(ui->eulerBlock);
-
-    auto* formula_lay = new QVBoxLayout(ui->formulaHost);
-    formula_lay->setContentsMargins(12, 10, 12, 10);
-    formula_lay->setSpacing(0);
-    formula_ = new TfDisplayWidget(QStringLiteral("W(p) = "), ui->formulaHost);
-    formula_lay->addWidget(formula_);
-
-    ht_    = mount_formula(ui->htHost);
-    wt_    = mount_formula(ui->wtHost);
-    ode_   = mount_formula(ui->odeHost);
-    first_ = mount_formula(ui->firstOrderHost);
-    euler_ = mount_formula(ui->eulerHost);
-
-    ui->bodyScroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->bodyScroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-
-    ui->polesTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->polesTable->verticalHeader()->setVisible(false);
-    ui->polesTable->setFrameShape(QFrame::NoFrame);
     ui->polesTable->setAttribute(Qt::WA_StyledBackground, true);
-    ui->polesTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->polesTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-    ui->polesTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->polesTable->horizontalHeader()->setStretchLastSection(true);
-    ui->polesTable->horizontalHeader()->setDefaultAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    ui->polesTable->horizontalHeader()->setTextElideMode(Qt::ElideRight);
 
-    layout()->setSizeConstraint(QLayout::SetNoConstraint);
-    ui->bodyScroll->setSizeAdjustPolicy(QAbstractScrollArea::AdjustIgnored);
-    ui->bodyContents->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-
-    ui->deToggle->setArrowType(Qt::RightArrow);
-    ui->deToggle->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
-    ui->deToggle->setFocusPolicy(Qt::TabFocus);
-    ui->deCardLayout->setSpacing(0);
-    ui->deBody->show();
-    ui->deBody->setMaximumHeight(0);
     connect(ui->deToggle, &QToolButton::toggled, this, [this](bool on) {
         ui->deToggle->setArrowType(on ? Qt::DownArrow : Qt::RightArrow);
         setUpdatesEnabled(false);
@@ -190,17 +142,17 @@ void TranFuncDialog::showEvent(QShowEvent* event) {
 }
 
 void TranFuncDialog::fill_formula() {
-    formula_->setTransferFunction(tf_, delay_tau_);
+    ui->formula->setTransferFunction(tf_, delay_tau_);
 }
 
 void TranFuncDialog::show_solutions() {
-    ht_->setHtml(
+    ui->htView->setHtml(
         with_lhs_html(QStringLiteral("h(t)"), solution_text(tf_.transientSolution(), TfFormat::Html, delay_tau_)));
-    wt_->setHtml(
+    ui->wtView->setHtml(
         with_lhs_html(QStringLiteral("w(t)"), solution_text(tf_.impulseSolution(), TfFormat::Html, delay_tau_)));
-    ode_->setHtml(de_text(tf_, DeKind::HighOrder, TfFormat::Html));
-    first_->setHtml(de_text(tf_, DeKind::FirstOrder, TfFormat::Html));
-    euler_->setHtml(de_text(tf_, DeKind::Euler, TfFormat::Html));
+    ui->odeView->setHtml(de_text(tf_, DeKind::HighOrder, TfFormat::Html));
+    ui->firstOrderView->setHtml(de_text(tf_, DeKind::FirstOrder, TfFormat::Html));
+    ui->eulerView->setHtml(de_text(tf_, DeKind::Euler, TfFormat::Html));
 }
 
 void TranFuncDialog::setup_copy_menus() {

@@ -23,6 +23,9 @@
    <bool>true</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout" stretch="1,0">
+   <property name="sizeConstraint">
+    <enum>QLayout::SetNoConstraint</enum>
+   </property>
    <property name="spacing">
     <number>12</number>
    </property>
@@ -52,6 +55,9 @@
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
+     <property name="sizeAdjustPolicy">
+      <enum>QAbstractScrollArea::AdjustIgnored</enum>
+     </property>
      <widget class="QWidget" name="bodyContents">
       <property name="geometry">
        <rect>
@@ -60,6 +66,12 @@
         <width>868</width>
         <height>560</height>
        </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
       <layout class="QVBoxLayout" name="bodyLayout">
        <property name="spacing">
@@ -122,6 +134,26 @@
             <property name="objectName">
              <string notr="true">tfFormulaHost</string>
             </property>
+            <layout class="QVBoxLayout" name="formulaHostLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>12</number>
+             </property>
+             <property name="topMargin">
+              <number>10</number>
+             </property>
+             <property name="rightMargin">
+              <number>12</number>
+             </property>
+             <property name="bottomMargin">
+              <number>10</number>
+             </property>
+             <item>
+              <widget class="TfDisplayWidget" name="formula"/>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -169,6 +201,18 @@
           </item>
           <item>
            <widget class="QTableWidget" name="polesTable">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="horizontalScrollBarPolicy">
+             <enum>Qt::ScrollBarAlwaysOff</enum>
+            </property>
             <property name="editTriggers">
              <set>QAbstractItemView::NoEditTriggers</set>
             </property>
@@ -343,7 +387,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QWidget" name="htHost" native="true"/>
+              <widget class="FormulaView" name="htView"/>
              </item>
             </layout>
            </widget>
@@ -419,7 +463,7 @@
               </layout>
              </item>
              <item>
-              <widget class="QWidget" name="wtHost" native="true"/>
+              <widget class="FormulaView" name="wtView"/>
              </item>
             </layout>
            </widget>
@@ -462,6 +506,18 @@
             <property name="objectName">
              <string notr="true">tfSectionToggle</string>
             </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::TabFocus</enum>
+            </property>
+            <property name="toolTip">
+             <string>Уравнение вход–выход, уравнения состояния и дискретное решение неявным Эйлером</string>
+            </property>
             <property name="text">
              <string>Дифференциальные уравнения</string>
             </property>
@@ -474,13 +530,19 @@
             <property name="autoRaise">
              <bool>true</bool>
             </property>
-            <property name="toolTip">
-             <string>Уравнение вход–выход, уравнения состояния и дискретное решение неявным Эйлером</string>
+            <property name="arrowType">
+             <enum>Qt::RightArrow</enum>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QWidget" name="deBody" native="true">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>0</height>
+             </size>
+            </property>
             <layout class="QVBoxLayout" name="deBodyLayout">
              <property name="spacing">
               <number>10</number>
@@ -565,7 +627,7 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QWidget" name="odeHost" native="true"/>
+                 <widget class="FormulaView" name="odeView"/>
                 </item>
                </layout>
               </widget>
@@ -638,7 +700,7 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QWidget" name="firstOrderHost" native="true"/>
+                 <widget class="FormulaView" name="firstOrderView"/>
                 </item>
                </layout>
               </widget>
@@ -711,7 +773,7 @@
                  </layout>
                 </item>
                 <item>
-                 <widget class="QWidget" name="eulerHost" native="true"/>
+                 <widget class="FormulaView" name="eulerView"/>
                 </item>
                </layout>
               </widget>
@@ -771,6 +833,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TfDisplayWidget</class>
+   <extends>QWidget</extends>
+   <header>irbis/widgets/tf-display-widget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>FormulaView</class>
+   <extends>QLabel</extends>
+   <header>irbis/widgets/formula-view.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -49,7 +49,7 @@ bool IdTab::preview_loaded_file() {
     }
 
     has_data_ = true;
-    display_->clear();
+    panel_->clear();
     maybe_show_structure_template();
     show_file_preview();
     return true;

@@ -1,12 +1,19 @@
 #include "irbis/tabs/rim-tab.h"
 
 #include "irbis/charts/chart-panel.h"
+#include "irbis/dialogs/tf-input-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/secondary-text.hxx"
+#include "irbis/util/tf-builder.hpp"
+#include "irbis/util/tf-clipboard.hpp"
 #include "ui_rim-tab.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QComboBox>
+#include <QMessageBox>
 #include <QPushButton>
+#include <utility>
 
 RimTab::RimTab(QWidget* parent) : QWidget(parent), ui(new Ui::RimTab) {
     tab_ui::ensureFonts();
@@ -19,6 +26,8 @@ RimTab::RimTab(QWidget* parent) : QWidget(parent), ui(new Ui::RimTab) {
     connect(ui->runButton, &QPushButton::clicked, this, &RimTab::runSimulation);
     connect(ui->continueButton, &QPushButton::clicked, this, &RimTab::continueSimulation);
     connect(ui->clearButton, &QPushButton::clicked, this, &RimTab::resetSimulation);
+    connect(panel_, &TfFormulaPanel::editRequested, this, &RimTab::editPlant);
+    connect(panel_, &TfFormulaPanel::pasteRequested, this, &RimTab::pastePlant);
 }
 
 RimTab::~RimTab() {
@@ -26,9 +35,12 @@ RimTab::~RimTab() {
 }
 
 void RimTab::install_custom_widgets() {
-    form_ = new TranFuncForm(6, 6, QStringLiteral("W<sub>ОУ</sub>(p) = "), ui->formHost);
-    form_->setExactDelaySolutions(true);
-    tab_ui::mountInHost(ui->formHost, form_, Qt::AlignLeft | Qt::AlignVCenter);
+    panel_ = new TfFormulaPanel(ui->formHost);
+    panel_->setTitle(QStringLiteral("W<sub>ОУ</sub>(p) = "));
+    panel_->setExactDelaySolutions(true);
+    panel_->setPasteVisible(true);
+    panel_->setCardFrame(false);
+    tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft | Qt::AlignVCenter);
 
     y_chart_ = new ChartPanel(tr("Регулирование y(t)"), tr("t, с"), tr("y(t)"), ui->yChartHost);
     y_chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -96,6 +108,39 @@ numina::ControlLaw RimTab::selected_law() const noexcept {
         default:
             return numina::ControlLaw::Pid;
     }
+}
+
+bool RimTab::apply_plant(std::vector<double> num, std::vector<double> den, double tau) {
+    if (const QString err = tab_ui::plantInputError(num, den); !err.isEmpty()) {
+        show_error(err);
+        return false;
+    }
+    plant_num_ = std::move(num);
+    plant_den_ = std::move(den);
+    plant_tau_ = tau < 0.0 ? 0.0 : tau;
+    has_plant_ = true;
+    panel_->setTransferFunction(tf_builder::plant(plant_num_, plant_den_), plant_tau_);
+    return true;
+}
+
+void RimTab::editPlant() {
+    auto num   = plant_num_;
+    auto den   = plant_den_;
+    double tau = plant_tau_;
+    if (!TfInputDialog::edit(this, num, den, tau, QStringLiteral("W<sub>ОУ</sub>(p)")))
+        return;
+    apply_plant(std::move(num), std::move(den), tau);
+}
+
+void RimTab::pastePlant() {
+    const auto data = tf_clipboard::parse(QApplication::clipboard()->text());
+    if (!data.ok) {
+        QMessageBox::information(this, tr("Вставка ПФ"),
+                                 tr("В буфере нет данных формата Irbis-TF-v1.\n"
+                                    "Скопируйте ПФ кнопкой «Копировать»."));
+        return;
+    }
+    apply_plant(data.num, data.den, data.tau);
 }
 
 numina::PidSettings RimTab::read_pid_settings() const {

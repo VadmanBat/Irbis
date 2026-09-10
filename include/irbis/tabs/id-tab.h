@@ -1,7 +1,7 @@
 #pragma once
 
 #include "irbis/model/id-settings.hpp"
-#include "irbis/widgets/tf-display-widget.h"
+#include "irbis/widgets/tf-formula-panel.h"
 #include "numina/classes/control/models/transfer-function.h"
 
 #include <QString>
@@ -28,7 +28,7 @@ private:
     using Series = std::vector<std::pair<double, double>>;
 
     Ui::IdTab* ui;
-    TfDisplayWidget* display_{nullptr};
+    TfFormulaPanel* panel_{nullptr};
     ChartPanel* chart_{nullptr};
 
     QString file_path_;
@@ -43,7 +43,6 @@ private:
     void sync_plant_kind_ui();
     void sync_struct_ui();
     void maybe_show_structure_template();
-    void sync_tf_actions();
     [[nodiscard]] bool load_step_file(const QString& path);
     [[nodiscard]] bool load_valve_signal_file(const QString& path);
     [[nodiscard]] bool preview_loaded_file();
@@ -57,8 +56,6 @@ private slots:
     void openFile();
     void runIdentification();
     void clearAll();
-    void copyIdentifiedTf();
-    void showEquations();
 
 public:
     explicit IdTab(QWidget* parent = nullptr);

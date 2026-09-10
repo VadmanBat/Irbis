@@ -35,16 +35,16 @@ void fit_panel(ChartPanel* panel, const BoundsSet& bounds) {
 }
 
 bool RimTab::build_plant(numina::TransferFunction& out, double& tau) {
-    auto num = form_->numerator();
-    auto den = form_->denominator();
-    if (const QString err = tab_ui::plantInputError(num, den); !err.isEmpty()) {
+    if (!has_plant_) {
+        show_error(tr("Задайте передаточную функцию объекта (кнопка «Изменить»)."));
+        return false;
+    }
+    if (const QString err = tab_ui::plantInputError(plant_num_, plant_den_); !err.isEmpty()) {
         show_error(err);
         return false;
     }
-    out = tf_builder::plant(std::move(num), std::move(den));
-    tau = form_->hasDelay() ? form_->delayTime() : 0.0;
-    if (tau < 0.0)
-        tau = 0.0;
+    out = tf_builder::plant(plant_num_, plant_den_);
+    tau = plant_tau_ < 0.0 ? 0.0 : plant_tau_;
     return true;
 }
 

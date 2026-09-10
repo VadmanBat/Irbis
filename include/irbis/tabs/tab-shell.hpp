@@ -1,6 +1,7 @@
 #pragma once
 
 #include "irbis/charts/response-chart-bank.h"
+#include "irbis/dialogs/chart-vis-dialog.h"
 #include "irbis/dialogs/mod-par-dialog.h"
 #include "irbis/model/model-param.hpp"
 #include "irbis/style.hpp"
@@ -8,9 +9,7 @@
 #include "irbis/widgets/regulation-widget.h"
 
 #include <QBoxLayout>
-#include <QMenu>
 #include <QMessageBox>
-#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <vector>
@@ -20,9 +19,14 @@ inline void ensureFonts() {
     irbis::loadFonts();
 }
 
-inline void wireChartsButton(QToolButton* btn, ResponseChartBank* charts, QMenu* menu) {
-    QObject::connect(menu, &QMenu::aboutToShow, btn, [charts, menu] { charts->populateMenu(menu); });
-    btn->setMenu(menu);
+inline bool editChartVisibility(QWidget* parent, ResponseChartBank* charts) {
+    if (!charts)
+        return false;
+    ChartVisDialog dialog(charts->visibility(), parent);
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+    charts->setVisibility(dialog.data());
+    return true;
 }
 
 inline void mountInHost(QWidget* host, QWidget* child, Qt::Alignment align) {
@@ -44,6 +48,18 @@ inline void showError(QWidget* parent, const QString& title, const QString& mess
 [[nodiscard]] inline QString plantInputError(const std::vector<double>& num, const std::vector<double>& den) {
     if (tf_builder::validInput(num, den))
         return {};
+    bool num_zero = num.empty();
+    if (!num_zero) {
+        num_zero = true;
+        for (double c : num) {
+            if (c != 0.0) {
+                num_zero = false;
+                break;
+            }
+        }
+    }
+    if (num_zero)
+        return QObject::tr("Числитель НЕ может быть равен нулю!");
     if (den.empty())
         return QObject::tr("Знаменатель НЕ может быть равен нулю!");
     if (den.size() == 1)

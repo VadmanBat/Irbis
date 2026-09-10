@@ -6,6 +6,7 @@
 #include <QChart>
 #include <QFont>
 #include <QGraphicsSimpleTextItem>
+#include <QString>
 #include <QResizeEvent>
 #include <QScatterSeries>
 #include <QTimer>
@@ -22,9 +23,10 @@ void C0C1Chart::apply_axis_titles() {
     auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
     if (!ax || !ay)
         return;
+    const QString y_name = plane_ == Plane::Pd ? QStringLiteral("C₂") : QStringLiteral("C₀");
     // Keep title text for the detached viewer; hide them here — they steal plot area.
     ax->setTitleText(QStringLiteral("C₁"));
-    ay->setTitleText(QStringLiteral("C₀"));
+    ay->setTitleText(y_name);
     ax->setTitleVisible(false);
     ay->setTitleVisible(false);
 
@@ -33,8 +35,11 @@ void C0C1Chart::apply_axis_titles() {
         tag_c1_->setZValue(20);
     }
     if (!tag_c0_) {
-        tag_c0_ = new QGraphicsSimpleTextItem(QStringLiteral("C₀"), chart_);
+        tag_c0_ = new QGraphicsSimpleTextItem(y_name, chart_);
         tag_c0_->setZValue(20);
+    }
+    else {
+        tag_c0_->setText(y_name);
     }
     QFont f = chart_->font();
     f.setPointSize(9);
@@ -71,7 +76,8 @@ void C0C1Chart::ensure_selection_visible() {
     auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
     if (!ax || !ay)
         return;
-    const bool outside = sel_c1_ < ax->min() || sel_c1_ > ax->max() || sel_c0_ < ay->min() || sel_c0_ > ay->max();
+    const double y     = sel_y();
+    const bool outside = sel_c1_ < ax->min() || sel_c1_ > ax->max() || y < ay->min() || y > ay->max();
     if (outside)
         refit_axes();
 }
@@ -93,7 +99,7 @@ void C0C1Chart::refit_axes() {
         b.max_y = std::max(b.max_y, y);
     };
     for (const auto& s : locus_)
-        expand(s.c1, s.c0);
+        expand(s.c1, plane_ == Plane::Pd ? s.c2 : s.c0);
     for (QScatterSeries* sc : {opt_lik_, opt_ikk_, opt_sko_, selection_series_}) {
         if (!sc)
             continue;
