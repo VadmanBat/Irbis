@@ -147,36 +147,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="regionLabel">
-       <property name="text">
-        <string>Область:</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QComboBox" name="regionCombo">
-       <property name="objectName">
-        <string notr="true">regionCombo</string>
-       </property>
-       <property name="toolTip">
-        <string>РКЧХ — луч. Γ — сектор только для ПИ (ЛИК = ИКК). П / И / ПД — только РКЧХ. ПИД всегда на грани C₂*(ω).</string>
-       </property>
-       <property name="minimumWidth">
-        <number>80</number>
-       </property>
-       <item>
-        <property name="text">
-         <string>РКЧХ</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>Γ</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
       <widget class="QLabel" name="phiLabel">
        <property name="text">
         <string>φ:</string>
@@ -255,7 +225,7 @@
         <string notr="true">autoSynthButton</string>
        </property>
        <property name="toolTip">
-        <string>Автонастройка П/И/ПД/ПИ/ПИД (критерий + закон + область + φ). ПД: ЛРЗ в C₁–C₂.</string>
+        <string>Автонастройка П/И/ПД/ПИ/ПИД (критерий + закон + φ). ПД: ЛРЗ в C₁–C₂.</string>
        </property>
        <property name="text">
         <string>✨</string>
@@ -412,7 +382,7 @@
              <bool>false</bool>
             </property>
             <property name="toolTip">
-             <string>Плоскость допустимых настроек (ПИ: C₁–C₀, ПД: C₁–C₂)</string>
+             <string>Плоскость допустимых настроек (ПИ: C₁–C₀, ПД: C₂–C₁)</string>
             </property>
            </widget>
           </item>

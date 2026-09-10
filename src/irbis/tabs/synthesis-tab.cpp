@@ -12,10 +12,8 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QClipboard>
-#include <QComboBox>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSignalBlocker>
 #include <QToolButton>
 #include <utility>
 
@@ -35,16 +33,6 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
     connect(panel_, &TfFormulaPanel::editRequested, this, &SynthesisTab::editPlant);
     connect(panel_, &TfFormulaPanel::pasteRequested, this, &SynthesisTab::pastePlant);
     connect(ui->c0c1Chart, &C0C1Chart::samplePicked, this, &SynthesisTab::onSamplePicked);
-    connect(ui->lawCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
-        using L            = numina::ControllerDesigner::Law;
-        const auto law     = selected_law();
-        const bool gamma_ok = law == L::Pi || law == L::Auto;
-        ui->regionCombo->setEnabled(gamma_ok);
-        if (!gamma_ok && ui->regionCombo->currentIndex() != 0) {
-            const QSignalBlocker block(ui->regionCombo);
-            ui->regionCombo->setCurrentIndex(0);
-        }
-    });
 
     auto setup_view_btn = [](QToolButton* btn, QChar glyph) {
         dialog_icons::applyGlyph(btn, glyph);

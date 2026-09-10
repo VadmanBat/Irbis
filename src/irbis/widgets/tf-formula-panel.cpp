@@ -76,7 +76,7 @@ TfFormulaPanel::TfFormulaPanel(QWidget* parent) : QFrame(parent) {
     auto* root = new QVBoxLayout(this);
     root->setContentsMargins(12, 10, 12, 10);
     root->setSpacing(6);
-    root->addLayout(body);
+    root->addLayout(body, 1);
 
     connect(edit_btn_, &QPushButton::clicked, this, &TfFormulaPanel::editRequested);
     connect(paste_btn_, &QPushButton::clicked, this, &TfFormulaPanel::pasteRequested);

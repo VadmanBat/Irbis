@@ -47,7 +47,7 @@ QString design_fail(const numina::ControllerDesigner::Law law) {
             return QObject::tr("ПИД недоступен: нет настроек с C₂>0.\n"
                                "Если ПИ уже обеспечивает φ, выберите ПИ или Авто.");
         case L::Pi:
-            return QObject::tr("ПИ недоступен (C₀, C₁ > 0 и доминирование / сектор Γ).\n"
+            return QObject::tr("ПИ недоступен (C₀, C₁ > 0 и доминирование).\n"
                                "При пустой Ω_доп выберите ПИД или Авто.");
         default:
             return QObject::tr("Автонастройка не нашла ни ПИ, ни ПИД.");
@@ -69,9 +69,8 @@ void SynthesisTab::autoSynthesize() {
         numina::ControllerDesigner designer(plant, phi);
 
         numina::ControllerDesigner::Spec spec;
-        spec.phi    = phi;
-        spec.law    = selected_law();
-        spec.region = selected_region();
+        spec.phi = phi;
+        spec.law = selected_law();
 
         using L           = numina::ControllerDesigner::Law;
         const auto bundle = controller_design::synthesize(designer, spec, selected_criterion());
@@ -101,8 +100,8 @@ void SynthesisTab::autoSynthesize() {
             else if (spec.law == L::Pd)
                 loc_name = tr("ЛРЗ (ПД)");
             ui->c0c1Chart->setLocus(std::move(samples), loc_name);
-            ui->c0c1Chart->setOptima(bundle.gamma_pi ? C0C1Chart::Optimum{} : to_optimum(bundle.lik, tr("опт. ЛИК")),
-                                     to_optimum(bundle.ikk, tr("опт. ИКК")), to_optimum(bundle.sko, tr("опт. СКО")));
+            ui->c0c1Chart->setOptima(to_optimum(bundle.lik, tr("опт. ЛИК")), to_optimum(bundle.ikk, tr("опт. ИКК")),
+                                     to_optimum(bundle.sko, tr("опт. СКО")));
         }
         else {
             ui->c0c1Chart->setLocus({}, {});

@@ -26,21 +26,25 @@ enum class Kind {
 };
 
 namespace detail {
-inline QFont awesome_font(int pixel_size) {
-    QFont f;
+inline void apply_awesome_face(QFont& f) {
     // Family after QFontDatabase::addApplicationFont on FA6 Free Solid.
     f.setFamilies({QStringLiteral("Font Awesome 6 Free Solid"), QStringLiteral("Font Awesome 6 Free")});
     f.setStyleName(QStringLiteral("Solid"));
     f.setWeight(QFont::Black);
-    if (pixel_size > 0)
-        f.setPixelSize(pixel_size);
-    f.setHintingPreference(QFont::PreferFullHinting);
+    f.setHintingPreference(QFont::PreferNoHinting);
+}
+
+inline QFont awesome_font(int pixel_size) {
+    QFont f;
+    f.setPixelSize(pixel_size > 0 ? pixel_size : 12);
+    apply_awesome_face(f);
     return f;
 }
 
 inline QFont awesome_ui_font(int point_size = 9) {
-    QFont f = awesome_font(0);
+    QFont f;
     f.setPointSize(point_size > 0 ? point_size : 9);
+    apply_awesome_face(f);
     return f;
 }
 

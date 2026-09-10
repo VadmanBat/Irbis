@@ -276,8 +276,8 @@ void C0C1Chart::clear() {
     has_selection_ = false;
     dragging_      = false;
     last_pixel_    = {-1, -1};
-    last_emit_c0_  = std::numeric_limits<double>::quiet_NaN();
-    last_emit_c1_  = std::numeric_limits<double>::quiet_NaN();
+    last_emit_x_   = std::numeric_limits<double>::quiet_NaN();
+    last_emit_y_   = std::numeric_limits<double>::quiet_NaN();
     sel_c2_        = 0.0;
     if (locus_series_)
         locus_series_->clear();
@@ -340,8 +340,8 @@ void C0C1Chart::setSelection(double c0, double c1, double c2) {
             update_selection_marker();
         return;
     }
-    const double y = plane_ == Plane::Pd ? c2 : c0;
-    has_selection_ = std::isfinite(c1) && std::isfinite(y);
+    const QPointF p = to_plot(c0, c1, c2);
+    has_selection_  = std::isfinite(p.x()) && std::isfinite(p.y());
     sel_c0_        = c0;
     sel_c1_        = c1;
     sel_c2_        = c2;

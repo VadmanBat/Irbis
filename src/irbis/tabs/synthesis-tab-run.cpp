@@ -124,11 +124,6 @@ numina::ControllerDesigner::Law SynthesisTab::selected_law() const noexcept {
     }
 }
 
-numina::ControllerDesigner::Region SynthesisTab::selected_region() const noexcept {
-    using R = numina::ControllerDesigner::Region;
-    return ui->regionCombo->currentIndex() == 1 ? R::Gamma : R::Rkch;
-}
-
 bool SynthesisTab::build_plant(numina::TransferFunction& out) {
     if (!has_plant_ || !tf_builder::validInput(plant_num_, plant_den_))
         return false;

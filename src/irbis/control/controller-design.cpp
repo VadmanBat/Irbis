@@ -60,25 +60,8 @@ std::vector<Settings> locus(const Designer& des, const Law law, std::size_t n_po
 }
 
 Design run(const Designer& des, Spec spec, const Criterion criterion) {
-    spec.criterion   = criterion;
-    const bool gamma = spec.region == Region::Gamma;
-    switch (spec.law) {
-        case Law::P:
-            return des.designP(spec);
-        case Law::I:
-            return des.designI(spec);
-        case Law::Pd:
-            return des.designPd(spec);
-        case Law::Pid:
-            return des.designPid(spec);
-        case Law::Auto:
-            if (des.needsPid(spec.w_hi_hint))
-                return des.designPid(spec);
-            return gamma ? des.designByGamma(spec) : des.designPi(spec);
-        case Law::Pi:
-        default:
-            return gamma ? des.designByGamma(spec) : des.designPi(spec);
-    }
+    spec.criterion = criterion;
+    return des.designByRkch(spec);
 }
 
 const Design& Bundle::selected() const noexcept {
@@ -95,14 +78,10 @@ const Design& Bundle::selected() const noexcept {
 
 Bundle synthesize(const Designer& des, const Spec& spec, Criterion criterion) {
     Bundle b;
-    b.face             = usesPidFace(des, spec.law);
-    const bool pi_like = spec.law == Law::Pi || (spec.law == Law::Auto && !b.face);
-    b.gamma_pi         = spec.region == Region::Gamma && pi_like;
-    b.ikk              = run(des, spec, Criterion::Ikk);
-    b.sko              = run(des, spec, Criterion::Sko);
-    b.lik      = b.gamma_pi ? Design{} : run(des, spec, Criterion::Lik);
-    if (b.gamma_pi && criterion == Criterion::Lik)
-        criterion = Criterion::Ikk;
+    b.face   = usesPidFace(des, spec.law);
+    b.ikk    = run(des, spec, Criterion::Ikk);
+    b.sko    = run(des, spec, Criterion::Sko);
+    b.lik    = run(des, spec, Criterion::Lik);
     b.chosen = criterion;
     return b;
 }

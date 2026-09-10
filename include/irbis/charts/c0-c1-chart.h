@@ -5,6 +5,7 @@
 #include <cmath>
 #include <limits>
 #include <QPoint>
+#include <QString>
 #include <QWidget>
 #include <vector>
 
@@ -17,7 +18,7 @@ class QResizeEvent;
 class QScatterSeries;
 class QVBoxLayout;
 
-/// Interactive coeff plane (РКЧХ): ПИ X=C₁ Y=C₀; ПД X=C₁ Y=C₂. Click/drag free selection.
+/// Interactive coeff plane (РКЧХ): ПИ X=C₁ Y=C₀; ПД X=C₂ Y=C₁. Click/drag free selection.
 class C0C1Chart : public QWidget {
     Q_OBJECT
 
@@ -58,8 +59,8 @@ private:
     QScatterSeries* opt_sko_{nullptr};
     QScatterSeries* selection_series_{nullptr};
     std::vector<QScatterSeries*> pin_series_{};
-    QGraphicsSimpleTextItem* tag_c1_{nullptr};
-    QGraphicsSimpleTextItem* tag_c0_{nullptr};
+    QGraphicsSimpleTextItem* tag_x_{nullptr};
+    QGraphicsSimpleTextItem* tag_y_{nullptr};
 
     Plane plane_{Plane::Pi};
     std::vector<Sample> locus_{};
@@ -72,8 +73,8 @@ private:
     bool dragging_{false};
     bool refit_pending_{false};
     QPoint last_pixel_{-1, -1};
-    double last_emit_c0_{std::numeric_limits<double>::quiet_NaN()};
-    double last_emit_c1_{std::numeric_limits<double>::quiet_NaN()};
+    double last_emit_x_{std::numeric_limits<double>::quiet_NaN()};
+    double last_emit_y_{std::numeric_limits<double>::quiet_NaN()};
 
     void build_chart();
     void apply_theme();
@@ -89,17 +90,22 @@ private:
     void clear_pins();
     void restyle_pins();
     void rebuild_locus_series();
-    /// Plot point: ПИ (C₁, C₀), ПД (C₁, C₂).
+    /// Plot point: ПИ (C₁, C₀), ПД (C₂, C₁).
     [[nodiscard]] QPointF to_plot(double c0, double c1, double c2 = 0) const noexcept {
-        return plane_ == Plane::Pd ? QPointF(c1, c2) : QPointF(c1, c0);
+        return plane_ == Plane::Pd ? QPointF(c2, c1) : QPointF(c1, c0);
     }
-    [[nodiscard]] double sel_y() const noexcept { return plane_ == Plane::Pd ? sel_c2_ : sel_c0_; }
+    [[nodiscard]] QString axis_x_name() const {
+        return plane_ == Plane::Pd ? QStringLiteral("C₂") : QStringLiteral("C₁");
+    }
+    [[nodiscard]] QString axis_y_name() const {
+        return plane_ == Plane::Pd ? QStringLiteral("C₁") : QStringLiteral("C₀");
+    }
     [[nodiscard]] static bool nearly_same(double a, double b, double eps) noexcept {
         if (!std::isfinite(a) || !std::isfinite(b))
             return false;
         return std::abs(a - b) <= eps;
     }
-    [[nodiscard]] bool value_at_pixel(const QPoint& viewport_pos, double& c0, double& c1) const;
+    [[nodiscard]] bool value_at_pixel(const QPoint& viewport_pos, double& x, double& y) const;
     void handle_pointer(const QPoint& viewport_pos, bool force_emit);
     bool eventFilter(QObject* watched, QEvent* event) override;
 
@@ -115,7 +121,7 @@ public:
     void setPlane(Plane plane);
     void setLocus(std::vector<Sample> samples, const QString& name = {});
     void setOptima(const Optimum& lik, const Optimum& ikk, const Optimum& sko);
-    /// Logical coeffs; ПИ drawn as (C₁, C₀), ПД as (C₁, C₂).
+    /// Logical coeffs; ПИ drawn as (C₁, C₀), ПД as (C₂, C₁).
     void setSelection(double c0, double c1, double c2 = 0);
     void clearSelection();
     void requestRefit();

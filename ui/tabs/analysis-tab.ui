@@ -57,9 +57,15 @@
        </layout>
       </widget>
      </item>
-     <item alignment="Qt::AlignVCenter">
+     <item>
       <widget class="QWidget" name="analysisActions" native="true">
-       <layout class="QVBoxLayout" name="analysisActionsLayout">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QVBoxLayout" name="analysisActionsLayout" stretch="1,1,1">
         <property name="spacing">
          <number>6</number>
         </property>
@@ -80,6 +86,12 @@
           <property name="objectName">
            <string notr="true">addButton</string>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Добавить текущую ПФ на графики</string>
           </property>
@@ -93,6 +105,12 @@
           <property name="objectName">
            <string notr="true">replaceButton</string>
           </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
+          </property>
           <property name="toolTip">
            <string>Пересчитать последнюю серию</string>
           </property>
@@ -105,6 +123,12 @@
          <widget class="QPushButton" name="clearButton">
           <property name="objectName">
            <string notr="true">clearButton</string>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>1</verstretch>
+           </sizepolicy>
           </property>
           <property name="toolTip">
            <string>Очистить графики</string>

@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/icons">
         <file>irbis.ico</file>
+        <file>irbis.svg</file>
     </qresource>
 </RCC>

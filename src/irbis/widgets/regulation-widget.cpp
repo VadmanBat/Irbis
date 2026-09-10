@@ -29,14 +29,14 @@ RegulationWidget::RegulationWidget(int rows, int cols, QWidget* parent) : QWidge
             label->setObjectName(QStringLiteral("metricLabel"));
             label->setTextFormat(Qt::RichText);
             label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-            label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+            label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
             label->setWordWrap(false);
 
             auto* edit = new QLineEdit(this);
             edit->setObjectName(QStringLiteral("metricValue"));
             edit->setReadOnly(true);
             edit->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-            edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
+            edit->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
             style_util::setProperty(edit, "metricFlash", 0);
 
             labels_.push_back(label);
@@ -44,7 +44,7 @@ RegulationWidget::RegulationWidget(int rows, int cols, QWidget* parent) : QWidge
             layout_->addWidget(label, i, j * 2);
             layout_->addWidget(edit, i, j * 2 + 1);
         }
-        layout_->setRowStretch(i, 0);
+        layout_->setRowStretch(i, 1);
     }
 
     for (int j = 0; j < cols; ++j) {

@@ -51,7 +51,6 @@ private:
     [[nodiscard]] bool is_pd_structure() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Criterion selected_criterion() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Law selected_law() const noexcept;
-    [[nodiscard]] numina::ControllerDesigner::Region selected_region() const noexcept;
     [[nodiscard]] bool build_plant(numina::TransferFunction& out);
     bool apply_plant(std::vector<double> num, std::vector<double> den, double tau);
 

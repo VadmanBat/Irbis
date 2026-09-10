@@ -191,7 +191,7 @@ Visible panels: bounds from write. Hidden: `boundsOf*` only; series built on sho
 | t / ω | `niceX=false` | `dataAxisRange`, Fixed exact (no snap → ω stays off 0) |
 | value Y | `niceY=true` | `niceAxisRange` + snap lattice through 0 |
 | КЧХ X/Y | both nice | same: majors at …,−s,0,s,… so grid crosses origin |
-| C₀–C₁ / C₁–C₂ | snap X/Y | 1–2–5 from 0; labels `%.4g`; ПИ: C₁–C₀; ПД: C₁–C₂; П/И без области; `+` pins selection with series color |
+| C₀–C₁ / C₂–C₁ | snap X/Y | 1–2–5 from 0; labels `%.4g`; ПИ: C₁–C₀; ПД: C₂–C₁; П/И без области; `+` pins selection with series color |
 
 Snap picks 1–2–5 step with **minimal** expansion (avoids old 160→200).  
 Guides `hor-line` / `ver-line` are not cloned into the viewer legend.
@@ -252,7 +252,7 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | TF clipboard format | `widgets/tf-form/*` IO (`Irbis-TF-v1`, reads legacy `RegValve-TF-v1`) |
 | Identification algorithm | prefer **numina** (`SimoyuIdentifier` / `IntegratorIdentifier`); UI in `id-tab` + `id-tab-run` |
 | RIM closed-loop sim | `RimTab` + `TfStepper` + `rim::idealPair`; math: `numina::PidController` |
-| Auto-synthesis P/I/PD/PI/PID (РКЧХ / Γ) | `controller_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` (ПИ: C₁–C₀, ПД: C₁–C₂; П/И без области) / `Wр` face, φ, criterion, law, region |
+| Auto-synthesis P/I/PD/PI/PID (РКЧХ) | `controller_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` (ПИ: C₁–C₀, ПД: C₂–C₁; П/И без области) / `Wр` face, φ, criterion, law |
 | Slider range / intervals | `SliderSettingsDialog` from `RegParameter` ⚙ |
 | TF inspector (poles, h(t), w(t), DE) | `dialogs/tran-func-dialog*`, `widgets/formula-view` |
 | Global chrome / buttons | `data/styles/app.qss` |
@@ -278,7 +278,7 @@ Tests (top-level, `IRBIS_BUILD_TESTS`): `nice_axis_test`, `tf_builder_test`, `tf
 
 1. **No shared session model** — each tab holds its own `ModelParam` / TF; UX doc recommends a session `PlantModel`.
 2. **RKCH** lives under Synthesis (`C0C1Chart`); RimTab is the discrete РИМ loop.
-3. **П / И / ПД / ПИ / ПИД / Авто** — `designP` / `designI` / `designPd` / `designPi` / `designPid` / `design()` (закон не подменяется). ПД: ЛРЗ в `(C₁,C₂)`; П и И — точка, без области. ПИД на `C₂*(ω)`; Γ — сектор только для ПИ. СКО настройки — H₂, не `QualityReport::sigma`.
+3. **П / И / ПД / ПИ / ПИД / Авто** — `designP` / `designI` / `designPd` / `designPi` / `designPid` / `design()` (закон не подменяется). ПД: ЛРЗ в `(C₂,C₁)`; П и И — точка, без области. ПИД на `C₂*(ω)`. Синтез только по РКЧХ. СКО настройки — H₂, не `QualityReport::sigma`.
 4. **UI polish** — see `docs/ux-ui-recommendations.md` (cards, TF read/edit modes).
 
 ---

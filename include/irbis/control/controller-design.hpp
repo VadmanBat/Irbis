@@ -10,12 +10,11 @@ using Spec      = Designer::Spec;
 using Design    = Designer::Design;
 using Law       = Designer::Law;
 using Criterion = Designer::Criterion;
-using Region    = Designer::Region;
 using Settings  = Designer::Settings;
 
 [[nodiscard]] bool usesPidFace(const Designer& des, Law law, Designer::Type w_hi_hint = 1e3) noexcept;
 
-/// 2D ЛРЗ: ПИ (C₀–C₁), ПД (C₁–C₂), ПИД/Авто-грань. П и И — точка, без области.
+/// 2D ЛРЗ: ПИ (C₀–C₁), ПД (C₂–C₁), ПИД/Авто-грань. П и И — точка, без области.
 [[nodiscard]] constexpr bool drawsRegion(Law law) noexcept {
     return law == Law::Pd || law == Law::Pi || law == Law::Pid || law == Law::Auto;
 }
@@ -29,7 +28,6 @@ struct Bundle {
     Design ikk;
     Design sko;
     Criterion chosen{Criterion::Lik};
-    bool gamma_pi{false};
     bool face{false};
 
     [[nodiscard]] const Design& selected() const noexcept;

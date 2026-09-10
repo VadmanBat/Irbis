@@ -10,7 +10,10 @@
 int main(int argc, char* argv[]) {
     QApplication app(argc, argv);
     QApplication::setApplicationName(QStringLiteral("Irbis"));
-    QApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/irbis.ico")));
+    QIcon app_icon(QStringLiteral(":/icons/irbis.svg"));
+    if (app_icon.isNull())
+        app_icon = QIcon(QStringLiteral(":/icons/irbis.ico"));
+    QApplication::setWindowIcon(app_icon);
 
     QLocale::setDefault(QLocale(QLocale::Russian));
 

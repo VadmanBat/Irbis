@@ -19,7 +19,9 @@ MainWindow::MainWindow(QWidget* parent) : QWidget(parent), ui(new Ui::MainWindow
     irbis::loadFonts();
     ui->setupUi(this);
     irbis::applyStyleSheet();
-    const QIcon app_icon(QStringLiteral(":/icons/irbis.ico"));
+    QIcon app_icon(QStringLiteral(":/icons/irbis.svg"));
+    if (app_icon.isNull())
+        app_icon = QIcon(QStringLiteral(":/icons/irbis.ico"));
     if (!app_icon.isNull()) {
         setWindowIcon(app_icon);
         qApp->setWindowIcon(app_icon);
@@ -50,9 +52,10 @@ void MainWindow::install_tab_corner() {
 
     auto* corner = new QWidget(ui->tabWidget);
     corner->setObjectName(QStringLiteral("tabCornerBar"));
-    auto* lay    = new QHBoxLayout(corner);
-    lay->setContentsMargins(10, 2, 8, 2);
+    auto* lay = new QHBoxLayout(corner);
+    lay->setContentsMargins(8, 0, 8, 0);
     lay->setSpacing(2);
+    lay->setAlignment(Qt::AlignVCenter);
 
     auto* sep = new QFrame(corner);
     sep->setObjectName(QStringLiteral("tabCornerSep"));
@@ -67,6 +70,8 @@ void MainWindow::install_tab_corner() {
         btn->setAutoRaise(true);
         btn->setFocusPolicy(Qt::TabFocus);
         btn->setCursor(Qt::PointingHandCursor);
+        btn->setToolButtonStyle(Qt::ToolButtonTextOnly);
+        btn->setFixedSize(24, 24);
         dialog_icons::applyGlyph(btn, glyph, 11);
         return btn;
     };
@@ -74,8 +79,8 @@ void MainWindow::install_tab_corner() {
     settings_btn_ = make_btn(QStringLiteral("tabSettingsButton"), QChar(0xf013),
                              tr("Параметры моделирования"));
     charts_btn_   = make_btn(QStringLiteral("tabChartsButton"), QChar(0xf201), tr("Настройка графиков"));
-    lay->addWidget(settings_btn_);
-    lay->addWidget(charts_btn_);
+    lay->addWidget(settings_btn_, 0, Qt::AlignVCenter);
+    lay->addWidget(charts_btn_, 0, Qt::AlignVCenter);
 
     ui->tabWidget->setCornerWidget(corner, Qt::TopRightCorner);
 

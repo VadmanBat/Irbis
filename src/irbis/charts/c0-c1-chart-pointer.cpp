@@ -7,7 +7,7 @@
 #include <QMouseEvent>
 #include <QValueAxis>
 
-bool C0C1Chart::value_at_pixel(const QPoint& viewport_pos, double& c0, double& c1) const {
+bool C0C1Chart::value_at_pixel(const QPoint& viewport_pos, double& x, double& y) const {
     if (!chart_ || !view_)
         return false;
 
@@ -30,14 +30,9 @@ bool C0C1Chart::value_at_pixel(const QPoint& viewport_pos, double& c0, double& c
 
     const double tx = (chart_pt.x() - plot.left()) / plot.width();
     const double ty = (plot.bottom() - chart_pt.y()) / plot.height();
-    const double x  = ax->min() + tx * (ax->max() - ax->min());
-    const double y  = ay->min() + ty * (ay->max() - ay->min());
-    if (!std::isfinite(x) || !std::isfinite(y))
-        return false;
-
-    c1 = x;
-    c0 = y;
-    return true;
+    x               = ax->min() + tx * (ax->max() - ax->min());
+    y               = ay->min() + ty * (ay->max() - ay->min());
+    return std::isfinite(x) && std::isfinite(y);
 }
 
 void C0C1Chart::handle_pointer(const QPoint& viewport_pos, bool force_emit) {
@@ -45,49 +40,47 @@ void C0C1Chart::handle_pointer(const QPoint& viewport_pos, bool force_emit) {
         return;
     last_pixel_ = viewport_pos;
 
-    double c0 = 0.0;
-    double c1 = 0.0;
-    if (!value_at_pixel(viewport_pos, c0, c1))
+    double x = 0.0;
+    double y = 0.0;
+    if (!value_at_pixel(viewport_pos, x, y))
         return;
 
-    const bool pd = plane_ == Plane::Pd;
-    if (pd)
-        setSelection(0.0, c1, c0);
-    else
-        setSelection(c0, c1);
+    const bool pd   = plane_ == Plane::Pd;
+    const double c1 = pd ? y : x;
+    const double c0 = pd ? 0.0 : y;
+    const double c2 = pd ? x : 0.0;
+    setSelection(c0, c1, c2);
 
-    double eps0 = 0.0;
-    double eps1 = 0.0;
+    double eps_x = 0.0;
+    double eps_y = 0.0;
     if (auto axes_x = chart_->axes(Qt::Horizontal); !axes_x.isEmpty()) {
         if (auto* ax = qobject_cast<QValueAxis*>(axes_x.constFirst())) {
             const double w = std::max(1.0, chart_->plotArea().width());
-            eps1           = 0.5 * (ax->max() - ax->min()) / w;
+            eps_x          = 0.5 * (ax->max() - ax->min()) / w;
         }
     }
     if (auto axes_y = chart_->axes(Qt::Vertical); !axes_y.isEmpty()) {
         if (auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst())) {
             const double h = std::max(1.0, chart_->plotArea().height());
-            eps0           = 0.5 * (ay->max() - ay->min()) / h;
+            eps_y          = 0.5 * (ay->max() - ay->min()) / h;
         }
     }
-    if (!force_emit && nearly_same(c0, last_emit_c0_, eps0) && nearly_same(c1, last_emit_c1_, eps1))
+    if (!force_emit && nearly_same(x, last_emit_x_, eps_x) && nearly_same(y, last_emit_y_, eps_y))
         return;
 
-    last_emit_c0_ = c0;
-    last_emit_c1_ = c1;
+    last_emit_x_ = x;
+    last_emit_y_ = y;
 
     Sample s;
+    s.c0    = c0;
     s.c1    = c1;
+    s.c2    = c2;
     s.kp    = c1;
     s.omega = 0.0;
-    if (pd) {
-        s.c2 = c0;
-        s.td = (c1 > 0.0) ? (c0 / c1) : 0.0;
-    }
-    else {
-        s.c0 = c0;
+    if (pd)
+        s.td = (c1 > 0.0) ? (c2 / c1) : 0.0;
+    else
         s.ti = (c0 > 0.0 && c1 > 0.0) ? (c1 / c0) : 0.0;
-    }
     emit samplePicked(s);
 }
 
@@ -100,8 +93,8 @@ bool C0C1Chart::eventFilter(QObject* watched, QEvent* event) {
             auto* me = static_cast<QMouseEvent*>(event);
             if (me->button() != Qt::LeftButton)
                 break;
-            double c0 = 0.0, c1 = 0.0;
-            if (!value_at_pixel(me->pos(), c0, c1))
+            double x = 0.0, y = 0.0;
+            if (!value_at_pixel(me->pos(), x, y))
                 return false;
             dragging_   = true;
             last_pixel_ = {-1, -1};

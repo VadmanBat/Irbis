@@ -23,46 +23,49 @@ void C0C1Chart::apply_axis_titles() {
     auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
     if (!ax || !ay)
         return;
-    const QString y_name = plane_ == Plane::Pd ? QStringLiteral("C₂") : QStringLiteral("C₀");
+    const QString x_name = axis_x_name();
+    const QString y_name = axis_y_name();
     // Keep title text for the detached viewer; hide them here — they steal plot area.
-    ax->setTitleText(QStringLiteral("C₁"));
+    ax->setTitleText(x_name);
     ay->setTitleText(y_name);
     ax->setTitleVisible(false);
     ay->setTitleVisible(false);
 
-    if (!tag_c1_) {
-        tag_c1_ = new QGraphicsSimpleTextItem(QStringLiteral("C₁"), chart_);
-        tag_c1_->setZValue(20);
-    }
-    if (!tag_c0_) {
-        tag_c0_ = new QGraphicsSimpleTextItem(y_name, chart_);
-        tag_c0_->setZValue(20);
+    if (!tag_x_) {
+        tag_x_ = new QGraphicsSimpleTextItem(x_name, chart_);
+        tag_x_->setZValue(20);
     }
     else {
-        tag_c0_->setText(y_name);
+        tag_x_->setText(x_name);
+    }
+    if (!tag_y_) {
+        tag_y_ = new QGraphicsSimpleTextItem(y_name, chart_);
+        tag_y_->setZValue(20);
+    }
+    else {
+        tag_y_->setText(y_name);
     }
     QFont f = chart_->font();
     f.setPointSize(9);
     f.setBold(true);
-    tag_c1_->setFont(f);
-    tag_c0_->setFont(f);
+    tag_x_->setFont(f);
+    tag_y_->setFont(f);
     const QBrush ink(chart_utils::currentTheme().text);
-    tag_c1_->setBrush(ink);
-    tag_c0_->setBrush(ink);
+    tag_x_->setBrush(ink);
+    tag_y_->setBrush(ink);
     place_axis_tags();
 }
 
 void C0C1Chart::place_axis_tags() {
-    if (!chart_ || !tag_c1_ || !tag_c0_)
+    if (!chart_ || !tag_x_ || !tag_y_)
         return;
     const QRectF plot = chart_->plotArea();
     if (!plot.isValid() || plot.width() < 8.0 || plot.height() < 8.0)
         return;
     constexpr qreal pad = 3.0;
-    const QRectF r1     = tag_c1_->boundingRect();
-    const QRectF r0     = tag_c0_->boundingRect();
-    tag_c1_->setPos(plot.right() - r1.width() - pad, plot.bottom() - r1.height() - pad);
-    tag_c0_->setPos(plot.left() + pad, plot.top() + pad);
+    const QRectF rx     = tag_x_->boundingRect();
+    tag_x_->setPos(plot.right() - rx.width() - pad, plot.bottom() - rx.height() - pad);
+    tag_y_->setPos(plot.left() + pad, plot.top() + pad);
 }
 
 void C0C1Chart::ensure_selection_visible() {
@@ -76,8 +79,8 @@ void C0C1Chart::ensure_selection_visible() {
     auto* ay = qobject_cast<QValueAxis*>(axes_y.constFirst());
     if (!ax || !ay)
         return;
-    const double y     = sel_y();
-    const bool outside = sel_c1_ < ax->min() || sel_c1_ > ax->max() || y < ay->min() || y > ay->max();
+    const QPointF p    = to_plot(sel_c0_, sel_c1_, sel_c2_);
+    const bool outside = p.x() < ax->min() || p.x() > ax->max() || p.y() < ay->min() || p.y() > ay->max();
     if (outside)
         refit_axes();
 }
@@ -98,8 +101,10 @@ void C0C1Chart::refit_axes() {
         b.min_y = std::min(b.min_y, y);
         b.max_y = std::max(b.max_y, y);
     };
-    for (const auto& s : locus_)
-        expand(s.c1, plane_ == Plane::Pd ? s.c2 : s.c0);
+    for (const auto& s : locus_) {
+        const QPointF p = to_plot(s.c0, s.c1, s.c2);
+        expand(p.x(), p.y());
+    }
     for (QScatterSeries* sc : {opt_lik_, opt_ikk_, opt_sko_, selection_series_}) {
         if (!sc)
             continue;

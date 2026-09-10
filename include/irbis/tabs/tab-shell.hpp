@@ -29,16 +29,21 @@ inline bool editChartVisibility(QWidget* parent, ResponseChartBank* charts) {
     return true;
 }
 
-inline void mountInHost(QWidget* host, QWidget* child, Qt::Alignment align) {
+inline void mountInHost(QWidget* host, QWidget* child, Qt::Alignment align, int stretch = 0) {
     QLayout* layout = host->layout();
     if (!layout) {
         auto* box = new QVBoxLayout(host);
         box->setContentsMargins(0, 0, 0, 0);
         layout = box;
     }
-    layout->addWidget(child);
-    if (auto* box = qobject_cast<QBoxLayout*>(layout))
-        box->setAlignment(child, align);
+    if (auto* box = qobject_cast<QBoxLayout*>(layout)) {
+        box->addWidget(child, stretch);
+        if (align)
+            box->setAlignment(child, align);
+    }
+    else {
+        layout->addWidget(child);
+    }
 }
 
 inline void showError(QWidget* parent, const QString& title, const QString& message) {
