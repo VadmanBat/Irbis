@@ -4,14 +4,17 @@
 #include "irbis/util/format.hxx"
 #include "irbis/widgets/formula-view.h"
 #include "irbis/widgets/tf-display-widget.h"
+#include "irbis/widgets/tf-h-scroll.h"
 #include "numina/classes/calculus/laplace-solution.h"
 #include "ui_tran-func-dialog.h"
 
 #include <QApplication>
+#include <QBoxLayout>
 #include <QClipboard>
 #include <QMenu>
 #include <QPushButton>
 #include <QShowEvent>
+#include <QSizePolicy>
 #include <QStyle>
 #include <QToolButton>
 #include <QToolTip>
@@ -110,6 +113,10 @@ TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* pare
     paint_bg(ui->solutionsCard);
     paint_bg(ui->deCard);
     paint_bg(ui->formulaHost);
+    ui->formulaHost->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    ui->formulaHost->setMinimumWidth(0);
+    if (auto* box = qobject_cast<QBoxLayout*>(ui->formulaHost->layout()))
+        TfHScroll::wrapInLayout(ui->formula, box);
     paint_bg(ui->htBlock);
     paint_bg(ui->wtBlock);
     paint_bg(ui->odeBlock);

@@ -11,6 +11,8 @@
 
 #include <QBoxLayout>
 #include <QMessageBox>
+#include <QSizePolicy>
+#include <QSpacerItem>
 #include <QVBoxLayout>
 #include <QWidget>
 #include <vector>
@@ -28,6 +30,19 @@ inline bool editChartVisibility(QWidget* parent, ResponseChartBank* charts) {
         return false;
     charts->setVisibility(dialog.data());
     return true;
+}
+
+inline void giveRemainingWidth(QWidget* host, QBoxLayout* row, int host_index = 0) {
+    host->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+    host->setMinimumWidth(0);
+    if (!row)
+        return;
+    row->setStretch(host_index, 1);
+    if (row->count() <= host_index + 1)
+        return;
+    row->setStretch(host_index + 1, 0);
+    if (QSpacerItem* sp = row->itemAt(host_index + 1)->spacerItem())
+        sp->changeSize(0, 0, QSizePolicy::Fixed, QSizePolicy::Minimum);
 }
 
 inline void mountInHost(QWidget* host, QWidget* child, Qt::Alignment align, int stretch = 0) {

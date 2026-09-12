@@ -10,6 +10,7 @@ set(irbis_SOURCES
         src/irbis/tabs/synthesis-tab-synth.cpp
         src/irbis/tabs/synthesis-tab-apply.cpp
         src/irbis/tabs/synthesis-tab-face.cpp
+        src/irbis/tabs/synthesis-tab-law.cpp
         src/irbis/tabs/rim-tab.cpp
         src/irbis/tabs/rim-tab-run.cpp
 
@@ -32,7 +33,9 @@ set(irbis_SOURCES
         src/irbis/widgets/reg-parameter-range.cpp
         src/irbis/widgets/regulation-widget.cpp
         src/irbis/widgets/tf-display-widget.cpp
+        src/irbis/widgets/tf-h-scroll.cpp
         src/irbis/widgets/tf-formula-panel.cpp
+        src/irbis/widgets/tf-formula-panel-actions.cpp
         src/irbis/widgets/formula-view.cpp
 
         src/irbis/charts/chart-panel.cpp

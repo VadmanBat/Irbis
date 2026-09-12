@@ -5,9 +5,11 @@
 #include "irbis/util/secondary-text.hxx"
 #include "irbis/util/tf-builder.hpp"
 #include "irbis/widgets/tf-display-widget.h"
+#include "irbis/widgets/tf-h-scroll.h"
 #include "ui_tf-input-dialog.h"
 
 #include <QAbstractButton>
+#include <QBoxLayout>
 #include <QButtonGroup>
 #include <QDoubleSpinBox>
 #include <QFrame>
@@ -67,6 +69,8 @@ TfInputDialog::TfInputDialog(QWidget* parent) : QDialog(parent), ui(new Ui::TfIn
         ui->orderLowButton->setChecked(!high_first_);
     }
     ui->preview->setTitle(QStringLiteral("W(p) = "));
+    if (auto* box = qobject_cast<QBoxLayout*>(ui->previewGroup->layout()))
+        TfHScroll::wrapInLayout(ui->preview, box);
     refresh_preview();
 }
 

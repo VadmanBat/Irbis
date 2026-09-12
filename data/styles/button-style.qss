@@ -101,13 +101,17 @@ QPushButton#clearButton:pressed {
     padding: 3px;
 }
 
-/* Analysis: labeled action column next to quality metrics */
+/* Analysis / Synthesis: labeled action column next to quality metrics */
 QWidget#analysisActions QPushButton#addButton,
 QWidget#analysisActions QPushButton#replaceButton,
-QWidget#analysisActions QPushButton#clearButton {
-    min-width: 132px;
+QWidget#analysisActions QPushButton#clearButton,
+QWidget#synthesisActions QPushButton#addButton,
+QWidget#synthesisActions QPushButton#autoSynthButton,
+QWidget#synthesisActions QPushButton#clearButton {
+    min-width: 106px;
+    max-width: 106px;
     min-height: 24px;
-    padding: 4px 12px;
+    padding: 4px 8px;
     font-size: 10.5pt;
     text-align: left;
 }
@@ -151,28 +155,64 @@ QFrame#tfModelCard {
     border: 1px solid palette(mid);
     border-radius: 8px;
 }
+QFrame#tfModelCard:hover {
+    border-color: palette(highlight);
+}
+
+QFrame#tfFormulaPanel:hover {
+    background-color: rgba(127, 127, 127, 0.06);
+    border-radius: 6px;
+}
 
 QLabel#tfLinkName {
     font-size: 9.5pt;
     padding-top: 2px;
 }
 
-QFrame#idModelCard QPushButton#copyTfButton,
-QFrame#idModelCard QPushButton#equationsButton {
-    min-width: 180px;
+QScrollBar#tfFormulaBar:horizontal {
+    height: 12px;
+    margin: 0;
+    background: rgba(127, 127, 127, 0.35);
+    border: none;
+    border-radius: 6px;
+}
+QScrollBar#tfFormulaBar::handle:horizontal {
+    min-width: 32px;
+    border-radius: 5px;
+    background: palette(window-text);
+}
+QScrollBar#tfFormulaBar::handle:horizontal:hover {
+    background: palette(highlight);
+}
+QScrollBar#tfFormulaBar::add-line:horizontal,
+QScrollBar#tfFormulaBar::sub-line:horizontal {
+    width: 0;
+    height: 0;
+    border: none;
+    background: none;
+}
+QScrollBar#tfFormulaBar::add-page:horizontal,
+QScrollBar#tfFormulaBar::sub-page:horizontal {
+    background: transparent;
+}
+
+QWidget#tfHoverActions {
+    background-color: palette(base);
+    border: 1px solid palette(mid);
+    border-radius: 6px;
 }
 
 QPushButton#editTfButton,
 QPushButton#copyTfButton,
 QPushButton#pasteTfButton,
 QPushButton#equationsButton {
-    min-width: 120px;
-    min-height: 0;
-    padding: 1px 10px;
-    font-size: 9.5pt;
+    min-width: 0;
+    min-height: 22px;
+    padding: 1px 8px;
+    font-size: 9pt;
     color: white;
     border-style: outset;
-    border-width: 2px;
+    border-width: 1px;
     border-radius: 4px;
 }
 

@@ -4,7 +4,7 @@
  <widget class="QWidget" name="AnalysisTab">
   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
    <item>
-    <layout class="QHBoxLayout" name="topLayout" stretch="0,1,0,0">
+    <layout class="QHBoxLayout" name="topLayout" stretch="1,0,0,0">
      <property name="spacing">
       <number>8</number>
      </property>

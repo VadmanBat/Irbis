@@ -33,6 +33,7 @@ void AnalysisTab::install_custom_widgets() {
     panel_->setTitle(QStringLiteral("W(p) = "));
     panel_->setExactDelaySolutions(true);
     panel_->setPasteVisible(true);
+    tab_ui::giveRemainingWidth(ui->formHost, ui->topLayout);
     tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft, 1);
     tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight, 1);
     for (QPushButton* btn : {ui->addButton, ui->replaceButton, ui->clearButton})

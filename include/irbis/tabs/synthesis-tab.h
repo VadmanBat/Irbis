@@ -51,6 +51,12 @@ private:
     [[nodiscard]] bool is_pd_structure() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Criterion selected_criterion() const noexcept;
     [[nodiscard]] numina::ControllerDesigner::Law selected_law() const noexcept;
+    void apply_law_channels();
+    void sync_law_from_params();
+    void update_stability_region();
+    void on_law_changed();
+    void on_phi_changed();
+    void on_params_toggled();
     [[nodiscard]] bool build_plant(numina::TransferFunction& out);
     bool apply_plant(std::vector<double> num, std::vector<double> den, double tau);
 

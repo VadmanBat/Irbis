@@ -144,6 +144,7 @@ bool SynthesisTab::apply_plant(std::vector<double> num, std::vector<double> den,
     refresh_closed_display();
     if (!ui->charts->empty())
         replaceTransferFunction();
+    update_stability_region();
     return true;
 }
 

@@ -11,6 +11,8 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QClipboard>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QToolButton>
@@ -28,6 +30,8 @@ SynthesisTab::SynthesisTab(QWidget* parent) : QWidget(parent), ui(new Ui::Synthe
     connect(ui->autoSynthButton, &QPushButton::clicked, this, &SynthesisTab::autoSynthesize);
     connect(ui->addButton, &QPushButton::clicked, this, &SynthesisTab::addTransferFunction);
     connect(ui->clearButton, &QPushButton::clicked, this, &SynthesisTab::clearCharts);
+    connect(ui->lawCombo, &QComboBox::currentIndexChanged, this, [this](int) { on_law_changed(); });
+    connect(ui->phiSpin, &QDoubleSpinBox::valueChanged, this, [this](double) { on_phi_changed(); });
     connect(panel_, &TfFormulaPanel::editRequested, this, &SynthesisTab::editPlant);
     connect(panel_, &TfFormulaPanel::pasteRequested, this, &SynthesisTab::pastePlant);
     connect(ui->c0c1Chart, &C0C1Chart::samplePicked, this, &SynthesisTab::onSamplePicked);
@@ -71,8 +75,11 @@ void SynthesisTab::install_custom_widgets() {
     panel_->setTitle(QStringLiteral("W<sub>АСР</sub>(p) = "));
     panel_->setExactDelaySolutions(false);
     panel_->setPasteVisible(true);
+    tab_ui::giveRemainingWidth(ui->formHost, ui->topLayout);
     tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft | Qt::AlignVCenter);
-    tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight | Qt::AlignVCenter);
+    tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight, 1);
+    for (QPushButton* btn : {ui->addButton, ui->clearButton, ui->autoSynthButton})
+        btn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
 
     parameters_ = {
         new RegParameter(QStringLiteral("K<sub>p</sub>"), 0.01, 2000, 0.01, 3, this),
@@ -84,12 +91,7 @@ void SynthesisTab::install_custom_widgets() {
     int row = 0;
     for (auto* p : parameters_) {
         p->placeIn(ui->paramsLayout, row++);
-        connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) {
-            update_c0c1_visibility();
-            sync_c0c1_selection_from_params();
-            refresh_closed_display();
-            replaceTransferFunction();
-        });
+        connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) { on_params_toggled(); });
         connect(p, &RegParameter::valueChanged, this, [this](double) {
             update_regulator_face();
             sync_c0c1_selection_from_params();
@@ -160,6 +162,7 @@ void SynthesisTab::clearCharts() {
     ui->charts->clearAll();
     metrics_->updateValues({});
     ui->c0c1Chart->clear();
+    update_stability_region();
 }
 
 void SynthesisTab::editPlant() {
