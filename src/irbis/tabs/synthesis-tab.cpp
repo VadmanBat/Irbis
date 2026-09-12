@@ -81,9 +81,9 @@ void SynthesisTab::install_custom_widgets() {
     tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight, 1);
     for (QPushButton* btn : {ui->addButton, ui->clearButton, ui->autoSynthButton})
         btn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
-    dialog_icons::applyGlyphIcon(ui->addButton, QChar(0xf1fe));         // chart-area
-    dialog_icons::applyGlyphIcon(ui->clearButton, QChar(0xf12d));       // eraser
-    dialog_icons::applyGlyphIcon(ui->autoSynthButton, QChar(0xf568));   // compass-drafting
+    dialog_icons::applyGlyphIcon(ui->addButton, QChar(0xf1fe));       // chart-area
+    dialog_icons::applyGlyphIcon(ui->clearButton, QChar(0xf12d));     // eraser
+    dialog_icons::applyGlyphIcon(ui->autoSynthButton, QChar(0xf568)); // compass-drafting
 
     parameters_ = {
         new RegParameter(pid_ui::kp(), 0.01, 2000, 0.01, 3, this),

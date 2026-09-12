@@ -3,9 +3,9 @@
 #include "irbis/util/tf-builder.hpp"
 #include "ui_synthesis-tab.h"
 
+#include <exception>
 #include <QCheckBox>
 #include <QComboBox>
-#include <exception>
 #include <sstream>
 #include <utility>
 
@@ -127,7 +127,7 @@ numina::ControllerDesigner::Law SynthesisTab::selected_law() const noexcept {
 bool SynthesisTab::build_plant(numina::TransferFunction& out) {
     if (!has_plant_ || !tf_builder::validInput(plant_num_, plant_den_))
         return false;
-    out = tf_builder::plant(plant_num_, plant_den_, plant_tau_, model_param_.approxOrder);
+    out       = tf_builder::plant(plant_num_, plant_den_, plant_tau_, model_param_.approxOrder);
     plant_tf_ = out;
     return true;
 }
@@ -137,10 +137,10 @@ bool SynthesisTab::apply_plant(std::vector<double> num, std::vector<double> den,
         show_error(err);
         return false;
     }
-    plant_num_  = std::move(num);
-    plant_den_  = std::move(den);
-    plant_tau_  = tau < 0.0 ? 0.0 : tau;
-    has_plant_  = true;
+    plant_num_ = std::move(num);
+    plant_den_ = std::move(den);
+    plant_tau_ = tau < 0.0 ? 0.0 : tau;
+    has_plant_ = true;
     refresh_closed_display();
     if (!ui->charts->empty())
         replaceTransferFunction();
@@ -167,7 +167,7 @@ bool SynthesisTab::refresh_closed_display() {
         const int order = model_param_.approxOrder;
         plant_tf_       = tf_builder::plant(plant_num_, plant_den_, plant_tau_, order);
         current_tf_     = tf_builder::closedLoop(plant_num_, plant_den_, std::move(ctrl_num).extractCoeffs(),
-                                                std::move(ctrl_den).extractCoeffs(), plant_tau_, order);
+                                                 std::move(ctrl_den).extractCoeffs(), plant_tau_, order);
         panel_->setTransferFunction(current_tf_);
         return true;
     }

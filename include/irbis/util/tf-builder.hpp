@@ -116,8 +116,8 @@ inline bool hasZeroDenConstant(const numina::TransferFunction& tf) noexcept {
 
 /// Auto КЧХ starts at ω=0; D(0)=0 → W(j0) undefined. Range: pole cutoffs, lower by 3 decades.
 inline std::pair<double, double> astaticFreqRange(const numina::TransferFunction& tf) {
-    double w_lo = 0.0;
-    double w_hi = 0.0;
+    double w_lo         = 0.0;
+    double w_hi         = 0.0;
     const auto consider = [&](double a) {
         if (!(a > 1e-12))
             return;

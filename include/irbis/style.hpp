@@ -9,4 +9,3 @@ void loadFonts();
 void applyStyleSheet();
 [[nodiscard]] QString defaultStyleSheet();
 }
-

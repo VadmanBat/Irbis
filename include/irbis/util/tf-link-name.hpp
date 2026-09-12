@@ -1,9 +1,9 @@
 #pragma once
 
 #include <cmath>
-#include <vector>
 #include <QCoreApplication>
 #include <QString>
+#include <vector>
 
 /// Classic link name from the pattern of non-zero powers (same table as the old TranFuncForm).
 namespace tf_link_name {

@@ -1,8 +1,7 @@
-#include "irbis/widgets/tf-formula-panel.h"
-
 #include "irbis/dialogs/tran-func-dialog.h"
 #include "irbis/util/secondary-text.hxx"
 #include "irbis/util/tf-link-name.hpp"
+#include "irbis/widgets/tf-formula-panel.h"
 
 #include <QContextMenuEvent>
 #include <QCoreApplication>
@@ -136,7 +135,7 @@ void TfFormulaPanel::update_link_name() {
         name_label_->clear();
         return;
     }
-    link_name_ = tf_link_name::describe(display_->numerator(), display_->denominator(), display_->delay());
+    link_name_            = tf_link_name::describe(display_->numerator(), display_->denominator(), display_->delay());
     const QString unknown = QCoreApplication::translate("tf_link_name", "Неизвестно");
     if (link_name_.startsWith(unknown))
         name_label_->clear();
@@ -149,8 +148,8 @@ void TfFormulaPanel::copy_clicked() {
     if (display_->isEmpty())
         return;
     display_->copyToClipboard();
-    QToolTip::showText(copy_btn_->mapToGlobal(QPoint(0, copy_btn_->height())), tr("ПФ скопирована"), copy_btn_,
-                       QRect(), 1500);
+    QToolTip::showText(copy_btn_->mapToGlobal(QPoint(0, copy_btn_->height())), tr("ПФ скопирована"), copy_btn_, QRect(),
+                       1500);
 }
 
 void TfFormulaPanel::details_clicked() {
@@ -205,7 +204,7 @@ bool TfFormulaPanel::eventFilter(QObject* watched, QEvent* event) {
     if (hbar_->maximum() <= hbar_->minimum())
         return QFrame::eventFilter(watched, event);
 
-    const auto* wheel = static_cast<const QWheelEvent*>(event);
+    const auto* wheel  = static_cast<const QWheelEvent*>(event);
     const QPoint pixel = wheel->pixelDelta();
     const QPoint angle = wheel->angleDelta();
     const QPoint delta = pixel.isNull() ? angle / 8 : pixel;

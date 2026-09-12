@@ -27,4 +27,3 @@ HelpDialog::HelpDialog(Topic topic, QWidget* parent) : QDialog(parent), ui(new U
 HelpDialog::~HelpDialog() {
     delete ui;
 }
-

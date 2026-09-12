@@ -73,8 +73,7 @@ void MainWindow::install_tab_corner() {
     };
 
     help_btn_     = make_btn(QStringLiteral("tabHelpButton"), QChar(0xf059), tr("Справка"));
-    settings_btn_ = make_btn(QStringLiteral("tabSettingsButton"), QChar(0xf013),
-                             tr("Параметры моделирования"));
+    settings_btn_ = make_btn(QStringLiteral("tabSettingsButton"), QChar(0xf013), tr("Параметры моделирования"));
     charts_btn_   = make_btn(QStringLiteral("tabChartsButton"), QChar(0xf201), tr("Настройка графиков"));
 
     auto* sep = new QFrame(corner);
@@ -97,8 +96,8 @@ void MainWindow::install_tab_corner() {
 }
 
 void MainWindow::sync_tab_corner() {
-    auto* page     = ui->tabWidget->currentWidget();
-    const bool on  = qobject_cast<AnalysisTab*>(page) || qobject_cast<SynthesisTab*>(page);
+    auto* page    = ui->tabWidget->currentWidget();
+    const bool on = qobject_cast<AnalysisTab*>(page) || qobject_cast<SynthesisTab*>(page);
     settings_btn_->setEnabled(on);
     charts_btn_->setEnabled(on);
 }

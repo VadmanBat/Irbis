@@ -43,12 +43,9 @@ void loadFonts() {
 QString defaultStyleSheet() {
     init_irbis_resources();
     const QStringList candidates = {
-        QStringLiteral("data/styles/app.qss"),
-        QStringLiteral("styles/app.qss"),
-        QStringLiteral(":/irbis/styles/app.qss"),
-        QStringLiteral("data/styles/button-style.qss"),
-        QStringLiteral("styles/button-style.qss"),
-        QStringLiteral(":/irbis/styles/button-style.qss"),
+        QStringLiteral("data/styles/app.qss"),     QStringLiteral("styles/app.qss"),
+        QStringLiteral(":/irbis/styles/app.qss"),  QStringLiteral("data/styles/button-style.qss"),
+        QStringLiteral("styles/button-style.qss"), QStringLiteral(":/irbis/styles/button-style.qss"),
     };
     for (const QString& path : candidates) {
         const QString qss = read_qss(path);
@@ -70,4 +67,3 @@ void applyStyleSheet() {
     qApp->setFont(font);
 }
 }
-

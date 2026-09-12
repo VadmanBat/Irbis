@@ -4,11 +4,11 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <vector>
 #include <QObject>
 #include <QRegularExpression>
 #include <QString>
 #include <QStringList>
+#include <vector>
 
 /// Irbis-TF-v1 clipboard interchange (also reads legacy RegValve-TF-v1).
 /// Coefficient vectors are high→low (leading = highest power), leading zeros stripped.
@@ -132,8 +132,8 @@ inline void stripLeadingZeros(Vec& v) {
             continue;
         }
         if (line.startsWith(QStringLiteral("tau:"), Qt::CaseInsensitive)) {
-            bool ok   = false;
-            data.tau  = num_format::parse(line.mid(4), &ok);
+            bool ok  = false;
+            data.tau = num_format::parse(line.mid(4), &ok);
             if (!ok || data.tau < 0.0)
                 data.tau = 0.0;
             continue;

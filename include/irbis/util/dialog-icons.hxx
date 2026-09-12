@@ -289,10 +289,9 @@ inline void applyGlyph(QAbstractButton* button, QChar glyph, int point_size = 9)
     if (logical_px <= 0)
         return ic;
     const QString text(glyph);
-    const QFont font = detail::awesome_font(logical_px);
+    const QFont font   = detail::awesome_font(logical_px);
     const QRectF tight = QFontMetricsF(font).tightBoundingRect(text);
-    const QPointF pos((logical_px - tight.width()) / 2.0 - tight.x(),
-                      (logical_px - tight.height()) / 2.0 - tight.y());
+    const QPointF pos((logical_px - tight.width()) / 2.0 - tight.x(), (logical_px - tight.height()) / 2.0 - tight.y());
     for (const int dpr : {1, 2, 3}) {
         QPixmap pm(logical_px * dpr, logical_px * dpr);
         pm.fill(Qt::transparent);

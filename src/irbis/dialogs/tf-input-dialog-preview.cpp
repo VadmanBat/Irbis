@@ -1,5 +1,4 @@
 #include "irbis/dialogs/tf-input-dialog.h"
-
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/style-core.hpp"
 #include "irbis/util/tf-builder.hpp"
@@ -61,8 +60,7 @@ void TfInputDialog::clear_error() {
     style_error_state(false, false, false);
 }
 
-bool TfInputDialog::collect_valid(Vec& num, Vec& den, double& tau, QString* error, bool* num_bad,
-                                  bool* den_bad) const {
+bool TfInputDialog::collect_valid(Vec& num, Vec& den, double& tau, QString* error, bool* num_bad, bool* den_bad) const {
     if (num_bad)
         *num_bad = false;
     if (den_bad)
@@ -137,4 +135,3 @@ void TfInputDialog::refresh_preview() {
 void TfInputDialog::onFieldsChanged() {
     refresh_preview();
 }
-

@@ -8,8 +8,7 @@
 #include <QLayout>
 #include <QPushButton>
 
-ChartVisDialog::ChartVisDialog(ChartVisibility vis, QWidget* parent)
-    : QDialog(parent), ui(new Ui::ChartVisDialog) {
+ChartVisDialog::ChartVisDialog(ChartVisibility vis, QWidget* parent) : QDialog(parent), ui(new Ui::ChartVisDialog) {
     ui->setupUi(this);
     dialog_icons::apply(this, dialog_icons::Kind::ChartProps);
     secondary_text::apply(ui->hintLabel);
@@ -19,9 +18,7 @@ ChartVisDialog::ChartVisDialog(ChartVisibility vis, QWidget* parent)
 
     apply_to_checks(vis);
 
-    auto wire = [this](QCheckBox* box) {
-        connect(box, &QCheckBox::toggled, this, &ChartVisDialog::keep_at_least_one);
-    };
+    auto wire = [this](QCheckBox* box) { connect(box, &QCheckBox::toggled, this, &ChartVisDialog::keep_at_least_one); };
     wire(ui->transientCheck);
     wire(ui->impulseCheck);
     wire(ui->nyquistCheck);
@@ -68,4 +65,3 @@ void ChartVisDialog::keep_at_least_one() {
     box->setChecked(true);
     box->blockSignals(false);
 }
-

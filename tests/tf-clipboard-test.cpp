@@ -1,5 +1,6 @@
-#include "irbis/util/format.hxx"
 #include "irbis/util/tf-clipboard.hpp"
+
+#include "irbis/util/format.hxx"
 
 #include <cstdio>
 #include <cstdlib>
@@ -60,10 +61,8 @@ int main() {
     expect_eq("roundtrip tau", data.tau, 0.5);
     expect_eq("roundtrip den[0]", data.den[0], 1.0);
 
-    expect_true("poly high skips zero",
-                num_format::polyPlainHighFirst({1.0, 0.0, 2.0}) == QStringLiteral("p^2 + 2"));
-    expect_true("poly low skips zero",
-                num_format::polyPlainLowFirst({1.0, 0.0, 2.0}) == QStringLiteral("2 + p^2"));
+    expect_true("poly high skips zero", num_format::polyPlainHighFirst({1.0, 0.0, 2.0}) == QStringLiteral("p^2 + 2"));
+    expect_true("poly low skips zero", num_format::polyPlainLowFirst({1.0, 0.0, 2.0}) == QStringLiteral("2 + p^2"));
 
     expect_true("bad token", !tf_clipboard::parsePolyLine(QStringLiteral("1 x 2"), true, high, &err));
 

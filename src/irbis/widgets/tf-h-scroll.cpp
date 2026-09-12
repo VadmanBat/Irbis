@@ -136,7 +136,7 @@ bool TfHScroll::eventFilter(QObject* watched, QEvent* event) {
     if (hbar_->maximum() <= hbar_->minimum())
         return QWidget::eventFilter(watched, event);
 
-    const auto* wheel = static_cast<const QWheelEvent*>(event);
+    const auto* wheel  = static_cast<const QWheelEvent*>(event);
     const QPoint pixel = wheel->pixelDelta();
     const QPoint angle = wheel->angleDelta();
     const QPoint delta = pixel.isNull() ? angle / 8 : pixel;
@@ -147,4 +147,3 @@ bool TfHScroll::eventFilter(QObject* watched, QEvent* event) {
     hbar_->setValue(hbar_->value() - step);
     return true;
 }
-

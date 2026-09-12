@@ -22,4 +22,3 @@ public:
 
     [[nodiscard]] ChartVisibility data() const;
 };
-

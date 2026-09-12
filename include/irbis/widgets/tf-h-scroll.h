@@ -34,4 +34,3 @@ public:
     [[nodiscard]] QSize minimumSizeHint() const override;
     [[nodiscard]] QWidget* content() const noexcept { return content_; }
 };
-

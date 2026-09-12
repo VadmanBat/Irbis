@@ -87,9 +87,9 @@ void AnalysisTab::openChartSettings() {
 }
 
 void AnalysisTab::editPlant() {
-    auto num    = panel_->display()->numerator();
-    auto den    = panel_->display()->denominator();
-    double tau  = panel_->display()->delay();
+    auto num   = panel_->display()->numerator();
+    auto den   = panel_->display()->denominator();
+    double tau = panel_->display()->delay();
     if (!TfInputDialog::edit(this, num, den, tau, QStringLiteral("W(p)")))
         return;
     apply_plant(std::move(num), std::move(den), tau);

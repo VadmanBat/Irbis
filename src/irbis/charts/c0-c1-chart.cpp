@@ -342,9 +342,9 @@ void C0C1Chart::setSelection(double c0, double c1, double c2) {
     }
     const QPointF p = to_plot(c0, c1, c2);
     has_selection_  = std::isfinite(p.x()) && std::isfinite(p.y());
-    sel_c0_        = c0;
-    sel_c1_        = c1;
-    sel_c2_        = c2;
+    sel_c0_         = c0;
+    sel_c1_         = c1;
+    sel_c2_         = c2;
     update_selection_marker();
     if (!dragging_)
         ensure_selection_visible();

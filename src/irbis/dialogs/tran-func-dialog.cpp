@@ -94,7 +94,6 @@ QString de_text(const numina::TransferFunction& tf, DeKind kind, TfFormat format
     QString text = QString::fromStdString(raw);
     return format == TfFormat::Html ? as_html(std::move(text)) : text;
 }
-
 }
 
 TranFuncDialog::TranFuncDialog(const numina::TransferFunction& tf, QWidget* parent, double delayTau)

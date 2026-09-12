@@ -40,8 +40,8 @@ int main() {
 
     const auto pd = controller_design::locus(des, Law::Pd);
     expect_true("PD locus nonempty", !pd.empty());
-    bool pd_ok  = !pd.empty();
-    bool pd_in  = false;
+    bool pd_ok = !pd.empty();
+    bool pd_in = false;
     for (const auto& s : pd) {
         if (s.law != Law::Pd || !std::isfinite(s.c1) || !std::isfinite(s.c2) || s.c1 < 0.0 || s.c2 < 0.0)
             pd_ok = false;

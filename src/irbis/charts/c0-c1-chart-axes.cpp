@@ -6,9 +6,9 @@
 #include <QChart>
 #include <QFont>
 #include <QGraphicsSimpleTextItem>
-#include <QString>
 #include <QResizeEvent>
 #include <QScatterSeries>
+#include <QString>
 #include <QTimer>
 #include <QValueAxis>
 

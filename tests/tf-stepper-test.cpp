@@ -122,8 +122,8 @@ void test_integrator_pi_closed_loop() {
     TfStepper ideal(cn, cd, dt);
     auto real = rim::makeRegulator(numina::ControlLaw::Pi, dt, s);
 
-    double y_i = 0.0;
-    double y_r = 0.0;
+    double y_i   = 0.0;
+    double y_r   = 0.0;
     const auto n = static_cast<std::size_t>(std::llround(t_end / dt));
     double mu_i  = 0.0;
     double mu_r  = 0.0;
@@ -156,8 +156,8 @@ void test_integrator_p_closed_loop() {
     TfStepper ideal(cn, cd, dt);
     auto real = rim::makeRegulator(numina::ControlLaw::P, dt, s);
 
-    double y_i = 0.0;
-    double y_r = 0.0;
+    double y_i   = 0.0;
+    double y_r   = 0.0;
     const auto n = static_cast<std::size_t>(std::llround(t_end / dt));
     for (std::size_t i = 0; i < n; ++i) {
         const double mu_i = ideal.update(sp - y_i);
@@ -200,13 +200,13 @@ void test_stop_holds_with_deadzone() {
     // PI + integrator plant: after hitting +0.5, while e still > H/2, must not reverse.
     {
         TfStepper plant(numina::Polynomial(0.05), numina::Polynomial(std::vector<double>{1.0, 0.0}), dt);
-        auto c          = rim::makeRegulator(numina::ControlLaw::Pi, dt, s);
-        double y        = 0.0;
+        auto c              = rim::makeRegulator(numina::ControlLaw::Pi, dt, s);
+        double y            = 0.0;
         constexpr double sp = 0.8;
-        int hit         = -1;
-        bool left       = false;
-        double e_left   = 0.0;
-        const int n     = static_cast<int>(80.0 / dt);
+        int hit             = -1;
+        bool left           = false;
+        double e_left       = 0.0;
+        const int n         = static_cast<int>(80.0 / dt);
         for (int i = 0; i < n; ++i) {
             const double e  = sp - y;
             const double mu = rim::updateRegulator(c, e);
@@ -234,12 +234,12 @@ void test_stop_holds_with_deadzone() {
         TfStepper plant(numina::Polynomial(k_gain), numina::Polynomial(std::vector<double>{1.0, 0.0}), dt);
         TfStepper plant_i(numina::Polynomial(k_gain), numina::Polynomial(std::vector<double>{1.0, 0.0}), dt);
         numina::PidSettings p;
-        p.kp          = 2.0;
-        p.pulse_time  = 0.25;
-        p.travel_time = 8.0;
-        p.deadzone    = 0.05;
-        auto real                   = rim::makeRegulator(numina::ControlLaw::P, dt, p);
-        const auto [cn, cd]         = rim::idealPair(numina::ControlLaw::P, p);
+        p.kp                = 2.0;
+        p.pulse_time        = 0.25;
+        p.travel_time       = 8.0;
+        p.deadzone          = 0.05;
+        auto real           = rim::makeRegulator(numina::ControlLaw::P, dt, p);
+        const auto [cn, cd] = rim::idealPair(numina::ControlLaw::P, p);
         TfStepper ideal(cn, cd, dt);
         double y_r = 0.4;
         double y_i = 0.4;

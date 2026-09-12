@@ -53,4 +53,3 @@ public:
     static bool edit(QWidget* parent, Vec& num, Vec& den, double& tau,
                      const QString& symbolHtml = QStringLiteral("W(p)"));
 };
-

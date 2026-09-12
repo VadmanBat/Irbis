@@ -44,7 +44,7 @@ TfFormulaPanel::TfFormulaPanel(QWidget* parent) : QFrame(parent) {
     setAttribute(Qt::WA_Hover, true);
     setContextMenuPolicy(Qt::DefaultContextMenu);
 
-    clip_ = new FormulaClip(this);
+    clip_    = new FormulaClip(this);
     display_ = new TfDisplayWidget(clip_);
     display_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     display_->setAutoFillBackground(false);

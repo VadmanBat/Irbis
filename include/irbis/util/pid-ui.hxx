@@ -14,4 +14,3 @@ namespace pid_ui {
     return QStringLiteral("T<sub>Д</sub>");
 }
 }
-

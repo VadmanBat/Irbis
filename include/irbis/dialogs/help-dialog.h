@@ -18,4 +18,3 @@ public:
     explicit HelpDialog(Topic topic, QWidget* parent = nullptr);
     ~HelpDialog() override;
 };
-
