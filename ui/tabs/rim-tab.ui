@@ -127,8 +127,11 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="kpLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>Kp</string>
+             <string>K&lt;sub&gt;П&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>kpSpin</cstring>
@@ -138,7 +141,7 @@
           <item row="1" column="1">
            <widget class="CompactDoubleSpinBox" name="kpSpin">
             <property name="toolTip">
-             <string>Коэффициент усиления Kp</string>
+             <string>Коэффициент усиления K&lt;sub&gt;П&lt;/sub&gt;</string>
             </property>
             <property name="decimals">
              <number>6</number>
@@ -156,8 +159,11 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="tiLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>Ti</string>
+             <string>T&lt;sub&gt;И&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>tiSpin</cstring>
@@ -167,7 +173,7 @@
           <item row="2" column="1">
            <widget class="CompactDoubleSpinBox" name="tiSpin">
             <property name="toolTip">
-             <string>Постоянная интегрирования Ti, с</string>
+             <string>Постоянная интегрирования T&lt;sub&gt;И&lt;/sub&gt;, с</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -188,8 +194,11 @@
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="tdLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>Td</string>
+             <string>T&lt;sub&gt;Д&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>tdSpin</cstring>
@@ -199,7 +208,7 @@
           <item row="3" column="1">
            <widget class="CompactDoubleSpinBox" name="tdSpin">
             <property name="toolTip">
-             <string>Постоянная дифференцирования Td, с. 0 — канал Д выключен.</string>
+             <string>Постоянная дифференцирования T&lt;sub&gt;Д&lt;/sub&gt;, с. 0 — канал Д выключен.</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -220,8 +229,11 @@
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="travelLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>Tим</string>
+             <string>T&lt;sub&gt;ИМ&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>travelSpin</cstring>
@@ -252,8 +264,11 @@
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="pulseLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>tимп</string>
+             <string>T&lt;sub&gt;имп&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>pulseSpin</cstring>
@@ -285,7 +300,7 @@
           <item row="6" column="0">
            <widget class="QLabel" name="deadzoneLabel">
             <property name="text">
-             <string>ЗН</string>
+             <string>H</string>
             </property>
             <property name="buddy">
              <cstring>deadzoneSpin</cstring>
@@ -313,8 +328,11 @@
           </item>
           <item row="7" column="0">
            <widget class="QLabel" name="filterLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>Tφ</string>
+             <string>T&lt;sub&gt;Ф&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>filterSpin</cstring>
@@ -324,7 +342,7 @@
           <item row="7" column="1">
            <widget class="CompactDoubleSpinBox" name="filterSpin">
             <property name="toolTip">
-             <string>Постоянная времени фильтра ошибки Tφ, с. 0 — без фильтра.</string>
+             <string>Постоянная времени фильтра ошибки T&lt;sub&gt;Ф&lt;/sub&gt;, с. 0 — без фильтра.</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -345,8 +363,11 @@
           </item>
           <item row="8" column="0">
            <widget class="QLabel" name="diffLabel">
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
             <property name="text">
-             <string>Tдиф</string>
+             <string>T&lt;sub&gt;диф&lt;/sub&gt;</string>
             </property>
             <property name="buddy">
              <cstring>diffSpin</cstring>
@@ -356,7 +377,7 @@
           <item row="8" column="1">
            <widget class="CompactDoubleSpinBox" name="diffSpin">
             <property name="toolTip">
-             <string>Постоянная времени дифференцирования Tдиф, с. 0 — чистая флюксия.</string>
+             <string>Постоянная времени дифференцирования T&lt;sub&gt;диф&lt;/sub&gt;, с. 0 — чистая флюксия.</string>
             </property>
             <property name="suffix">
              <string> с</string>

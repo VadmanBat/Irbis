@@ -96,7 +96,7 @@
            <string>Добавить текущую ПФ на графики</string>
           </property>
           <property name="text">
-           <string>+  Добавить</string>
+           <string>Добавить</string>
           </property>
          </widget>
         </item>
@@ -115,7 +115,7 @@
            <string>Пересчитать последнюю серию</string>
           </property>
           <property name="text">
-           <string>↻  Пересчитать</string>
+           <string>Пересчитать</string>
           </property>
          </widget>
         </item>
@@ -134,7 +134,7 @@
            <string>Очистить графики</string>
           </property>
           <property name="text">
-           <string>×  Очистить</string>
+           <string>Очистить</string>
           </property>
          </widget>
         </item>

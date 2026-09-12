@@ -52,7 +52,7 @@ void RimTab::install_custom_widgets() {
     if (auto* box = qobject_cast<QBoxLayout*>(ui->yChartHost->layout()))
         box->setStretchFactor(y_chart_, 1);
 
-    mu_chart_ = new ChartPanel(tr("Положение ОР μ(t)"), tr("t, с"), tr("μ"), ui->muChartHost);
+    mu_chart_ = new ChartPanel(tr("Положение ОР μ(t)"), tr("t, с"), tr("μ, %"), ui->muChartHost);
     mu_chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     tab_ui::mountInHost(ui->muChartHost, mu_chart_, {});
     if (auto* box = qobject_cast<QBoxLayout*>(ui->muChartHost->layout()))

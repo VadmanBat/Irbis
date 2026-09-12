@@ -2,6 +2,7 @@
 
 #include "irbis/dialogs/tf-input-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
+#include "irbis/util/dialog-icons.hxx"
 #include "irbis/util/tf-builder.hpp"
 #include "irbis/util/tf-clipboard.hpp"
 #include "ui_analysis-tab.h"
@@ -38,6 +39,9 @@ void AnalysisTab::install_custom_widgets() {
     tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight, 1);
     for (QPushButton* btn : {ui->addButton, ui->replaceButton, ui->clearButton})
         btn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    dialog_icons::applyGlyphIcon(ui->addButton, QChar(0xf1fe));     // chart-area
+    dialog_icons::applyGlyphIcon(ui->replaceButton, QChar(0xf1ec)); // calculator
+    dialog_icons::applyGlyphIcon(ui->clearButton, QChar(0xf12d));   // eraser
     tab_ui::setupPlantQualityMetrics(metrics_);
     connect(panel_, &TfFormulaPanel::editRequested, this, &AnalysisTab::editPlant);
     connect(panel_, &TfFormulaPanel::pasteRequested, this, &AnalysisTab::pastePlant);

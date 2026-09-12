@@ -61,29 +61,32 @@ QPushButton#continueButton:pressed {
     padding: 3px;
 }
 
-/* Автосинтез — янтарный акцент */
+/* Автосинтез — индиго (синтез / конструктор) */
 QPushButton#autoSynthButton {
-    background-color: #ef6c00;
-    border-color: #e65100;
+    background-color: #283593;
+    border-color: #1a237e;
 }
 QPushButton#autoSynthButton:hover {
-    background-color: #fb8c00;
+    background-color: #3949ab;
 }
 QPushButton#autoSynthButton:pressed {
-    background-color: #e65100;
+    background-color: #1a237e;
 }
 
 QPushButton#idSettingsButton,
-QPushButton#continueButton {
+QPushButton#continueButton,
+QPushButton#replaceButton {
     background-color: #1565c0;
     border-color: #0d47a1;
 }
 QPushButton#idSettingsButton:hover,
-QPushButton#continueButton:hover {
+QPushButton#continueButton:hover,
+QPushButton#replaceButton:hover {
     background-color: #1e88e5;
 }
 QPushButton#idSettingsButton:pressed,
-QPushButton#continueButton:pressed {
+QPushButton#continueButton:pressed,
+QPushButton#replaceButton:pressed {
     background-color: #0d47a1;
 }
 QPushButton#continueButton:disabled {
@@ -121,8 +124,8 @@ QWidget#analysisActions QPushButton#clearButton,
 QWidget#synthesisActions QPushButton#addButton,
 QWidget#synthesisActions QPushButton#autoSynthButton,
 QWidget#synthesisActions QPushButton#clearButton {
-    min-width: 106px;
-    max-width: 106px;
+    min-width: 128px;
+    max-width: 128px;
     min-height: 24px;
     padding: 4px 8px;
     font-size: 10.5pt;

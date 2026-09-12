@@ -3,6 +3,7 @@
 #include "irbis/dialogs/tf-input-dialog.h"
 #include "irbis/tabs/tab-shell.hpp"
 #include "irbis/util/dialog-icons.hxx"
+#include "irbis/util/pid-ui.hxx"
 #include "irbis/util/tf-clipboard.hpp"
 #include "ui_synthesis-tab.h"
 
@@ -80,11 +81,14 @@ void SynthesisTab::install_custom_widgets() {
     tab_ui::mountInHost(ui->metricsHost, metrics_, Qt::AlignRight, 1);
     for (QPushButton* btn : {ui->addButton, ui->clearButton, ui->autoSynthButton})
         btn->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding);
+    dialog_icons::applyGlyphIcon(ui->addButton, QChar(0xf1fe));         // chart-area
+    dialog_icons::applyGlyphIcon(ui->clearButton, QChar(0xf12d));       // eraser
+    dialog_icons::applyGlyphIcon(ui->autoSynthButton, QChar(0xf568));   // compass-drafting
 
     parameters_ = {
-        new RegParameter(QStringLiteral("K<sub>p</sub>"), 0.01, 2000, 0.01, 3, this),
-        new RegParameter(QStringLiteral("T<sub>i</sub>"), 0.01, 2000, 1, 120, this),
-        new RegParameter(QStringLiteral("T<sub>d</sub>"), 0.01, 2000, 1, 60, this),
+        new RegParameter(pid_ui::kp(), 0.01, 2000, 0.01, 3, this),
+        new RegParameter(pid_ui::ti(), 0.01, 2000, 1, 120, this),
+        new RegParameter(pid_ui::td(), 0.01, 2000, 1, 60, this),
     };
     parameters_[0]->setValue(1);
     parameters_[1]->setValue(30);

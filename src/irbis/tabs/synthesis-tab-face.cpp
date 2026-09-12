@@ -97,34 +97,34 @@ void SynthesisTab::update_regulator_face() {
     const QString bar = face_ink(ui->faceFormulaLabel);
     switch (id) {
         case 1:
-            ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("K<sub>p</sub>")));
+            ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("K<sub>П</sub>")));
             break;
         case 2:
-            ui->faceFormulaLabel->setText(wr_eq_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar));
+            ui->faceFormulaLabel->setText(wr_eq_frac(QStringLiteral("1"), QStringLiteral("T<sub>И</sub> p"), bar));
             break;
         case 3:
             ui->faceFormulaLabel->setText(
-                html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = K<sub>p</sub>(1 + ")) +
-                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar)) +
+                html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = K<sub>П</sub>(1 + ")) +
+                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>И</sub> p"), bar)) +
                                      html_cell(QStringLiteral(")")))));
             break;
         case 4:
-            ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("T<sub>d</sub> p")));
+            ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("T<sub>Д</sub> p")));
             break;
         case 5:
-            ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("K<sub>p</sub>(1 + T<sub>d</sub> p)")));
+            ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("K<sub>П</sub>(1 + T<sub>Д</sub> p)")));
             break;
         case 6:
             ui->faceFormulaLabel->setText(
                 html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = ")) +
-                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar)) +
-                                     html_cell(QStringLiteral(" + T<sub>d</sub> p")))));
+                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>И</sub> p"), bar)) +
+                                     html_cell(QStringLiteral(" + T<sub>Д</sub> p")))));
             break;
         case 7:
             ui->faceFormulaLabel->setText(
-                html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = K<sub>p</sub>(1 + ")) +
-                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>i</sub> p"), bar)) +
-                                     html_cell(QStringLiteral(" + T<sub>d</sub> p)")))));
+                html_center(html_row(html_cell(QStringLiteral("W<sub>р</sub>(p) = K<sub>П</sub>(1 + ")) +
+                                     html_cell(html_frac(QStringLiteral("1"), QStringLiteral("T<sub>И</sub> p"), bar)) +
+                                     html_cell(QStringLiteral(" + T<sub>Д</sub> p)")))));
             break;
         default:
             ui->faceFormulaLabel->setText(wr_eq(QStringLiteral("1")));

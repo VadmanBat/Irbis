@@ -96,7 +96,7 @@
            <string>Добавить переходный процесс замкнутой системы</string>
           </property>
           <property name="text">
-           <string>+  Добавить</string>
+           <string>Добавить</string>
           </property>
          </widget>
         </item>
@@ -115,7 +115,7 @@
            <string>Очистить графики</string>
           </property>
           <property name="text">
-           <string>×  Очистить</string>
+           <string>Очистить</string>
           </property>
          </widget>
         </item>
@@ -134,7 +134,7 @@
            <string>Автонастройка П/И/ПД/ПИ/ПИД (критерий + закон + φ). ПД: ЛРЗ в C₁–C₂.</string>
           </property>
           <property name="text">
-           <string>✨  Автосинтез</string>
+           <string>Автосинтез</string>
           </property>
          </widget>
         </item>
@@ -607,7 +607,7 @@
                     <item row="0" column="0">
                      <widget class="QLabel" name="faceC0Name">
                       <property name="toolTip">
-                       <string>C₀ = Kp / Ti</string>
+                       <string>C₀ = K&lt;sub&gt;П&lt;/sub&gt; / T&lt;sub&gt;И&lt;/sub&gt;</string>
                       </property>
                       <property name="text">
                        <string>C&lt;sub&gt;0&lt;/sub&gt;</string>
@@ -633,7 +633,7 @@
                     <item row="1" column="0">
                      <widget class="QLabel" name="faceC1Name">
                       <property name="toolTip">
-                       <string>C₁ = Kp</string>
+                       <string>C₁ = K&lt;sub&gt;П&lt;/sub&gt;</string>
                       </property>
                       <property name="text">
                        <string>C&lt;sub&gt;1&lt;/sub&gt;</string>
@@ -659,7 +659,7 @@
                     <item row="2" column="0">
                      <widget class="QLabel" name="faceC2Name">
                       <property name="toolTip">
-                       <string>C₂ = Kp · Td</string>
+                       <string>C₂ = K&lt;sub&gt;П&lt;/sub&gt; · T&lt;sub&gt;Д&lt;/sub&gt;</string>
                       </property>
                       <property name="text">
                        <string>C&lt;sub&gt;2&lt;/sub&gt;</string>

@@ -15,6 +15,7 @@ namespace {
 using Series                           = std::vector<std::pair<double, double>>;
 constexpr std::size_t MAX_CHART_POINTS = 8000;
 constexpr std::size_t MAX_STEPS        = 2'000'000;
+constexpr double kValvePercent         = 100.0;
 
 Series downsample(const Series& src) {
     if (src.size() <= MAX_CHART_POINTS)
@@ -29,8 +30,22 @@ Series downsample(const Series& src) {
     return out;
 }
 
+Series as_percent(const Series& src) {
+    Series out;
+    out.reserve(src.size());
+    for (const auto& [t, mu] : src)
+        out.emplace_back(t, mu * kValvePercent);
+    return out;
+}
+
 void fit_panel(ChartPanel* panel, const BoundsSet& bounds) {
     panel->fitAxes(bounds.min_x(), bounds.max_x(), bounds.min_y(), bounds.max_y(), false, true);
+}
+
+void fit_mu_panel(ChartPanel* panel, const BoundsSet& bounds) {
+    const double y0 = bounds.min_y() < -kValvePercent * 0.5 ? bounds.min_y() : -kValvePercent * 0.5;
+    const double y1 = bounds.max_y() > kValvePercent * 0.5 ? bounds.max_y() : kValvePercent * 0.5;
+    panel->fitAxes(bounds.min_x(), bounds.max_x(), y0, y1, false, true);
 }
 }
 
@@ -73,8 +88,8 @@ void RimTab::run_segment(const double duration, const double sp) {
         const double e_ideal  = sp - session_->y_ideal;
         const double mu_real  = rim::updateRegulator(session_->real, e_real);
         const double mu_ideal = session_->ideal.update(e_ideal);
-        session_->y_real      = session_->plant_real.update(mu_real);
-        session_->y_ideal     = session_->plant_ideal.update(mu_ideal);
+        session_->y_real      = session_->plant_real.update(mu_real * kValvePercent);
+        session_->y_ideal     = session_->plant_ideal.update(mu_ideal * kValvePercent);
         session_->t += dt;
         session_->sp.emplace_back(session_->t, sp);
         session_->y_r.emplace_back(session_->t, session_->y_real);
@@ -102,7 +117,7 @@ void RimTab::redraw_charts() {
             lo.emplace_back(t, y - h2);
             hi.emplace_back(t, y + h2);
         }
-        y_bounds.push_back(y_chart_->addBand(lo, hi, tr("ЗН")));
+        y_bounds.push_back(y_chart_->addBand(lo, hi, tr("H")));
     }
     y_bounds.push_back(y_chart_->addRealCurve(sp, tr("Уставка")));
     y_bounds.push_back(y_chart_->addRealCurve(downsample(session_->y_r), tr("Реальный РИМ")));
@@ -110,9 +125,9 @@ void RimTab::redraw_charts() {
     fit_panel(y_chart_, y_bounds);
 
     BoundsSet mu_bounds;
-    mu_bounds.push_back(mu_chart_->addRealCurve(downsample(session_->mu_r), tr("Реальный РИМ")));
-    mu_bounds.push_back(mu_chart_->addRealCurve(downsample(session_->mu_i), tr("Идеальный")));
-    fit_panel(mu_chart_, mu_bounds);
+    mu_bounds.push_back(mu_chart_->addRealCurve(as_percent(downsample(session_->mu_r)), tr("Реальный РИМ")));
+    mu_bounds.push_back(mu_chart_->addRealCurve(as_percent(downsample(session_->mu_i)), tr("Идеальный")));
+    fit_mu_panel(mu_chart_, mu_bounds);
 
     ui->statusLabel->setText(tr("t = %1 с").arg(num_format::format(session_->t)));
     secondary_text::apply(ui->statusLabel);
@@ -139,15 +154,15 @@ void RimTab::runSimulation() {
     const auto law      = selected_law();
     const auto settings = read_pid_settings();
     if (rim::hasI(law) && !(settings.ti > 0.0)) {
-        show_error(tr("Для закона с каналом И задайте Ti > 0."));
+        show_error(tr("Для закона с каналом И задайте T<sub>И</sub> > 0."));
         return;
     }
     if (rim::hasP(law) && !(settings.kp >= 0.0)) {
-        show_error(tr("Kp не может быть отрицательным."));
+        show_error(tr("K<sub>П</sub> не может быть отрицательным."));
         return;
     }
     if (!(settings.travel_time > 0.0) || !(settings.pulse_time > 0.0)) {
-        show_error(tr("Tим и tимп должны быть положительными."));
+        show_error(tr("T<sub>ИМ</sub> и T<sub>имп</sub> должны быть положительными."));
         return;
     }
 

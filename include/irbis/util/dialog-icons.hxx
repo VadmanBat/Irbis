@@ -4,12 +4,14 @@
 #include <QColor>
 #include <QFont>
 #include <QFontMetrics>
+#include <QFontMetricsF>
 #include <QIcon>
 #include <QLinearGradient>
 #include <QPainter>
 #include <QPixmap>
 #include <QPolygonF>
 #include <QRadialGradient>
+#include <QSize>
 #include <QWidget>
 
 /// Window icons for small dialogs (Windows title bar / Alt-Tab).
@@ -279,5 +281,38 @@ inline void applyGlyph(QAbstractButton* button, QChar glyph, int point_size = 9)
         return;
     button->setFont(detail::awesome_ui_font(point_size));
     button->setText(QString(glyph));
+}
+
+/// White FA glyph as a QIcon so a labeled button can keep the UI font for caption text.
+[[nodiscard]] inline QIcon glyphIcon(QChar glyph, int logical_px, const QColor& color) {
+    QIcon ic;
+    if (logical_px <= 0)
+        return ic;
+    const QString text(glyph);
+    const QFont font = detail::awesome_font(logical_px);
+    const QRectF tight = QFontMetricsF(font).tightBoundingRect(text);
+    const QPointF pos((logical_px - tight.width()) / 2.0 - tight.x(),
+                      (logical_px - tight.height()) / 2.0 - tight.y());
+    for (const int dpr : {1, 2, 3}) {
+        QPixmap pm(logical_px * dpr, logical_px * dpr);
+        pm.fill(Qt::transparent);
+        pm.setDevicePixelRatio(dpr);
+        QPainter p(&pm);
+        p.setRenderHint(QPainter::Antialiasing, true);
+        p.setRenderHint(QPainter::TextAntialiasing, true);
+        p.setFont(font);
+        p.setPen(color);
+        p.drawText(pos, text);
+        p.end();
+        ic.addPixmap(pm);
+    }
+    return ic;
+}
+
+inline void applyGlyphIcon(QAbstractButton* button, QChar glyph, int logical_px = 14) {
+    if (!button)
+        return;
+    button->setIcon(glyphIcon(glyph, logical_px, Qt::white));
+    button->setIconSize(QSize(logical_px, logical_px));
 }
 } // namespace dialog_icons
