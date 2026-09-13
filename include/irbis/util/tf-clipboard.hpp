@@ -10,8 +10,7 @@
 #include <QStringList>
 #include <vector>
 
-/// Irbis-TF-v1 clipboard interchange (also reads legacy RegValve-TF-v1).
-/// Coefficient vectors are high→low (leading = highest power), leading zeros stripped.
+/// Clipboard interchange: `num:` / `den:` / `tau:` (high→low coeffs, leading zeros stripped).
 namespace tf_clipboard {
 using Vec = std::vector<double>;
 
@@ -82,45 +81,20 @@ inline void stripLeadingZeros(Vec& v) {
     return parts.join(QLatin1Char(' '));
 }
 
-[[nodiscard]] inline QString format(const Vec& num, const Vec& den, double tau,
-                                    const QString& lhs = QStringLiteral("W(p)")) {
-    QStringList num_parts;
-    QStringList den_parts;
-    for (double v : num)
-        num_parts << num_format::formatFull(v);
-    for (double v : den)
-        den_parts << num_format::formatFull(v);
-
-    QString human = QStringLiteral("%1 = (%2) / (%3)")
-                        .arg(lhs, num_format::polyPlainLowFirst(num, num_format::SIGNIFICANT_DIGITS),
-                             num_format::polyPlainLowFirst(den, num_format::SIGNIFICANT_DIGITS));
-    if (tau > 0.0)
-        human += QStringLiteral(" · e^(-%1 p)").arg(num_format::format(tau, num_format::SIGNIFICANT_DIGITS));
-
-    return QStringLiteral(
-               "Irbis-TF-v1\n"
-               "num: %1\n"
-               "den: %2\n"
-               "tau: %3\n"
-               "\n"
-               "%4\n")
-        .arg(num_parts.join(QLatin1Char(' ')), den_parts.join(QLatin1Char(' ')), num_format::formatFull(tau), human);
+[[nodiscard]] inline QString format(const Vec& num, const Vec& den, double tau) {
+    return QStringLiteral("num: %1\nden: %2\ntau: %3\n")
+        .arg(formatCoeffLine(num, true, num_format::FULL_DIGITS), formatCoeffLine(den, true, num_format::FULL_DIGITS),
+             num_format::formatFull(tau));
 }
 
 [[nodiscard]] inline Data parse(const QString& text) {
     Data data;
     const QStringList lines = text.split(QRegularExpression(QStringLiteral("[\\r\\n]+")), Qt::SkipEmptyParts);
-    bool has_header         = false;
     bool got_num            = false;
     bool got_den            = false;
 
     for (QString line : lines) {
         line = line.trimmed();
-        if (line.startsWith(QStringLiteral("Irbis-TF-v1"), Qt::CaseInsensitive) ||
-            line.startsWith(QStringLiteral("RegValve-TF-v1"), Qt::CaseInsensitive)) {
-            has_header = true;
-            continue;
-        }
         if (line.startsWith(QStringLiteral("num:"), Qt::CaseInsensitive)) {
             QString err;
             got_num = parsePolyLine(line.mid(4), true, data.num, &err);
@@ -139,7 +113,7 @@ inline void stripLeadingZeros(Vec& v) {
             continue;
         }
     }
-    data.ok = has_header && got_num && got_den && !data.num.empty() && !data.den.empty();
+    data.ok = got_num && got_den && !data.num.empty() && !data.den.empty();
     return data;
 }
 } // namespace tf_clipboard

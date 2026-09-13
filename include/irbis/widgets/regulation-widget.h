@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QString>
 #include <QWidget>
 #include <utility>
 #include <vector>
@@ -17,6 +18,7 @@ private:
     std::vector<QLineEdit*> line_edits_;
     std::vector<double> last_values_;
     std::vector<std::pair<int, int>> colors_; ///< per-cell: flash index when value down / up (0..2)
+    std::vector<QString> suffixes_;
 
     void apply_default_style();
     [[nodiscard]] int color_index(std::size_t index, double old_value, double new_value) const;
@@ -29,5 +31,6 @@ public:
     /// Short HTML labels; optional tooltips (full metric names) on label + value field.
     void setLabels(const std::vector<QString>& labelNames, const std::vector<QString>& tooltips = {});
     void setColors(const std::vector<std::pair<int, int>>& valueColors);
+    void setSuffixes(const std::vector<QString>& suffixes);
     void updateValues(const std::vector<double>& values);
 };

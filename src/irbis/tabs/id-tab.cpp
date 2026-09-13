@@ -2,6 +2,7 @@
 
 #include "irbis/charts/chart-panel.h"
 #include "irbis/tabs/tab-shell.hpp"
+#include "irbis/util/dialog-icons.hxx"
 #include "irbis/util/secondary-text.hxx"
 #include "irbis/widgets/tf-display-widget.h"
 #include "ui_id-tab.h"
@@ -46,6 +47,8 @@ IdTab::IdTab(QWidget* parent) : QWidget(parent), ui(new Ui::IdTab) {
             ui->fileLabel->setText(QFileInfo(file_path_).fileName());
     });
 
+    ui->methodCombo->setItemData(0, tr("Переходная характеристика объекта"), Qt::ToolTipRole);
+    ui->methodCombo->setItemData(1, tr("Входной и выходной сигналы объекта"), Qt::ToolTipRole);
     ui->numOrderSpin->setMaximum(ui->denOrderSpin->value());
     sync_plant_kind_ui();
     sync_struct_ui();
@@ -65,7 +68,10 @@ void IdTab::install_custom_widgets() {
     panel_->setEditVisible(false);
     panel_->setPasteVisible(false);
     panel_->setExactDelaySolutions(true);
-    tab_ui::mountInHost(ui->formHost, panel_, Qt::AlignLeft | Qt::AlignVCenter);
+    tab_ui::mountInHost(ui->formHost, panel_, {});
+    dialog_icons::applyGlyphIcon(ui->openFileButton, QChar(0xf07c)); // folder-open
+    dialog_icons::applyGlyphIcon(ui->identifyButton, QChar(0xf83e)); // wave-square
+    dialog_icons::applyGlyphIcon(ui->clearButton, QChar(0xf12d));    // eraser
 
     chart_ = new ChartPanel(tr("h(t): эксперимент / модель"), tr("t, с"), tr("h(t)"), ui->chartHost);
     chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);

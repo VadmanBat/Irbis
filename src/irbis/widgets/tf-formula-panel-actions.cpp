@@ -81,6 +81,7 @@ QSize TfFormulaPanel::sizeHint() const {
     const int extra = chrome_width();
     const int min_w = actions_host_->sizeHint().width() + extra;
     int w           = display_->sizeHint().expandedTo(display_->minimumSizeHint()).width() + extra;
+    w               = qMax(w, name_label_->sizeHint().width() + extra);
     if (w < min_w)
         w = min_w;
 

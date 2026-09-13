@@ -53,7 +53,7 @@ RegParameter::RegParameter(const QString& title, double min, double max, double 
     value_spin_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
     value_spin_->setFixedSize(kValueW, kSpinH);
     value_spin_->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    value_spin_->setToolTip(tr("Значение параметра (min…max ползунка)"));
+    value_spin_->setToolTip(tr("Значение параметра"));
 
     slider_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     slider_->setMinimumWidth(64);
@@ -123,4 +123,8 @@ void RegParameter::setValue(double v) {
     const QSignalBlocker block_spin(value_spin_);
     slider_->setValue(v);
     value_spin_->setValue(slider_->value());
+}
+
+void RegParameter::setNameToolTip(const QString& tip) {
+    label_->setToolTip(tip);
 }

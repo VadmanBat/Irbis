@@ -82,6 +82,9 @@
           </property>
           <item row="0" column="0">
            <widget class="QLabel" name="lawLabel">
+            <property name="toolTip">
+             <string>Закон регулирования</string>
+            </property>
             <property name="text">
              <string>Закон</string>
             </property>
@@ -93,7 +96,7 @@
           <item row="0" column="1">
            <widget class="QComboBox" name="lawCombo">
             <property name="toolTip">
-             <string>Закон РИМ: П / ПД / ПИ / ПИД / И</string>
+             <string>Закон регулирования</string>
             </property>
             <item>
              <property name="text">
@@ -127,6 +130,9 @@
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="kpLabel">
+            <property name="toolTip">
+             <string>Коэффициент пропорциональности</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -141,7 +147,7 @@
           <item row="1" column="1">
            <widget class="CompactDoubleSpinBox" name="kpSpin">
             <property name="toolTip">
-             <string>Коэффициент усиления K&lt;sub&gt;П&lt;/sub&gt;</string>
+             <string>Значение параметра</string>
             </property>
             <property name="decimals">
              <number>6</number>
@@ -159,6 +165,9 @@
           </item>
           <item row="2" column="0">
            <widget class="QLabel" name="tiLabel">
+            <property name="toolTip">
+             <string>Постоянная интегрирования</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -173,7 +182,7 @@
           <item row="2" column="1">
            <widget class="CompactDoubleSpinBox" name="tiSpin">
             <property name="toolTip">
-             <string>Постоянная интегрирования T&lt;sub&gt;И&lt;/sub&gt;, с</string>
+             <string>Значение параметра</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -194,6 +203,9 @@
           </item>
           <item row="3" column="0">
            <widget class="QLabel" name="tdLabel">
+            <property name="toolTip">
+             <string>Постоянная дифференцирования</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -208,7 +220,7 @@
           <item row="3" column="1">
            <widget class="CompactDoubleSpinBox" name="tdSpin">
             <property name="toolTip">
-             <string>Постоянная дифференцирования T&lt;sub&gt;Д&lt;/sub&gt;, с. 0 — канал Д выключен.</string>
+             <string>Значение параметра</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -229,6 +241,9 @@
           </item>
           <item row="4" column="0">
            <widget class="QLabel" name="travelLabel">
+            <property name="toolTip">
+             <string>Время полного хода исполнительного механизма</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -243,7 +258,7 @@
           <item row="4" column="1">
            <widget class="CompactDoubleSpinBox" name="travelSpin">
             <property name="toolTip">
-             <string>Время полного хода ИМ, с</string>
+             <string>Время полного хода исполнительного механизма</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -264,6 +279,9 @@
           </item>
           <item row="5" column="0">
            <widget class="QLabel" name="pulseLabel">
+            <property name="toolTip">
+             <string>Минимальная длительность импульса</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -278,7 +296,7 @@
           <item row="5" column="1">
            <widget class="CompactDoubleSpinBox" name="pulseSpin">
             <property name="toolTip">
-             <string>Минимальная длительность импульса ШИМ, с</string>
+             <string>Минимальная длительность импульса</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -299,6 +317,9 @@
           </item>
           <item row="6" column="0">
            <widget class="QLabel" name="deadzoneLabel">
+            <property name="toolTip">
+             <string>Зона нечувствительности</string>
+            </property>
             <property name="text">
              <string>H</string>
             </property>
@@ -310,7 +331,7 @@
           <item row="6" column="1">
            <widget class="CompactDoubleSpinBox" name="deadzoneSpin">
             <property name="toolTip">
-             <string>Ширина зоны нечувствительности H, доли шкалы (0–1)</string>
+             <string>Зона нечувствительности</string>
             </property>
             <property name="decimals">
              <number>4</number>
@@ -328,6 +349,9 @@
           </item>
           <item row="7" column="0">
            <widget class="QLabel" name="filterLabel">
+            <property name="toolTip">
+             <string>Постоянная времени фильтра ошибки</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -342,7 +366,7 @@
           <item row="7" column="1">
            <widget class="CompactDoubleSpinBox" name="filterSpin">
             <property name="toolTip">
-             <string>Постоянная времени фильтра ошибки T&lt;sub&gt;Ф&lt;/sub&gt;, с. 0 — без фильтра.</string>
+             <string>Постоянная времени фильтра ошибки</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -363,6 +387,9 @@
           </item>
           <item row="8" column="0">
            <widget class="QLabel" name="diffLabel">
+            <property name="toolTip">
+             <string>Постоянная времени дифференцирования</string>
+            </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
             </property>
@@ -377,7 +404,7 @@
           <item row="8" column="1">
            <widget class="CompactDoubleSpinBox" name="diffSpin">
             <property name="toolTip">
-             <string>Постоянная времени дифференцирования T&lt;sub&gt;диф&lt;/sub&gt;, с. 0 — чистая флюксия.</string>
+             <string>Постоянная времени дифференцирования</string>
             </property>
             <property name="suffix">
              <string> с</string>
@@ -398,6 +425,9 @@
           </item>
           <item row="9" column="0">
            <widget class="QLabel" name="valve0Label">
+            <property name="toolTip">
+             <string>Начальное положение регулирующего органа</string>
+            </property>
             <property name="text">
              <string>μ(0)</string>
             </property>
@@ -409,7 +439,7 @@
           <item row="9" column="1">
            <widget class="CompactDoubleSpinBox" name="valve0Spin">
             <property name="toolTip">
-             <string>Начальное положение ОР, доли шкалы [−0.5, +0.5]</string>
+             <string>Начальное положение регулирующего органа</string>
             </property>
             <property name="decimals">
              <number>4</number>
@@ -460,7 +490,7 @@
         <item row="0" column="1">
          <widget class="CompactDoubleSpinBox" name="setpointSpin">
           <property name="toolTip">
-           <string>Задание регулирования (в единицах выхода объекта)</string>
+           <string>Задание регулирования</string>
           </property>
           <property name="decimals">
            <number>6</number>
@@ -489,7 +519,7 @@
         <item row="1" column="1">
          <widget class="CompactDoubleSpinBox" name="durationSpin">
           <property name="toolTip">
-           <string>Длительность первого прогона или продолжения, с</string>
+           <string>Длительность прогона</string>
           </property>
           <property name="suffix">
            <string> с</string>
@@ -521,7 +551,7 @@
         <item row="2" column="1">
          <widget class="CompactDoubleSpinBox" name="dtSpin">
           <property name="toolTip">
-           <string>Шаг интегрирования, с. Задаётся в начале прогона.</string>
+           <string>Шаг интегрирования</string>
           </property>
           <property name="suffix">
            <string> с</string>
@@ -574,7 +604,7 @@
          <string notr="true">runButton</string>
         </property>
         <property name="toolTip">
-         <string>Новый прогон: объект, РИМ и dt считываются заново, график очищается</string>
+         <string>Новый прогон</string>
         </property>
         <property name="text">
          <string>Моделировать</string>
@@ -590,7 +620,7 @@
          <bool>false</bool>
         </property>
         <property name="toolTip">
-         <string>Продолжить с текущим состоянием. Можно сменить уставку. Старые точки графика сохраняются.</string>
+         <string>Продолжить прогон</string>
         </property>
         <property name="text">
          <string>Продолжить</string>
@@ -603,7 +633,7 @@
          <string notr="true">clearButton</string>
         </property>
         <property name="toolTip">
-         <string>Сбросить прогон и графики</string>
+         <string>Сбросить прогон</string>
         </property>
         <property name="text">
          <string>Сброс</string>

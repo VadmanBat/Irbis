@@ -120,6 +120,7 @@ inline void setupPlantQualityMetrics(RegulationWidget* metrics) {
             QObject::tr("Установившееся значение"),
         });
     metrics->setColors({{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}});
+    metrics->setSuffixes({"", "", "", "", QStringLiteral("%"), ""});
 }
 
 inline void applySettledPlantMetrics(RegulationWidget* metrics, ResponseChartBank* charts) {
@@ -129,6 +130,6 @@ inline void applySettledPlantMetrics(RegulationWidget* metrics, ResponseChartBan
     }
     const auto& q = charts->lastQuality();
     metrics->updateValues(
-        {q.settling_time, q.natural_frequency, q.rise_time, q.cut_frequency, q.damping_ratio, q.steady_state});
+        {q.settling_time, q.natural_frequency, q.rise_time, q.cut_frequency, q.damping_ratio * 100.0, q.steady_state});
 }
 }

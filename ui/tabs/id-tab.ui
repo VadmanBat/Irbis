@@ -65,8 +65,7 @@
       <item>
        <widget class="QComboBox" name="methodCombo">
         <property name="toolTip">
-         <string>Переходная характеристика: пары time, h(t).
-Входной и выходной сигналы: тройки time, u(t), y(t).</string>
+         <string>Метод идентификации</string>
         </property>
         <item>
          <property name="text">
@@ -95,7 +94,7 @@
          <string>Загрузить экспериментальные данные</string>
         </property>
         <property name="text">
-         <string>📂 Выбрать файл</string>
+         <string>Выбрать файл</string>
         </property>
        </widget>
       </item>
@@ -193,8 +192,7 @@
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>Вкл. — порядки n и m выбираются сами.
-Выкл. — задаёте n и m вручную.</string>
+            <string>Автоматический подбор порядков числителя и знаменателя</string>
            </property>
           </widget>
          </item>
@@ -221,6 +219,9 @@
            </property>
            <item row="0" column="0">
             <widget class="QLabel" name="denOrderLabel">
+             <property name="toolTip">
+              <string>Порядок знаменателя</string>
+             </property>
              <property name="text">
               <string>n</string>
              </property>
@@ -232,7 +233,7 @@
            <item row="0" column="1">
             <widget class="QSpinBox" name="denOrderSpin">
              <property name="toolTip">
-              <string>Степень знаменателя (deg D)</string>
+              <string>Порядок знаменателя</string>
              </property>
              <property name="minimum">
               <number>1</number>
@@ -247,6 +248,9 @@
            </item>
            <item row="1" column="0">
             <widget class="QLabel" name="numOrderLabel">
+             <property name="toolTip">
+              <string>Порядок числителя</string>
+             </property>
              <property name="text">
               <string>m</string>
              </property>
@@ -258,7 +262,7 @@
            <item row="1" column="1">
             <widget class="QSpinBox" name="numOrderSpin">
              <property name="toolTip">
-              <string>Степень числителя (deg N), m ≤ n</string>
+              <string>Порядок числителя</string>
              </property>
              <property name="minimum">
               <number>0</number>
@@ -282,8 +286,7 @@
             <bool>true</bool>
            </property>
            <property name="toolTip">
-            <string>Вкл. — τ оценивается по началу h(t).
-Выкл. — модель без запаздывания (τ = 0).</string>
+            <string>Оценка запаздывания объекта</string>
            </property>
           </widget>
          </item>
@@ -335,7 +338,7 @@
          <string notr="true">clearButton</string>
         </property>
         <property name="toolTip">
-         <string>Очистить файл, модель и график</string>
+         <string>Очистить результаты идентификации</string>
         </property>
         <property name="text">
          <string>Очистить</string>

@@ -8,6 +8,7 @@
 #include <QIcon>
 #include <QLinearGradient>
 #include <QPainter>
+#include <QPalette>
 #include <QPixmap>
 #include <QPolygonF>
 #include <QRadialGradient>
@@ -262,6 +263,31 @@ inline QPixmap paint(Kind kind, int size) {
     }
     return pm;
 }
+
+inline QPixmap paint_glyph_pixmap(QChar glyph, int logical_px, const QColor& color, int dpr, int right_pad = 0) {
+    const QString text(glyph);
+    const QFont font   = awesome_font(logical_px);
+    const QRectF tight = QFontMetricsF(font).tightBoundingRect(text);
+    const QPointF pos((logical_px - tight.width()) / 2.0 - tight.x(), (logical_px - tight.height()) / 2.0 - tight.y());
+    const int pad = right_pad > 0 ? right_pad : 0;
+    QPixmap pm((logical_px + pad) * dpr, logical_px * dpr);
+    pm.fill(Qt::transparent);
+    pm.setDevicePixelRatio(dpr);
+    QPainter p(&pm);
+    p.setRenderHint(QPainter::Antialiasing, true);
+    p.setRenderHint(QPainter::TextAntialiasing, true);
+    p.setFont(font);
+    p.setPen(color);
+    p.drawText(pos, text);
+    p.end();
+    return pm;
+}
+
+inline void add_glyph_pixmaps(QIcon& ic, QChar glyph, int logical_px, const QColor& color, QIcon::Mode mode,
+                              QIcon::State state, int right_pad = 0) {
+    for (const int dpr : {1, 2, 3})
+        ic.addPixmap(paint_glyph_pixmap(glyph, logical_px, color, dpr, right_pad), mode, state);
+}
 } // namespace detail
 
 [[nodiscard]] inline QIcon icon(Kind kind) {
@@ -283,35 +309,42 @@ inline void applyGlyph(QAbstractButton* button, QChar glyph, int point_size = 9)
     button->setText(QString(glyph));
 }
 
-/// White FA glyph as a QIcon so a labeled button can keep the UI font for caption text.
+/// FA glyph as a QIcon so a labeled button can keep the UI font for caption text.
 [[nodiscard]] inline QIcon glyphIcon(QChar glyph, int logical_px, const QColor& color) {
     QIcon ic;
     if (logical_px <= 0)
         return ic;
-    const QString text(glyph);
-    const QFont font   = detail::awesome_font(logical_px);
-    const QRectF tight = QFontMetricsF(font).tightBoundingRect(text);
-    const QPointF pos((logical_px - tight.width()) / 2.0 - tight.x(), (logical_px - tight.height()) / 2.0 - tight.y());
-    for (const int dpr : {1, 2, 3}) {
-        QPixmap pm(logical_px * dpr, logical_px * dpr);
-        pm.fill(Qt::transparent);
-        pm.setDevicePixelRatio(dpr);
-        QPainter p(&pm);
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.setRenderHint(QPainter::TextAntialiasing, true);
-        p.setFont(font);
-        p.setPen(color);
-        p.drawText(pos, text);
-        p.end();
-        ic.addPixmap(pm);
-    }
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, color, QIcon::Normal, QIcon::Off);
+    return ic;
+}
+
+/// Palette-tinted FA glyph (toolbar / menu): Off = window-text, On = highlighted-text.
+/// `right_pad` is empty px after the glyph — QSS QToolButton otherwise packs icon against text.
+[[nodiscard]] inline QIcon paletteGlyphIcon(QChar glyph, int logical_px, const QPalette& pal, int right_pad = 0) {
+    QIcon ic;
+    if (logical_px <= 0)
+        return ic;
+    const QColor text = pal.color(QPalette::Active, QPalette::WindowText);
+    const QColor on   = pal.color(QPalette::Active, QPalette::HighlightedText);
+    const QColor dis  = pal.color(QPalette::Disabled, QPalette::WindowText);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, text, QIcon::Normal, QIcon::Off, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, text, QIcon::Active, QIcon::Off, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, on, QIcon::Normal, QIcon::On, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, on, QIcon::Active, QIcon::On, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, on, QIcon::Selected, QIcon::Off, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, on, QIcon::Selected, QIcon::On, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, dis, QIcon::Disabled, QIcon::Off, right_pad);
+    detail::add_glyph_pixmaps(ic, glyph, logical_px, dis, QIcon::Disabled, QIcon::On, right_pad);
     return ic;
 }
 
 inline void applyGlyphIcon(QAbstractButton* button, QChar glyph, int logical_px = 14) {
     if (!button)
         return;
-    button->setIcon(glyphIcon(glyph, logical_px, Qt::white));
+    button->setIcon(glyphIcon(glyph, logical_px, QColor(Qt::white)));
     button->setIconSize(QSize(logical_px, logical_px));
+    const QString t = button->text();
+    if (!t.isEmpty() && !t.startsWith(QLatin1Char(' ')))
+        button->setText(QLatin1Char(' ') + t);
 }
 } // namespace dialog_icons

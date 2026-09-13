@@ -54,6 +54,7 @@ public:
 
     void setEnabled(bool on);
     void setValue(double v);
+    void setNameToolTip(const QString& tip);
     void setRange(double min, double max);
     void setLimits(double hard_min, double hard_max);
     /// Expand [min,max] only if needed so `v` is inside; never shrinks the range.

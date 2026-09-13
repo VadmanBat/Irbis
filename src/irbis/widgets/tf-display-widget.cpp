@@ -10,27 +10,32 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QSizePolicy>
 #include <QStringList>
 #include <QVBoxLayout>
 
 TfDisplayWidget::TfDisplayWidget(QWidget* parent) : QWidget(parent) {
     setObjectName(QStringLiteral("TfDisplayWidget"));
 
+    auto configure_label = [](QLabel* lab, Qt::Alignment align) {
+        lab->setTextFormat(Qt::RichText);
+        lab->setAlignment(align);
+        lab->setWordWrap(false);
+        lab->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    };
+
     titleLabel_ = new QLabel(QStringLiteral("W(p) = "), this);
     titleLabel_->setObjectName(QStringLiteral("tfTitle"));
-    titleLabel_->setTextFormat(Qt::RichText);
-    titleLabel_->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
+    configure_label(titleLabel_, Qt::AlignRight | Qt::AlignVCenter);
 
     numLabel_ = new QLabel(QStringLiteral("—"), this);
     numLabel_->setObjectName(QStringLiteral("tfPolyText"));
-    numLabel_->setAlignment(Qt::AlignCenter);
-    numLabel_->setTextFormat(Qt::RichText);
+    configure_label(numLabel_, Qt::AlignCenter);
     numLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     denLabel_ = new QLabel(QStringLiteral("—"), this);
     denLabel_->setObjectName(QStringLiteral("tfPolyText"));
-    denLabel_->setAlignment(Qt::AlignCenter);
-    denLabel_->setTextFormat(Qt::RichText);
+    configure_label(denLabel_, Qt::AlignCenter);
     denLabel_->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     auto* divider = new QFrame(this);
@@ -50,8 +55,11 @@ TfDisplayWidget::TfDisplayWidget(QWidget* parent) : QWidget(parent) {
     delayLabel_ = new QLabel(delayGroup_);
     delayLabel_->setObjectName(QStringLiteral("tfDelayText"));
     delayLabel_->setTextFormat(Qt::RichText);
+    delayLabel_->setWordWrap(false);
+    delayLabel_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     delayLabel_->setVisible(false);
     delay_root->addWidget(delayLabel_);
+    delayGroup_->setVisible(false);
 
     auto* frac = new QGridLayout;
     frac->setContentsMargins(0, 0, 0, 0);
@@ -95,11 +103,13 @@ void TfDisplayWidget::set_polys(const Vec& num, const Vec& den, double tau) {
         delayLabel_->setVisible(false);
         delayGroup_->setVisible(false);
     }
+    updateGeometry();
     emit contentsChanged();
 }
 
 void TfDisplayWidget::setTitle(const QString& html) {
     titleLabel_->setText(html);
+    updateGeometry();
 }
 
 void TfDisplayWidget::setTransferFunction(const numina::TransferFunction& tf, double tau) {
@@ -142,6 +152,7 @@ void TfDisplayWidget::setStructureTemplate(int numDegree, int denDegree) {
     delayLabel_->clear();
     delayLabel_->setVisible(false);
     delayGroup_->setVisible(false);
+    updateGeometry();
     emit contentsChanged();
 }
 
@@ -150,49 +161,10 @@ void TfDisplayWidget::clear() {
     set_polys({}, {}, 0.0);
 }
 
-QString TfDisplayWidget::plain_title() const {
-    QString t = titleLabel_->text();
-    t.replace(QStringLiteral("<sub>"), QStringLiteral("_"));
-    t.replace(QStringLiteral("</sub>"), QString());
-    t.replace(QStringLiteral("<sup>"), QStringLiteral("^"));
-    t.replace(QStringLiteral("</sup>"), QString());
-    t.replace(QStringLiteral("&nbsp;"), QStringLiteral(" "));
-    return t.trimmed();
-}
-
-QString TfDisplayWidget::human_text() const {
-    if (empty_)
-        return {};
-    QString lhs = plain_title();
-    if (lhs.endsWith(QLatin1Char('=')))
-        lhs.chop(1);
-    lhs = lhs.trimmed();
-    if (lhs.isEmpty())
-        lhs = QStringLiteral("W(p)");
-    QString human = QStringLiteral("%1 = (%2) / (%3)")
-                        .arg(lhs, num_format::polyPlainLowFirst(num_, num_format::SIGNIFICANT_DIGITS),
-                             num_format::polyPlainLowFirst(den_, num_format::SIGNIFICANT_DIGITS));
-    if (tau_ > 0.0)
-        human += QStringLiteral(" · e^(-%1 p)").arg(num_format::format(tau_, num_format::SIGNIFICANT_DIGITS));
-    return human;
-}
-
-QString TfDisplayWidget::export_text() const {
-    if (empty_)
-        return {};
-    QString lhs = plain_title();
-    if (lhs.endsWith(QLatin1Char('=')))
-        lhs.chop(1);
-    lhs = lhs.trimmed();
-    if (lhs.isEmpty())
-        lhs = QStringLiteral("W(p)");
-    return tf_clipboard::format(num_, den_, tau_, lhs);
-}
-
 void TfDisplayWidget::copyToClipboard() {
     if (empty_)
         return;
-    QApplication::clipboard()->setText(export_text());
+    QApplication::clipboard()->setText(tf_clipboard::format(num_, den_, tau_));
 }
 
 bool TfDisplayWidget::importText(const QString& text) {

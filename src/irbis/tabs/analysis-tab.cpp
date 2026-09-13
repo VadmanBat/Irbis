@@ -99,7 +99,7 @@ void AnalysisTab::pastePlant() {
     const auto data = tf_clipboard::parse(QApplication::clipboard()->text());
     if (!data.ok) {
         QMessageBox::information(this, tr("Вставка ПФ"),
-                                 tr("В буфере нет данных формата Irbis-TF-v1.\n"
+                                 tr("В буфере нет передаточной функции.\n"
                                     "Скопируйте ПФ кнопкой «Копировать»."));
         return;
     }

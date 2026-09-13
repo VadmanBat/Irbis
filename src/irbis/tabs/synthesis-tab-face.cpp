@@ -166,4 +166,20 @@ void SynthesisTab::update_regulator_face() {
     ui->faceC0Value->setText(coeff(c0_on, (p_on ? kp : 1.0) / ti));
     ui->faceC1Value->setText(coeff(c1_on, kp));
     ui->faceC2Value->setText(coeff(c2_on, (p_on ? kp : 1.0) * td));
+
+    if (has_working_omega_ && std::isfinite(working_omega_) && working_omega_ > 0.0) {
+        ui->faceOmegaLabel->setText(tr("ω<sub>р</sub> = %1 рад/с").arg(num_format::format(working_omega_)));
+        ui->faceOmegaLabel->show();
+    }
+    else {
+        ui->faceOmegaLabel->clear();
+        ui->faceOmegaLabel->hide();
+    }
+}
+
+void SynthesisTab::forget_working_omega() {
+    if (!has_working_omega_)
+        return;
+    has_working_omega_ = false;
+    working_omega_     = 0.0;
 }

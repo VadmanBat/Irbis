@@ -1,34 +1,22 @@
 #include "irbis/charts/utils/chart-utils.hpp"
 #include "irbis/dialogs/chart-dialog.h"
 #include "irbis/dialogs/chart-viewer/chart-viewer-window.h"
+#include "irbis/util/dialog-icons.hxx"
 
 #include <QApplication>
 #include <QClipboard>
 #include <QCoreApplication>
 #include <QEvent>
-#include <QFont>
 #include <QIcon>
 #include <QMenu>
 #include <QMouseEvent>
-#include <QPainter>
-#include <QPixmap>
 
 #define CHART_TR(str) QCoreApplication::translate("chart_utils", str)
 
 namespace chart_utils {
 namespace {
-/// Menu icon from emoji (same visual language as chart viewer toolbar).
-QIcon menu_icon(const QString& emoji) {
-    constexpr int size = 18;
-    QPixmap pm(size, size);
-    pm.fill(Qt::transparent);
-    QPainter painter(&pm);
-    painter.setRenderHint(QPainter::TextAntialiasing);
-    QFont font(QStringLiteral("Segoe UI Emoji"));
-    font.setPixelSize(14);
-    painter.setFont(font);
-    painter.drawText(QRect(0, 0, size, size), Qt::AlignCenter, emoji);
-    return QIcon(pm);
+QIcon menu_icon(QChar glyph) {
+    return dialog_icons::paletteGlyphIcon(glyph, 16, QApplication::palette());
 }
 } // namespace
 
@@ -37,10 +25,11 @@ void openChartViewer(QChart* chart, QWidget* parent) {
 }
 
 void createChartContextMenu(QChartView* chart_view) {
-    auto* open_viewer_action = new QAction(menu_icon(QStringLiteral("🖼️")), CHART_TR("Открыть в окне…"), chart_view);
-    auto* save_as_action     = new QAction(menu_icon(QStringLiteral("💾")), CHART_TR("Сохранить как…"), chart_view);
-    auto* copy_action = new QAction(menu_icon(QStringLiteral("📋")), CHART_TR("Копировать изображение"), chart_view);
-    auto* properties_action = new QAction(menu_icon(QStringLiteral("⚙️")), CHART_TR("Свойства"), chart_view);
+    auto* open_viewer_action =
+        new QAction(menu_icon(QChar(0xf08e)), CHART_TR("Открыть в окне…"), chart_view); // arrow-up-right-from-square
+    auto* save_as_action = new QAction(menu_icon(QChar(0xf0c7)), CHART_TR("Сохранить как…"), chart_view); // floppy-disk
+    auto* copy_action = new QAction(menu_icon(QChar(0xf0c5)), CHART_TR("Копировать изображение"), chart_view); // copy
+    auto* properties_action = new QAction(menu_icon(QChar(0xf013)), CHART_TR("Свойства"), chart_view);         // gear
 
     QChart* chart = chart_view->chart();
 

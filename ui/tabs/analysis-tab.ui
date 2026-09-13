@@ -93,7 +93,7 @@
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Добавить текущую ПФ на графики</string>
+           <string>Добавить передаточную функцию</string>
           </property>
           <property name="text">
            <string>Добавить</string>
@@ -112,7 +112,7 @@
            </sizepolicy>
           </property>
           <property name="toolTip">
-           <string>Пересчитать последнюю серию</string>
+           <string>Пересчитать передаточную функцию</string>
           </property>
           <property name="text">
            <string>Пересчитать</string>

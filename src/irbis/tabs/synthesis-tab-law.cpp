@@ -83,11 +83,12 @@ void SynthesisTab::sync_law_from_params() {
 }
 
 void SynthesisTab::update_stability_region() {
-    using L        = numina::ControllerDesigner::Law;
-    const auto law = selected_law();
-    if (law != L::Pi && law != L::Pd) {
+    using L       = numina::ControllerDesigner::Law;
+    const bool pd = is_pd_structure();
+    if (!pd && !is_pi_structure())
         return;
-    }
+
+    const auto law = pd ? L::Pd : L::Pi;
 
     numina::TransferFunction plant;
     if (!build_plant(plant)) {
@@ -99,7 +100,7 @@ void SynthesisTab::update_stability_region() {
     try {
         const double phi = ui->phiSpin->value() / 100.0;
         numina::ControllerDesigner designer(plant, phi);
-        ui->c0c1Chart->setPlane(law == L::Pd ? C0C1Chart::Plane::Pd : C0C1Chart::Plane::Pi);
+        ui->c0c1Chart->setPlane(pd ? C0C1Chart::Plane::Pd : C0C1Chart::Plane::Pi);
 
         const auto loc = controller_design::locus(designer, law);
         std::vector<C0C1Chart::Sample> samples;
@@ -107,7 +108,7 @@ void SynthesisTab::update_stability_region() {
         for (const auto& s : loc)
             samples.push_back(to_sample(s));
 
-        const QString loc_name = law == L::Pd ? tr("ЛРЗ (ПД)") : tr("ЛРЗ");
+        const QString loc_name = pd ? tr("ЛРЗ (ПД)") : tr("ЛРЗ");
         ui->c0c1Chart->setLocus(std::move(samples), loc_name);
         ui->c0c1Chart->setOptima({}, {}, {});
         ui->c0c1Chart->requestRefit();
@@ -122,14 +123,14 @@ void SynthesisTab::on_law_changed() {
     using L        = numina::ControllerDesigner::Law;
     const auto law = selected_law();
     if (law != L::Auto) {
+        forget_working_omega();
         apply_law_channels();
         update_c0c1_visibility();
         sync_c0c1_selection_from_params();
         refresh_closed_display();
         replaceTransferFunction();
     }
-    if (law == L::Pi || law == L::Pd)
-        update_stability_region();
+    update_stability_region();
 }
 
 void SynthesisTab::on_phi_changed() {
@@ -137,6 +138,7 @@ void SynthesisTab::on_phi_changed() {
 }
 
 void SynthesisTab::on_params_toggled() {
+    forget_working_omega();
     sync_law_from_params();
     update_c0c1_visibility();
     sync_c0c1_selection_from_params();

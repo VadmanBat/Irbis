@@ -249,7 +249,7 @@ Full rules: `~/.grok/skills/cpp-my-style`, `qt-cpp`, `high-performance-cpp`.
 | New controller type | numina `TransferFunction::makeController`, synthesis UI |
 | New chart type | `ResponseChartBank`, `ChartVisibility`, menu labels |
 | Axis styling / nice limits | `nice-axis.hpp`, `chart-utils` guides |
-| TF clipboard format | `widgets/tf-form/*` IO (`Irbis-TF-v1`, reads legacy `RegValve-TF-v1`) |
+| TF clipboard format | `include/irbis/util/tf-clipboard.hpp` (`num:` / `den:` / `tau:`) |
 | Identification algorithm | prefer **numina** (`SimoyuIdentifier` / `IntegratorIdentifier`); UI in `id-tab` + `id-tab-run` |
 | RIM closed-loop sim | `RimTab` + `TfStepper` + `rim::idealPair`; math: `numina::PidController` |
 | Auto-synthesis P/I/PD/PI/PID (РКЧХ) | `controller_design` + `SynthesisTab::autoSynthesize`; UI: `C0C1Chart` (ПИ: C₁–C₀, ПД: C₂–C₁; П/И без области) / `Wр` face, φ, criterion, law |

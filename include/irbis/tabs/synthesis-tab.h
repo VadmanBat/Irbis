@@ -25,10 +25,12 @@ private:
     std::vector<RegParameter*> parameters_;
     bool show_plane_{true};
     bool has_plant_{false};
+    bool has_working_omega_{false};
     ModelParam model_param_;
     std::vector<double> plant_num_;
     std::vector<double> plant_den_;
     double plant_tau_{0.0};
+    double working_omega_{};
     numina::TransferFunction plant_tf_;
     numina::TransferFunction current_tf_;
 
@@ -46,6 +48,7 @@ private:
     void sync_c0c1_selection_from_params();
     void update_c0c1_visibility();
     void update_regulator_face();
+    void forget_working_omega();
     void changeEvent(QEvent* event) override;
     [[nodiscard]] bool is_pi_structure() const noexcept;
     [[nodiscard]] bool is_pd_structure() const noexcept;

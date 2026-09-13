@@ -328,7 +328,7 @@
          <string>Разложение Паде</string>
         </property>
         <property name="toolTip">
-         <string>Вкл. — рациональная аппроксимация e^{−τp}. Выкл. — точное запаздывание (сдвиг h(t), фаза −ωτ).</string>
+         <string>Аппроксимация запаздывания Паде</string>
         </property>
         <property name="visible">
          <bool>false</bool>
@@ -354,7 +354,7 @@
          <number>6</number>
         </property>
         <property name="toolTip">
-         <string>Чем выше, тем точнее модель запаздывания (медленнее расчёт)</string>
+         <string>Порядок аппроксимации Паде</string>
         </property>
        </widget>
       </item>

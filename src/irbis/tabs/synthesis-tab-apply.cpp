@@ -55,16 +55,19 @@ void SynthesisTab::apply_pd_settings(double kp, double td, bool replace_last) {
 void SynthesisTab::apply_design(const numina::ControllerDesigner::Design& d, bool replace_last) {
     if (!d.isOk())
         return;
-    using L         = numina::ControllerDesigner::Law;
-    const auto& s   = d.settings;
-    const auto law  = d.law;
-    const bool p_on = law == L::P || law == L::Pd || law == L::Pi || law == L::Pid;
-    const bool i_on = law == L::I || law == L::Pi || law == L::Pid;
-    const bool d_on = (law == L::Pd || law == L::Pid) && s.td > 0.0 && std::isfinite(s.td);
+    using L            = numina::ControllerDesigner::Law;
+    const auto& s      = d.settings;
+    const auto law     = d.law;
+    const bool p_on    = law == L::P || law == L::Pd || law == L::Pi || law == L::Pid;
+    const bool i_on    = law == L::I || law == L::Pi || law == L::Pid;
+    const bool d_on    = (law == L::Pd || law == L::Pid) && s.td > 0.0 && std::isfinite(s.td);
+    has_working_omega_ = std::isfinite(s.omega) && s.omega > 0.0;
+    working_omega_     = has_working_omega_ ? s.omega : 0.0;
     apply_controller_params(p_on, s.kp, i_on, s.ti, d_on, s.td, replace_last);
 }
 
 void SynthesisTab::onSamplePicked(const C0C1Chart::Sample& sample) {
+    forget_working_omega();
     const bool replace = !ui->charts->empty();
     if (is_pd_structure()) {
         if (sample.kp > 0.0 && sample.td > 0.0 && std::isfinite(sample.kp) && std::isfinite(sample.td))

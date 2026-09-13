@@ -164,10 +164,20 @@ QFrame#rimSidebar QPushButton#clearButton {
 
 QFrame#idSidebar QPushButton#openFileButton {
     min-height: 36px;
+    text-align: center;
 }
 
 QFrame#idSidebar QPushButton#identifyButton,
-QFrame#rimSidebar QPushButton#runButton {
+QFrame#idSidebar QPushButton#clearButton {
+    min-height: 36px;
+    font-size: 11pt;
+    font-weight: 600;
+    text-align: left;
+}
+
+QFrame#rimSidebar QPushButton#runButton,
+QFrame#rimSidebar QPushButton#continueButton,
+QFrame#rimSidebar QPushButton#clearButton {
     min-height: 36px;
     font-size: 11pt;
     font-weight: 600;
@@ -337,7 +347,8 @@ QLabel#faceLawLabel {
 }
 
 QLabel#faceFormulaLabel,
-QLabel#facePolyLabel {
+QLabel#facePolyLabel,
+QLabel#faceOmegaLabel {
     font-size: 12pt;
     padding: 2px 0 6px 0;
 }
@@ -702,22 +713,31 @@ QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar {
     padding: 6px 10px;
 }
 
-QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar QToolButton {
+QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar QToolButton,
+QMainWindow#ChartViewerWindow QStatusBar#chartViewerStatusBar QToolButton {
     background-color: transparent;
     color: palette(window-text);
     border: 1px solid transparent;
     border-radius: 6px;
-    padding: 5px 10px;
+    padding: 6px 12px;
     margin: 0 1px;
     font-size: 10.5pt;
+    text-align: center;
 }
 
-QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar QToolButton:hover {
+QMainWindow#ChartViewerWindow QStatusBar#chartViewerStatusBar QToolButton {
+    padding: 3px 10px;
+    font-size: 9.5pt;
+}
+
+QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar QToolButton:hover,
+QMainWindow#ChartViewerWindow QStatusBar#chartViewerStatusBar QToolButton:hover {
     background-color: palette(alternate-base);
     border-color: palette(mid);
 }
 
-QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar QToolButton:pressed {
+QMainWindow#ChartViewerWindow QToolBar#chartViewerToolBar QToolButton:pressed,
+QMainWindow#ChartViewerWindow QStatusBar#chartViewerStatusBar QToolButton:pressed {
     background-color: palette(midlight);
 }
 
@@ -739,7 +759,7 @@ QMainWindow#ChartViewerWindow QStatusBar#chartViewerStatusBar {
     border-top: 1px solid palette(mid);
     color: palette(window-text);
     padding: 2px 8px;
-    min-height: 26px;
+    min-height: 34px;
 }
 
 QMainWindow#ChartViewerWindow QLabel#chartViewerCoordLabel {

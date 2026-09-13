@@ -90,6 +90,9 @@ void SynthesisTab::install_custom_widgets() {
         new RegParameter(pid_ui::ti(), 0.01, 2000, 1, 120, this),
         new RegParameter(pid_ui::td(), 0.01, 2000, 1, 60, this),
     };
+    parameters_[0]->setNameToolTip(tr("Коэффициент пропорциональности"));
+    parameters_[1]->setNameToolTip(tr("Постоянная интегрирования"));
+    parameters_[2]->setNameToolTip(tr("Постоянная дифференцирования"));
     parameters_[0]->setValue(1);
     parameters_[1]->setValue(30);
     int row = 0;
@@ -97,6 +100,7 @@ void SynthesisTab::install_custom_widgets() {
         p->placeIn(ui->paramsLayout, row++);
         connect(p->checkBox(), &QCheckBox::toggled, this, [this](bool) { on_params_toggled(); });
         connect(p, &RegParameter::valueChanged, this, [this](double) {
+            forget_working_omega();
             update_regulator_face();
             sync_c0c1_selection_from_params();
             refresh_closed_display();
@@ -130,14 +134,19 @@ void SynthesisTab::setup_metrics() {
             tr("Время нарастания, с"),
             tr("Частота среза, рад/с"),
             tr("Статическая ошибка"),
-            tr("Интегральный квадратичный критерий (ИКК)"),
+            tr("Интегральный квадратичный критерий"),
             tr("Время пика, с"),
             tr("Коэффициент демпфирования, %"),
             tr("Перерегулирование, %"),
-            tr("RMS ошибки разгона на [0, tр] (не стохастическое СКО настройки)"),
+            tr("Среднеквадратичное отклонение"),
         });
+    ui->criterionCombo->setItemData(0, tr("Линейный интегральный критерий"), Qt::ToolTipRole);
+    ui->criterionCombo->setItemData(1, tr("Интегральный квадратичный критерий"), Qt::ToolTipRole);
+    ui->criterionCombo->setItemData(2, tr("Среднеквадратичное отклонение"), Qt::ToolTipRole);
     metrics_->setColors(
         {{1, 2}, {0, 0}, {0, 0}, {1, 2}, {1, 2}, {0, 0}, {0, 0}, {1, 2}, {1, 2}, {2, 1}, {1, 2}, {1, 2}});
+    const QString pct = QStringLiteral("%");
+    metrics_->setSuffixes({"", "", "", "", "", "", "", "", "", pct, pct, ""});
 }
 
 void SynthesisTab::show_error(const QString& message) {
@@ -182,7 +191,7 @@ void SynthesisTab::pastePlant() {
     const auto data = tf_clipboard::parse(QApplication::clipboard()->text());
     if (!data.ok) {
         QMessageBox::information(this, tr("Вставка ПФ"),
-                                 tr("В буфере нет данных формата Irbis-TF-v1.\n"
+                                 tr("В буфере нет передаточной функции.\n"
                                     "Скопируйте ПФ кнопкой «Копировать»."));
         return;
     }

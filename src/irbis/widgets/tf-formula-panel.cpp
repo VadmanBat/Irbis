@@ -54,7 +54,7 @@ TfFormulaPanel::TfFormulaPanel(QWidget* parent) : QFrame(parent) {
     name_label_ = new QLabel(this);
     name_label_->setObjectName(QStringLiteral("tfLinkName"));
     name_label_->setWordWrap(false);
-    name_label_->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    name_label_->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     name_label_->setMinimumHeight(36);
     name_label_->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 

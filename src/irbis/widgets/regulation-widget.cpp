@@ -58,7 +58,7 @@ RegulationWidget::RegulationWidget(int rows, int cols, QWidget* parent) : QWidge
 void RegulationWidget::apply_default_style() {
     const QFontMetrics fm(font());
     const int row_h = qMax(24, fm.height() + fm.descent() + 8);
-    const int val_w = fm.horizontalAdvance(QStringLiteral("-1.23456e+1230")) + 16;
+    const int val_w = fm.horizontalAdvance(QStringLiteral("-1.23456e+1230%")) + 16;
 
     for (auto* label : labels_) {
         label->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
@@ -111,6 +111,10 @@ void RegulationWidget::setColors(const std::vector<std::pair<int, int>>& valueCo
         colors_[i] = valueColors[i];
 }
 
+void RegulationWidget::setSuffixes(const std::vector<QString>& suffixes) {
+    suffixes_ = suffixes;
+}
+
 void RegulationWidget::updateValues(const std::vector<double>& values) {
     if (values.empty()) {
         const std::size_t n = line_edits_.size();
@@ -124,7 +128,10 @@ void RegulationWidget::updateValues(const std::vector<double>& values) {
     const auto n = std::min(line_edits_.size(), values.size());
     for (std::size_t i = 0; i < n; ++i) {
         update_cell_style(i, values[i]);
-        line_edits_[i]->setText(format_double(values[i]));
+        QString text = format_double(values[i]);
+        if (i < suffixes_.size() && !suffixes_[i].isEmpty())
+            text += suffixes_[i];
+        line_edits_[i]->setText(text);
         last_values_[i] = values[i];
     }
 }

@@ -69,7 +69,7 @@ void SynthesisTab::update_metrics_from_bank() {
         1.0 - q.steady_state,
         q.ise,
         q.peak_time,
-        q.damping_ratio,
+        q.damping_ratio * 100.0,
         q.overshoot_percent,
         q.sigma,
     });
@@ -141,6 +141,8 @@ bool SynthesisTab::apply_plant(std::vector<double> num, std::vector<double> den,
     plant_den_ = std::move(den);
     plant_tau_ = tau < 0.0 ? 0.0 : tau;
     has_plant_ = true;
+    forget_working_omega();
+    update_regulator_face();
     refresh_closed_display();
     if (!ui->charts->empty())
         replaceTransferFunction();

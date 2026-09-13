@@ -7,6 +7,7 @@
 
 class QAction;
 class QChart;
+class QEvent;
 class QLabel;
 
 /// Detached chart viewer: clone of a panel chart + navigation tools.
@@ -31,6 +32,7 @@ private:
     QAction* act_props_{nullptr};
     QAction* act_fullscreen_{nullptr};
     QAction* act_close_{nullptr};
+    QAction* close_tb_action_{nullptr};
     QLabel* coord_label_{nullptr};
 
     void build_toolbar();
@@ -40,8 +42,10 @@ private:
     void copy_image();
     void open_properties();
     void toggle_fullscreen(bool on);
+    void sync_close_action();
 
 protected:
+    void changeEvent(QEvent* event) override;
     void keyPressEvent(QKeyEvent* event) override;
     bool eventFilter(QObject* watched, QEvent* event) override;
 

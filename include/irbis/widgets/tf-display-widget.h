@@ -29,9 +29,6 @@ private:
     QWidget* delayGroup_{nullptr};
 
     void set_polys(const Vec& num, const Vec& den, double tau);
-    [[nodiscard]] QString plain_title() const;
-    [[nodiscard]] QString human_text() const;
-    [[nodiscard]] QString export_text() const;
 
 public:
     /// Designer / uic: `new TfDisplayWidget(parent)`. Default title W(p) =.

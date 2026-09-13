@@ -167,7 +167,7 @@ enum class PolyOrder { LowFirst, HighFirst };
     return html;
 }
 
-/// Plain (non-HTML) poly for clipboard human line, low→high.
+/// Plain (non-HTML) poly, low→high.
 [[nodiscard]] inline QString polyPlainLowFirst(const std::vector<double>& high_to_low,
                                                int digits = SIGNIFICANT_DIGITS) {
     return polyPlain(high_to_low, PolyOrder::LowFirst, digits);

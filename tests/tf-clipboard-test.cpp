@@ -55,11 +55,30 @@ int main() {
     expect_true("all zeros stripped empty", zeros.empty());
 
     const auto text = tf_clipboard::format({1.0, 2.0}, {1.0, 3.0, 2.0}, 0.5);
+    expect_true("format has num", text.contains(QStringLiteral("num:")));
+    expect_true("format has den", text.contains(QStringLiteral("den:")));
+    expect_true("format has tau", text.contains(QStringLiteral("tau:")));
+    expect_true("format no version",
+                !text.contains(QStringLiteral("Irbis-TF")) && !text.contains(QStringLiteral("RegValve-TF")));
+    expect_true("format no W(p)", !text.contains(QStringLiteral("W(p)")));
     const auto data = tf_clipboard::parse(text);
     expect_true("roundtrip ok", data.ok);
     expect_true("roundtrip num size", data.num.size() == 2);
     expect_eq("roundtrip tau", data.tau, 0.5);
     expect_eq("roundtrip den[0]", data.den[0], 1.0);
+
+    const auto example = tf_clipboard::parse(QStringLiteral("num: 2.5\nden: 12000 1600 70 1\ntau: 7\n"));
+    expect_true("example ok", example.ok);
+    expect_true("example num size", example.num.size() == 1);
+    expect_eq("example num", example.num[0], 2.5);
+    expect_true("example den size", example.den.size() == 4);
+    expect_eq("example den[0]", example.den[0], 12000.0);
+    expect_eq("example tau", example.tau, 7.0);
+
+    const auto legacy =
+        tf_clipboard::parse(QStringLiteral("Irbis-TF-v1\nnum: 2.5\nden: 1 2\ntau: 0\n\nW(p) = (2.5) / (1 + 2·p)\n"));
+    expect_true("legacy still parses", legacy.ok);
+    expect_eq("legacy num", legacy.num[0], 2.5);
 
     expect_true("poly high skips zero", num_format::polyPlainHighFirst({1.0, 0.0, 2.0}) == QStringLiteral("p^2 + 2"));
     expect_true("poly low skips zero", num_format::polyPlainLowFirst({1.0, 0.0, 2.0}) == QStringLiteral("2 + p^2"));

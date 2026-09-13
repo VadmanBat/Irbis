@@ -145,12 +145,15 @@ QFrame#idSidebar QPushButton#clearButton {
 
 QFrame#idSidebar QPushButton#openFileButton {
     min-height: 36px;
+    text-align: center;
 }
 
-QFrame#idSidebar QPushButton#identifyButton {
+QFrame#idSidebar QPushButton#identifyButton,
+QFrame#idSidebar QPushButton#clearButton {
     min-height: 36px;
     font-size: 11pt;
     font-weight: 600;
+    text-align: left;
 }
 
 QFrame#tfModelCard {
@@ -317,7 +320,8 @@ QLabel#faceLawLabel {
 }
 
 QLabel#faceFormulaLabel,
-QLabel#facePolyLabel {
+QLabel#facePolyLabel,
+QLabel#faceOmegaLabel {
     font-size: 12pt;
     padding: 2px 0 6px 0;
 }
