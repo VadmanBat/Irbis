@@ -15,7 +15,6 @@ namespace {
 using Series                           = std::vector<std::pair<double, double>>;
 constexpr std::size_t MAX_CHART_POINTS = 8000;
 constexpr std::size_t MAX_STEPS        = 2'000'000;
-constexpr double kValvePercent         = 100.0;
 
 Series downsample(const Series& src) {
     if (src.size() <= MAX_CHART_POINTS)
@@ -34,7 +33,7 @@ Series as_percent(const Series& src) {
     Series out;
     out.reserve(src.size());
     for (const auto& [t, mu] : src)
-        out.emplace_back(t, mu * kValvePercent);
+        out.emplace_back(t, mu * rim::FULL_SCALE_PERCENT);
     return out;
 }
 
@@ -43,8 +42,9 @@ void fit_panel(ChartPanel* panel, const BoundsSet& bounds) {
 }
 
 void fit_mu_panel(ChartPanel* panel, const BoundsSet& bounds) {
-    const double y0 = bounds.min_y() < -kValvePercent * 0.5 ? bounds.min_y() : -kValvePercent * 0.5;
-    const double y1 = bounds.max_y() > kValvePercent * 0.5 ? bounds.max_y() : kValvePercent * 0.5;
+    constexpr double half = rim::FULL_SCALE_PERCENT * 0.5;
+    const double y0       = bounds.min_y() < -half ? bounds.min_y() : -half;
+    const double y1       = bounds.max_y() > half ? bounds.max_y() : half;
     panel->fitAxes(bounds.min_x(), bounds.max_x(), y0, y1, false, true);
 }
 }
@@ -88,8 +88,11 @@ void RimTab::run_segment(const double duration, const double sp) {
         const double e_ideal  = sp - session_->y_ideal;
         const double mu_real  = rim::updateRegulator(session_->real, e_real);
         const double mu_ideal = session_->ideal.update(e_ideal);
-        session_->y_real      = session_->plant_real.update(mu_real * kValvePercent);
-        session_->y_ideal     = session_->plant_ideal.update(mu_ideal * kValvePercent);
+        // μ в долях шкалы, на объект — проценты хода (K в Wоу на 1 %).
+        const double u_real  = mu_real * rim::FULL_SCALE_PERCENT;
+        const double u_ideal = mu_ideal * rim::FULL_SCALE_PERCENT;
+        session_->y_real     = session_->plant_real.update(u_real);
+        session_->y_ideal    = session_->plant_ideal.update(u_ideal);
         session_->t += dt;
         session_->sp.emplace_back(session_->t, sp);
         session_->y_r.emplace_back(session_->t, session_->y_real);
@@ -172,8 +175,9 @@ void RimTab::runSimulation() {
         return;
 
     try {
-        const auto [ideal_num, ideal_den] = rim::idealPair(law, settings);
-        auto real_reg                     = rim::makeRegulator(law, dt, settings);
+        const auto fraction               = rim::fractionSettings(law, settings);
+        const auto [ideal_num, ideal_den] = rim::idealPair(law, fraction);
+        auto real_reg                     = rim::makeRegulator(law, dt, fraction);
         rim::resetRegulator(real_reg, settings.valve0, 0.0);
 
         TfStepper plant_real(plant, dt, tau);

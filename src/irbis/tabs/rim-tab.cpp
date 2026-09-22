@@ -8,9 +8,11 @@
 #include "irbis/util/tf-clipboard.hpp"
 #include "ui_rim-tab.h"
 
+#include <cmath>
 #include <QApplication>
 #include <QClipboard>
 #include <QComboBox>
+#include <QLocale>
 #include <QMessageBox>
 #include <QPushButton>
 #include <utility>
@@ -21,6 +23,7 @@ RimTab::RimTab(QWidget* parent) : QWidget(parent), ui(new Ui::RimTab) {
     install_custom_widgets();
     secondary_text::apply(ui->statusLabel);
     sync_law_ui();
+    sync_output_limits();
 
     connect(ui->lawCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) { sync_law_ui(); });
     connect(ui->runButton, &QPushButton::clicked, this, &RimTab::runSimulation);
@@ -98,6 +101,37 @@ void RimTab::set_run_locked(const bool on) {
     ui->continueButton->setEnabled(on && session_ != nullptr);
 }
 
+void RimTab::sync_output_limits() {
+    constexpr double kOpen = 1.0e6;
+    const auto reach       = has_plant_ ? rim::staticOutputReach(plant_num_, plant_den_) : std::nullopt;
+    const bool bounded     = reach.has_value();
+    const double lim       = bounded ? *reach : kOpen;
+    ui->setpointSpin->setRange(-lim, lim);
+    ui->deadzoneSpin->setRange(0.0, lim);
+
+    double step = 1.0;
+    if (bounded && lim > 0.0)
+        step = std::pow(10.0, std::floor(std::log10(lim)) - 2.0);
+    ui->setpointSpin->setSingleStep(step);
+    ui->deadzoneSpin->setSingleStep(step);
+
+    const QString bound = QLocale().toString(lim, 'g', 6);
+    if (!has_plant_) {
+        ui->setpointSpin->setToolTip(tr("Задание в единицах выхода."));
+        ui->deadzoneSpin->setToolTip(tr("Ширина зоны нечувствительности в единицах уставки."));
+    }
+    else if (!bounded) {
+        ui->setpointSpin->setToolTip(tr("Задание в единицах выхода. Астатический объект — без потолка."));
+        ui->deadzoneSpin->setToolTip(
+            tr("Ширина зоны нечувствительности в единицах уставки. Астатический объект — без потолка."));
+    }
+    else {
+        ui->setpointSpin->setToolTip(tr("Задание в единицах выхода. Упор клапана: ±%1.").arg(bound));
+        ui->deadzoneSpin->setToolTip(tr("Ширина зоны нечувствительности в единицах уставки, не больше %1.").arg(bound));
+    }
+    ui->deadzoneLabel->setToolTip(ui->deadzoneSpin->toolTip());
+}
+
 numina::ControlLaw RimTab::selected_law() const noexcept {
     switch (ui->lawCombo->currentIndex()) {
         case 0:
@@ -124,6 +158,7 @@ bool RimTab::apply_plant(std::vector<double> num, std::vector<double> den, doubl
     plant_tau_ = tau < 0.0 ? 0.0 : tau;
     has_plant_ = true;
     panel_->setTransferFunction(tf_builder::plant(plant_num_, plant_den_), plant_tau_);
+    sync_output_limits();
     return true;
 }
 

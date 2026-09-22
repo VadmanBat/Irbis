@@ -3,6 +3,7 @@
 #include "irbis/control/rim-law.hpp"
 #include "numina/classes/polynomial/polynomial.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdio>
@@ -256,6 +257,100 @@ void test_stop_holds_with_deadzone() {
     }
 }
 
+struct LoopEnd {
+    double y{};
+    double mu{};
+    double y_peak{};
+};
+
+LoopEnd run_percent_loop(const bool ideal, const numina::PidSettings& user, const numina::ControlLaw law,
+                         const numina::Polynomial& num, const numina::Polynomial& den, const double sp,
+                         const double t_end, const double dt) {
+    const auto scaled   = rim::fractionSettings(law, user);
+    const auto [cn, cd] = rim::idealPair(law, scaled);
+    TfStepper plant(num, den, dt);
+    TfStepper ideal_reg(cn, cd, dt);
+    auto real = rim::makeRegulator(law, dt, scaled);
+    LoopEnd end;
+    const auto n = static_cast<std::size_t>(std::llround(t_end / dt));
+    for (std::size_t i = 0; i < n; ++i) {
+        const double mu = ideal ? ideal_reg.update(sp - end.y) : rim::updateRegulator(real, sp - end.y);
+        end.y           = plant.update(mu * rim::FULL_SCALE_PERCENT);
+        end.mu          = mu;
+        end.y_peak      = std::max(end.y_peak, std::abs(end.y));
+    }
+    return end;
+}
+
+// K = 1 means 1% of valve travel changes y by 1. PI found for that W must move the valve to sp %.
+void test_valve_percent_matches_plant_gain() {
+    const numina::Polynomial num(1.0);
+    const numina::Polynomial den(std::vector<double>{100.0, 10.0, 1.0});
+    numina::PidSettings s;
+    s.kp                = 1.6;
+    s.ti                = 20.0;
+    s.pulse_time        = 0.25;
+    s.travel_time       = 25.0;
+    constexpr double dt = 0.05;
+    constexpr double t  = 200.0;
+    constexpr double sp = 40.0;
+
+    const auto ideal = run_percent_loop(true, s, numina::ControlLaw::Pi, num, den, sp, t, dt);
+    const auto real  = run_percent_loop(false, s, numina::ControlLaw::Pi, num, den, sp, t, dt);
+    expect_near("PI ideal y→40", ideal.y, sp, 0.02);
+    expect_near("PI ideal valve 40%", ideal.mu * rim::FULL_SCALE_PERCENT, sp, 0.02);
+    expect_true("PI ideal overshoot stays off the far stop", ideal.y_peak < 55.0);
+    expect_near("PI real y→40", real.y, sp, 0.03);
+    expect_near("PI real valve 40%", real.mu * rim::FULL_SCALE_PERCENT, sp, 0.03);
+
+    const numina::Polynomial num_small(0.01);
+    numina::PidSettings tuned = s;
+    tuned.kp                  = s.kp / 0.01;
+    constexpr double sp_small = 0.4;
+    const auto ideal_s        = run_percent_loop(true, tuned, numina::ControlLaw::Pi, num_small, den, sp_small, t, dt);
+    const auto real_s         = run_percent_loop(false, tuned, numina::ControlLaw::Pi, num_small, den, sp_small, t, dt);
+    expect_near("scaled plant ideal y→0.4", ideal_s.y, sp_small, 0.02);
+    expect_near("scaled plant ideal valve 40%", ideal_s.mu * rim::FULL_SCALE_PERCENT, 40.0, 0.02);
+    expect_near("scaled plant real y→0.4", real_s.y, sp_small, 0.03);
+    expect_near("scaled plant real valve 40%", real_s.mu * rim::FULL_SCALE_PERCENT, 40.0, 0.03);
+}
+
+void test_static_output_reach() {
+    const auto full = rim::staticOutputReach({1.0}, {100.0, 10.0, 1.0});
+    expect_true("static gain has a stop", full.has_value());
+    expect_near("1/(100p^2+10p+1) reaches 50", *full, 50.0, 1e-12);
+
+    const auto small = rim::staticOutputReach({0.01}, {100.0, 10.0, 1.0});
+    expect_near("0.01/(...) reaches 0.5", *small, 0.5, 1e-12);
+
+    const auto ratio = rim::staticOutputReach({2.0}, {1.0, 10.0, 4.0});
+    expect_near("2/(p^2+10p+4) reaches 25", *ratio, 25.0, 1e-12);
+
+    const auto neg = rim::staticOutputReach({-1.0}, {1.0, 1.0});
+    expect_near("negative b0 still |50|", *neg, 50.0, 1e-12);
+
+    const auto zero = rim::staticOutputReach({1.0, 0.0}, {1.0, 1.0});
+    expect_near("b0=0 reaches 0", *zero, 0.0, 1e-12);
+
+    expect_true("k/p is astatic", !rim::staticOutputReach({1.0}, {1.0, 0.0}).has_value());
+}
+
+void test_i_law_percent_scale() {
+    const numina::Polynomial num(1.0);
+    const numina::Polynomial den(1.0);
+    numina::PidSettings s;
+    s.ti                = 10.0;
+    s.pulse_time        = 0.05;
+    s.travel_time       = 25.0;
+    constexpr double sp = 5.0;
+    const auto ideal    = run_percent_loop(true, s, numina::ControlLaw::I, num, den, sp, 80.0, 0.02);
+    const auto real     = run_percent_loop(false, s, numina::ControlLaw::I, num, den, sp, 80.0, 0.02);
+    expect_near("I ideal y→5", ideal.y, sp, 0.02);
+    expect_near("I ideal valve 5%", ideal.mu * rim::FULL_SCALE_PERCENT, sp, 0.05);
+    expect_near("I real y→5", real.y, sp, 0.04);
+    expect_near("I real valve 5%", real.mu * rim::FULL_SCALE_PERCENT, sp, 0.08);
+}
+
 int main() {
     test_first_order_step();
     test_pure_delay();
@@ -264,6 +359,9 @@ int main() {
     test_integrator_pi_closed_loop();
     test_integrator_p_closed_loop();
     test_stop_holds_with_deadzone();
+    test_valve_percent_matches_plant_gain();
+    test_static_output_reach();
+    test_i_law_percent_scale();
     if (g_failed != 0) {
         std::fprintf(stderr, "%d test(s) failed\n", g_failed);
         return EXIT_FAILURE;

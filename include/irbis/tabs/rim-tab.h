@@ -61,6 +61,7 @@ private:
     void install_custom_widgets();
     void show_error(const QString& message);
     void sync_law_ui();
+    void sync_output_limits();
     void set_run_locked(bool on);
     void redraw_charts();
     void seed_initial_point(double sp, double mu0);
