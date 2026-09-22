@@ -4,15 +4,19 @@ set(irbis_SOURCES
         src/irbis/tabs/id-tab.cpp
         src/irbis/tabs/id-tab-run.cpp
         src/irbis/tabs/id-tab-identify.cpp
+        src/irbis/tabs/id-tab-host.cpp
         src/irbis/tabs/analysis-tab.cpp
+        src/irbis/tabs/analysis-tab-host.cpp
         src/irbis/tabs/synthesis-tab.cpp
         src/irbis/tabs/synthesis-tab-run.cpp
         src/irbis/tabs/synthesis-tab-synth.cpp
         src/irbis/tabs/synthesis-tab-apply.cpp
         src/irbis/tabs/synthesis-tab-face.cpp
         src/irbis/tabs/synthesis-tab-law.cpp
+        src/irbis/tabs/synthesis-tab-host.cpp
         src/irbis/tabs/rim-tab.cpp
         src/irbis/tabs/rim-tab-run.cpp
+        src/irbis/tabs/rim-tab-host.cpp
 
         src/irbis/control/controller-design.cpp
 

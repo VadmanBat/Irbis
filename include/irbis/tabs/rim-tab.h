@@ -82,4 +82,15 @@ public:
     ~RimTab() override;
 
     void openHelp();
+
+    bool showPlant(std::vector<double> num, std::vector<double> den, double tau);
+    void showRegulator(numina::ControlLaw law, const numina::PidSettings& settings, double setpoint, double horizon,
+                       double dt);
+    [[nodiscard]] bool hasPlant() const noexcept;
+    [[nodiscard]] numina::ControlLaw regulatorLaw() const noexcept;
+    [[nodiscard]] numina::PidSettings regulator() const;
+    [[nodiscard]] double setpoint() const;
+    [[nodiscard]] double horizon() const;
+    [[nodiscard]] double sampleStep() const;
+    void readPlant(std::vector<double>& num, std::vector<double>& den, double& tau) const;
 };

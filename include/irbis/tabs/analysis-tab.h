@@ -42,4 +42,10 @@ public:
     void openHelp();
     void openSettings();
     void openChartSettings();
+
+    bool showPlant(std::vector<double> num, std::vector<double> den, double tau);
+    [[nodiscard]] bool hasPlant() const;
+    [[nodiscard]] std::vector<double> plantNumerator() const;
+    [[nodiscard]] std::vector<double> plantDenominator() const;
+    [[nodiscard]] double plantDelay() const;
 };

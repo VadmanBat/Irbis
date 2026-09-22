@@ -62,4 +62,14 @@ public:
     ~IdTab() override;
 
     void openHelp();
+
+    /// method: 0 — h(t), 1 — клапан/параметр. Выставляет вид объекта и показывает файл.
+    bool loadExperiment(const QString& path, int method, IdSettings::PlantKind kind);
+    void setPlantKind(IdSettings::PlantKind kind);
+    void showPlant(std::vector<double> num, std::vector<double> den, double tau);
+
+    [[nodiscard]] bool hasIdentifiedPlant() const;
+    [[nodiscard]] std::vector<double> plantNumerator() const;
+    [[nodiscard]] std::vector<double> plantDenominator() const;
+    [[nodiscard]] double plantDelay() const;
 };

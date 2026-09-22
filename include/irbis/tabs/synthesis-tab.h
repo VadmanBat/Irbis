@@ -73,10 +73,26 @@ private slots:
     void pastePlant();
 
 public:
+    struct ControllerReading {
+        numina::ControllerLaw law{numina::ControllerLaw::Pi};
+        bool p{false};
+        bool i{false};
+        bool d{false};
+        double kp{};
+        double ti{};
+        double td{};
+    };
+
     explicit SynthesisTab(QWidget* parent = nullptr);
     ~SynthesisTab() override;
 
     void openHelp();
     void openSettings();
     void openChartSettings();
+
+    bool showPlant(std::vector<double> num, std::vector<double> den, double tau);
+    void showController(numina::ControllerLaw law, double kp, double ti, double td);
+    [[nodiscard]] bool hasPlant() const noexcept;
+    [[nodiscard]] ControllerReading controllerReading() const;
+    void readPlant(std::vector<double>& num, std::vector<double>& den, double& tau) const;
 };
