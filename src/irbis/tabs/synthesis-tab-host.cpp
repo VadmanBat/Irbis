@@ -37,6 +37,17 @@ bool SynthesisTab::showPlant(std::vector<double> num, std::vector<double> den, c
     return apply_plant(std::move(num), std::move(den), tau);
 }
 
+void SynthesisTab::showPhi(const double phi) {
+    const double fraction = phi > 0.0 && phi < 1.0 ? phi : 0.75;
+    const QSignalBlocker block(ui->phiSpin);
+    ui->phiSpin->setValue(fraction * 100.0);
+    update_stability_region();
+}
+
+double SynthesisTab::phi() const {
+    return ui->phiSpin->value() / 100.0;
+}
+
 void SynthesisTab::showController(const numina::ControllerLaw law, const double kp, const double ti, const double td) {
     {
         const QSignalBlocker block(ui->lawCombo);

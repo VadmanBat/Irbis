@@ -91,6 +91,9 @@ public:
     void openChartSettings();
 
     bool showPlant(std::vector<double> num, std::vector<double> den, double tau);
+    /// φ в долях: 0,75 — это 75 % на шкале показателя колебательности.
+    void showPhi(double phi);
+    [[nodiscard]] double phi() const;
     void showController(numina::ControllerLaw law, double kp, double ti, double td);
     [[nodiscard]] bool hasPlant() const noexcept;
     [[nodiscard]] ControllerReading controllerReading() const;
