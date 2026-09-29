@@ -3,7 +3,7 @@
 #include "irbis/control/rim-law.hpp"
 #include "irbis/util/tf-stepper.hpp"
 #include "irbis/widgets/tf-formula-panel.h"
-#include "numina/classes/control/discrete/pid-controller.h"
+#include "numina/classes/control/discrete/relay-pid-controller.h"
 #include "numina/classes/control/models/transfer-function.h"
 
 #include <memory>
@@ -69,7 +69,7 @@ private:
     [[nodiscard]] bool build_plant(numina::TransferFunction& out, double& tau);
     bool apply_plant(std::vector<double> num, std::vector<double> den, double tau);
     [[nodiscard]] numina::ControlLaw selected_law() const noexcept;
-    [[nodiscard]] numina::PidSettings read_pid_settings() const;
+    [[nodiscard]] numina::RelayPidSettings read_pid_settings() const;
 
 private slots:
     void runSimulation();
@@ -85,11 +85,11 @@ public:
     void openHelp();
 
     bool showPlant(std::vector<double> num, std::vector<double> den, double tau);
-    void showRegulator(numina::ControlLaw law, const numina::PidSettings& settings, double setpoint, double horizon,
+    void showRegulator(numina::ControlLaw law, const numina::RelayPidSettings& settings, double setpoint, double horizon,
                        double dt);
     [[nodiscard]] bool hasPlant() const noexcept;
     [[nodiscard]] numina::ControlLaw regulatorLaw() const noexcept;
-    [[nodiscard]] numina::PidSettings regulator() const;
+    [[nodiscard]] numina::RelayPidSettings regulator() const;
     [[nodiscard]] double setpoint() const;
     [[nodiscard]] double horizon() const;
     [[nodiscard]] double sampleStep() const;

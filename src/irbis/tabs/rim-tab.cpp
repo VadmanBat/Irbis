@@ -182,8 +182,8 @@ void RimTab::pastePlant() {
     apply_plant(data.num, data.den, data.tau);
 }
 
-numina::PidSettings RimTab::read_pid_settings() const {
-    numina::PidSettings s;
+numina::RelayPidSettings RimTab::read_pid_settings() const {
+    numina::RelayPidSettings s;
     s.kp          = ui->kpSpin->value();
     s.ti          = ui->tiSpin->value();
     s.td          = ui->tdSpin->value();

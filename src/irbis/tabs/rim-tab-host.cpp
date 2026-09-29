@@ -28,7 +28,7 @@ bool RimTab::showPlant(std::vector<double> num, std::vector<double> den, const d
     return apply_plant(std::move(num), std::move(den), tau);
 }
 
-void RimTab::showRegulator(const numina::ControlLaw law, const numina::PidSettings& settings, const double setpoint,
+void RimTab::showRegulator(const numina::ControlLaw law, const numina::RelayPidSettings& settings, const double setpoint,
                            const double horizon, const double dt) {
     {
         const QSignalBlocker block(ui->lawCombo);
@@ -59,7 +59,7 @@ numina::ControlLaw RimTab::regulatorLaw() const noexcept {
     return selected_law();
 }
 
-numina::PidSettings RimTab::regulator() const {
+numina::RelayPidSettings RimTab::regulator() const {
     return read_pid_settings();
 }
 

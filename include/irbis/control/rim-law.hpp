@@ -1,6 +1,6 @@
 #pragma once
 
-#include "numina/classes/control/discrete/pid-controller.h"
+#include "numina/classes/control/discrete/relay-pid-controller.h"
 #include "numina/classes/control/models/transfer-function.h"
 
 #include <cmath>
@@ -10,9 +10,10 @@
 
 namespace rim {
 using Regulator =
-    std::variant<numina::PidController<numina::ControlLaw::P>, numina::PidController<numina::ControlLaw::Pd>,
-                 numina::PidController<numina::ControlLaw::Pi>, numina::PidController<numina::ControlLaw::Pid>,
-                 numina::PidController<numina::ControlLaw::I>>;
+    std::variant<numina::RelayPidController<numina::ControlLaw::P>, numina::RelayPidController<numina::ControlLaw::Pd>,
+                 numina::RelayPidController<numina::ControlLaw::Pi>,
+                 numina::RelayPidController<numina::ControlLaw::Pid>,
+                 numina::RelayPidController<numina::ControlLaw::I>>;
 
 [[nodiscard]] constexpr bool hasP(const numina::ControlLaw law) noexcept {
     return law == numina::ControlLaw::P || law == numina::ControlLaw::Pd || law == numina::ControlLaw::Pi ||
@@ -50,9 +51,9 @@ inline constexpr double FULL_SCALE_PERCENT = 100.0;
 /// Kп и Tи — идеальный Wр, выход в процентах хода (это вход объекта).
 /// numina хранит μ в долях, поэтому коэффициент закона делится на 100.
 /// Закон И без Kп: Tи умножается на 100.
-[[nodiscard]] inline numina::PidSettings fractionSettings(const numina::ControlLaw law,
-                                                          const numina::PidSettings& settings) {
-    numina::PidSettings scaled = settings;
+[[nodiscard]] inline numina::RelayPidSettings fractionSettings(const numina::ControlLaw law,
+                                                          const numina::RelayPidSettings& settings) {
+    numina::RelayPidSettings scaled = settings;
     if (hasP(law))
         scaled.kp /= FULL_SCALE_PERCENT;
     else if (hasI(law) && scaled.ti > 0.0)
@@ -61,25 +62,25 @@ inline constexpr double FULL_SCALE_PERCENT = 100.0;
 }
 
 [[nodiscard]] inline Regulator makeRegulator(const numina::ControlLaw law, const double dt,
-                                             const numina::PidSettings& settings) {
+                                             const numina::RelayPidSettings& settings) {
     switch (law) {
         case numina::ControlLaw::P:
-            return numina::PidController<numina::ControlLaw::P>(dt, settings);
+            return numina::RelayPidController<numina::ControlLaw::P>(dt, settings);
         case numina::ControlLaw::Pd:
-            return numina::PidController<numina::ControlLaw::Pd>(dt, settings);
+            return numina::RelayPidController<numina::ControlLaw::Pd>(dt, settings);
         case numina::ControlLaw::Pi:
-            return numina::PidController<numina::ControlLaw::Pi>(dt, settings);
+            return numina::RelayPidController<numina::ControlLaw::Pi>(dt, settings);
         case numina::ControlLaw::I:
-            return numina::PidController<numina::ControlLaw::I>(dt, settings);
+            return numina::RelayPidController<numina::ControlLaw::I>(dt, settings);
         case numina::ControlLaw::Pid:
         default:
-            return numina::PidController<numina::ControlLaw::Pid>(dt, settings);
+            return numina::RelayPidController<numina::ControlLaw::Pid>(dt, settings);
     }
 }
 
 /// Эталонный W_reg(p): TransferFunction::makeController (идеальный ПИД, без Td/8).
 [[nodiscard]] inline numina::TransferFunction::PolyPair idealPair(const numina::ControlLaw law,
-                                                                  const numina::PidSettings& s) {
+                                                                  const numina::RelayPidSettings& s) {
     const double kp = hasP(law) ? s.kp : -1.0;
     const double ti = hasI(law) ? s.ti : -1.0;
     const double td = hasD(law) ? s.td : -1.0;
