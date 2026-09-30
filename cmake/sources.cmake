@@ -57,6 +57,7 @@ set(irbis_SOURCES
         src/irbis/charts/utils/chart-utils-series.cpp
         src/irbis/charts/utils/chart-utils-menu.cpp
         src/irbis/charts/utils/chart-utils-export.cpp
+        src/irbis/charts/utils/chart-utils-export-txt.cpp
 
         ui/tabs/id-tab.ui
         ui/tabs/analysis-tab.ui

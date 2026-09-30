@@ -71,6 +71,8 @@ void tightenChartFrame(QChart* chart);
 /// Remove last non-guide QLineSeries. Returns true if a series was deleted.
 bool removeLastDataSeries(QChart* chart);
 
+/// TXT table: abscissa, then one column per curve. Different time grids share rows;
+/// a blank cell means that curve has no sample. Guides and area edges are omitted.
 bool saveChartToFile(const QString& fileName, QChart* chart);
 
 /// Save by path; format from suffix (.png / .svg / .txt). Returns false on failure.

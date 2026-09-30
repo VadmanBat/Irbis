@@ -66,6 +66,12 @@ if (IRBIS_BUILD_TESTS)
     target_link_libraries(tf_stepper_test PRIVATE numina::numina)
     add_test(NAME tf_stepper_test COMMAND tf_stepper_test)
 
+    add_executable(chart_export_test tests/chart-export-test.cpp)
+    target_include_directories(chart_export_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    target_compile_features(chart_export_test PRIVATE cxx_std_23)
+    target_link_libraries(chart_export_test PRIVATE irbis::irbis)
+    add_test(NAME chart_export_test COMMAND chart_export_test)
+
     add_executable(data_file_parser_test tests/data-file-parser-test.cpp)
     target_include_directories(data_file_parser_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
     target_compile_features(data_file_parser_test PRIVATE cxx_std_23)
