@@ -5,10 +5,13 @@
 #include "irbis/util/secondary-text.hxx"
 #include "ui_chart-dialog.h"
 
+#include <QCheckBox>
 #include <QColorDialog>
 #include <QComboBox>
 #include <QGridLayout>
 #include <QLabel>
+#include <QLegend>
+#include <QLegendMarker>
 #include <QLineEdit>
 #include <QLineSeries>
 #include <QPushButton>
@@ -73,10 +76,11 @@ int ChartDialog::index_from_pen_style(Qt::PenStyle style) {
 
 void ChartDialog::build_series_editors() {
     auto* layout = new QGridLayout(ui->seriesHost);
-    layout->addWidget(new QLabel(tr("Название")), 0, 0);
-    layout->addWidget(new QLabel(tr("Цвет")), 0, 1);
-    layout->addWidget(new QLabel(tr("Толщина")), 0, 2);
-    layout->addWidget(new QLabel(tr("Стиль")), 0, 3);
+    layout->setColumnStretch(1, 1);
+    layout->addWidget(new QLabel(tr("Название")), 0, 1);
+    layout->addWidget(new QLabel(tr("Цвет")), 0, 2);
+    layout->addWidget(new QLabel(tr("Толщина")), 0, 3);
+    layout->addWidget(new QLabel(tr("Стиль")), 0, 4);
 
     int index = 0;
     for (auto* series : chart_->series()) {
@@ -88,6 +92,10 @@ void ChartDialog::build_series_editors() {
         auto* color_button = new QPushButton;
         auto* width_spin   = new QSpinBox;
         auto* style_combo  = new QComboBox;
+        auto* active_check = new QCheckBox;
+        const bool visible = line_series->isVisible();
+        active_check->setChecked(visible);
+        active_check->setToolTip(tr("Рисовать серию и включать её в файл"));
 
         color_button->setObjectName(QStringLiteral("seriesColorButton"));
         color_button->setAutoFillBackground(true);
@@ -107,12 +115,14 @@ void ChartDialog::build_series_editors() {
                 [this, index] { change_series_style(index); });
         connect(style_combo, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
                 [this, index] { change_series_style(index); });
+        connect(active_check, &QCheckBox::toggled, this, [this, index](bool on) { set_series_active(index, on); });
 
         ++index;
-        layout->addWidget(name_edit, index, 0);
-        layout->addWidget(color_button, index, 1);
-        layout->addWidget(width_spin, index, 2);
-        layout->addWidget(style_combo, index, 3);
+        layout->addWidget(active_check, index, 0, Qt::AlignCenter);
+        layout->addWidget(name_edit, index, 1);
+        layout->addWidget(color_button, index, 2);
+        layout->addWidget(width_spin, index, 3);
+        layout->addWidget(style_combo, index, 4);
 
         series_name_edits_.append(name_edit);
         color_buttons_.append(color_button);
@@ -120,6 +130,7 @@ void ChartDialog::build_series_editors() {
         style_combo_boxes_.append(style_combo);
         line_series_.append(line_series);
         init_pens_.append(line_series->pen());
+        init_visible_.append(visible);
     }
     current_pens_ = init_pens_;
 }
@@ -133,6 +144,15 @@ void ChartDialog::change_series_color(int index) {
     QPalette pal = color_buttons_[index]->palette();
     pal.setColor(QPalette::Button, new_color);
     color_buttons_[index]->setPalette(pal);
+}
+
+void ChartDialog::set_series_active(int index, bool on) {
+    QLineSeries* series = line_series_[index];
+    series->setVisible(on);
+    if (QLegend* legend = chart_->legend()) {
+        for (QLegendMarker* marker : legend->markers(series))
+            marker->setVisible(on);
+    }
 }
 
 void ChartDialog::change_series_style(int index) {
@@ -161,6 +181,8 @@ void ChartDialog::applyChanges() {
 
 void ChartDialog::restoreChart() {
     const int n = line_series_.size();
-    for (int i = 0; i < n; ++i)
+    for (int i = 0; i < n; ++i) {
         line_series_[i]->setPen(init_pens_[i]);
+        set_series_active(i, init_visible_[i]);
+    }
 }

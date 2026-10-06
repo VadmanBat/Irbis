@@ -28,10 +28,12 @@ private:
     QVector<QSpinBox*> width_spin_boxes_;
     QVector<QComboBox*> style_combo_boxes_;
     QVector<QLineSeries*> line_series_;
+    QVector<bool> init_visible_;
 
     void build_series_editors();
     void change_series_color(int index);
     void change_series_style(int index);
+    void set_series_active(int index, bool on);
     [[nodiscard]] QAbstractAxis* axis(Qt::Orientation orientation) const;
     static Qt::PenStyle pen_style_from_index(int index);
     static int index_from_pen_style(Qt::PenStyle style);

@@ -40,16 +40,6 @@
        <number>12</number>
       </property>
       <item>
-       <widget class="QLabel" name="regTitle">
-        <property name="objectName">
-         <string notr="true">rimCardTitle</string>
-        </property>
-        <property name="text">
-         <string>Регулятор (РИМ)</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QScrollArea" name="settingsScroll">
         <property name="widgetResizable">
          <bool>true</bool>
@@ -61,12 +51,9 @@
          <enum>Qt::ScrollBarAlwaysOff</enum>
         </property>
         <widget class="QWidget" name="settingsContent">
-         <layout class="QFormLayout" name="settingsForm">
-          <property name="horizontalSpacing">
+         <layout class="QVBoxLayout" name="settingsLayout">
+          <property name="spacing">
            <number>8</number>
-          </property>
-          <property name="verticalSpacing">
-           <number>4</number>
           </property>
           <property name="leftMargin">
            <number>0</number>
@@ -80,6 +67,36 @@
           <property name="bottomMargin">
            <number>0</number>
           </property>
+          <item>
+           <widget class="QLabel" name="tuneTitle">
+            <property name="objectName">
+             <string notr="true">rimCardTitle</string>
+            </property>
+            <property name="text">
+             <string>Настройки регулирования</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="tuneForm">
+            <property name="horizontalSpacing">
+             <number>8</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>4</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
           <item row="0" column="0">
            <widget class="QLabel" name="lawLabel">
             <property name="toolTip">
@@ -239,7 +256,39 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="0">
+           </layout>
+          </item>
+          <item>
+           <widget class="QLabel" name="imTitle">
+            <property name="objectName">
+             <string notr="true">rimCardTitle</string>
+            </property>
+            <property name="text">
+             <string>Параметры ИМ</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <layout class="QFormLayout" name="imForm">
+            <property name="horizontalSpacing">
+             <number>8</number>
+            </property>
+            <property name="verticalSpacing">
+             <number>4</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+          <item row="0" column="0">
            <widget class="QLabel" name="travelLabel">
             <property name="toolTip">
              <string>Время полного хода исполнительного механизма</string>
@@ -255,7 +304,7 @@
             </property>
            </widget>
           </item>
-          <item row="4" column="1">
+          <item row="0" column="1">
            <widget class="CompactDoubleSpinBox" name="travelSpin">
             <property name="toolTip">
              <string>Время полного хода исполнительного механизма</string>
@@ -277,7 +326,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="0">
+          <item row="1" column="0">
            <widget class="QLabel" name="pulseLabel">
             <property name="toolTip">
              <string>Минимальная длительность импульса</string>
@@ -293,7 +342,7 @@
             </property>
            </widget>
           </item>
-          <item row="5" column="1">
+          <item row="1" column="1">
            <widget class="CompactDoubleSpinBox" name="pulseSpin">
             <property name="toolTip">
              <string>Минимальная длительность импульса</string>
@@ -315,7 +364,45 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="0">
+          <item row="2" column="0">
+           <widget class="QLabel" name="pauseLabel">
+            <property name="toolTip">
+             <string>Минимальная пауза между импульсами. 0 — без паузы</string>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="text">
+             <string>T&lt;sub&gt;пауза&lt;/sub&gt;</string>
+            </property>
+            <property name="buddy">
+             <cstring>pauseSpin</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="CompactDoubleSpinBox" name="pauseSpin">
+            <property name="toolTip">
+             <string>Минимальная пауза между импульсами. 0 — без паузы</string>
+            </property>
+            <property name="suffix">
+             <string> с</string>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0</double>
+            </property>
+            <property name="maximum">
+             <double>1000</double>
+            </property>
+            <property name="value">
+             <double>0.1</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
            <widget class="QLabel" name="deadzoneLabel">
             <property name="toolTip">
              <string>Ширина зоны нечувствительности в единицах уставки</string>
@@ -328,7 +415,7 @@
             </property>
            </widget>
           </item>
-          <item row="6" column="1">
+          <item row="3" column="1">
            <widget class="CompactDoubleSpinBox" name="deadzoneSpin">
             <property name="toolTip">
              <string>Ширина зоны нечувствительности в единицах уставки</string>
@@ -347,7 +434,7 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
+          <item row="4" column="0">
            <widget class="QLabel" name="filterLabel">
             <property name="toolTip">
              <string>Постоянная времени фильтра ошибки</string>
@@ -363,7 +450,7 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
+          <item row="4" column="1">
            <widget class="CompactDoubleSpinBox" name="filterSpin">
             <property name="toolTip">
              <string>Постоянная времени фильтра ошибки</string>
@@ -385,7 +472,7 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="0">
+          <item row="5" column="0">
            <widget class="QLabel" name="diffLabel">
             <property name="toolTip">
              <string>Постоянная времени дифференцирования</string>
@@ -401,7 +488,7 @@
             </property>
            </widget>
           </item>
-          <item row="8" column="1">
+          <item row="5" column="1">
            <widget class="CompactDoubleSpinBox" name="diffSpin">
             <property name="toolTip">
              <string>Постоянная времени дифференцирования</string>
@@ -423,7 +510,7 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="0">
+          <item row="6" column="0">
            <widget class="QLabel" name="valve0Label">
             <property name="toolTip">
              <string>Начальное положение регулирующего органа</string>
@@ -436,7 +523,7 @@
             </property>
            </widget>
           </item>
-          <item row="9" column="1">
+          <item row="6" column="1">
            <widget class="CompactDoubleSpinBox" name="valve0Spin">
             <property name="toolTip">
              <string>Начальное положение регулирующего органа</string>
@@ -454,6 +541,8 @@
              <double>0</double>
             </property>
            </widget>
+          </item>
+           </layout>
           </item>
          </layout>
         </widget>

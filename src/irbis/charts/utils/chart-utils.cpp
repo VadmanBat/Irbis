@@ -159,6 +159,7 @@ QChart* cloneChart(QChart* src) {
             out->setName(line->name());
             out->setPen(line->pen());
             out->setPointsVisible(line->pointsVisible());
+            out->setVisible(line->isVisible());
             out->replace(line->points());
             copy = out;
         }
@@ -172,6 +173,7 @@ QChart* cloneChart(QChart* src) {
             out->setPen(scatter->pen());
             out->setBrush(scatter->brush());
             out->setLightMarker(scatter->lightMarker());
+            out->setVisible(scatter->isVisible());
             out->replace(scatter->points());
             copy = out;
         }
@@ -194,11 +196,16 @@ QChart* cloneChart(QChart* src) {
             detail::attachToAxes(dst, up);
             detail::attachToAxes(dst, lo);
             detail::attachToAxes(dst, out);
+            out->setVisible(area->isVisible());
             if (QLegend* legend = dst->legend()) {
                 for (auto* marker : legend->markers(up))
                     marker->setVisible(false);
                 for (auto* marker : legend->markers(lo))
                     marker->setVisible(false);
+                if (!area->isVisible()) {
+                    for (auto* marker : legend->markers(out))
+                        marker->setVisible(false);
+                }
             }
             continue;
         }
@@ -206,6 +213,12 @@ QChart* cloneChart(QChart* src) {
             continue;
         dst->addSeries(copy);
         detail::attachToAxes(dst, copy);
+        if (!copy->isVisible()) {
+            if (QLegend* legend = dst->legend()) {
+                for (auto* marker : legend->markers(copy))
+                    marker->setVisible(false);
+            }
+        }
     }
 
     // Preserve source extents; viewer switches to GridMode::Viewer after open.

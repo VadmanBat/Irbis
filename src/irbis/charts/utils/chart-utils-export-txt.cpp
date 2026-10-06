@@ -43,7 +43,7 @@ struct Column {
     const auto series_list = chart->series();
     columns.reserve(series_list.size());
     for (QAbstractSeries* series : series_list) {
-        if (isAccessorySeries(chart, series))
+        if (isAccessorySeries(chart, series) || !series->isVisible())
             continue;
         auto* xy = qobject_cast<QXYSeries*>(series);
         if (xy == nullptr || xy->count() == 0)

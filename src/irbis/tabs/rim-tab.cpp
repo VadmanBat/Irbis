@@ -83,6 +83,7 @@ void RimTab::set_run_locked(const bool on) {
     ui->lawCombo->setEnabled(edit);
     ui->travelSpin->setEnabled(edit);
     ui->pulseSpin->setEnabled(edit);
+    ui->pauseSpin->setEnabled(edit);
     ui->deadzoneSpin->setEnabled(edit);
     ui->filterSpin->setEnabled(edit);
     ui->diffSpin->setEnabled(edit);
@@ -188,6 +189,7 @@ numina::RelayPidSettings RimTab::read_pid_settings() const {
     s.ti          = ui->tiSpin->value();
     s.td          = ui->tdSpin->value();
     s.pulse_time  = ui->pulseSpin->value();
+    s.pause_time  = ui->pauseSpin->value();
     s.travel_time = ui->travelSpin->value();
     s.deadzone    = ui->deadzoneSpin->value();
     s.filter_time = ui->filterSpin->value();

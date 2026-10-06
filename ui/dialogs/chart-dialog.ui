@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>480</width>
-    <height>420</height>
+    <width>560</width>
+    <height>440</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -95,7 +95,7 @@
       <item>
        <widget class="QLabel" name="seriesHint">
         <property name="text">
-         <string>Имя, цвет, толщина и стиль линий. Изменения цвета/стиля видны сразу; «Применить» сохраняет подписи.</string>
+         <string>Имя, цвет, толщина, стиль и активность. Снятая серия не рисуется и не пишется в файл. Цвет, стиль и галочка действуют сразу; «Применить» сохраняет подписи.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>

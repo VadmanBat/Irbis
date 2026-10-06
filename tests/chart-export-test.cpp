@@ -78,13 +78,13 @@ int main(int argc, char** argv) {
 
         const QString text = exported(&chart);
         expect_eq("position columns", text,
-                  QStringLiteral("Время, с\tФайл\tS-регулятор\tРИМ\n"
-                                 "0\t50\t50\t50\n"
-                                 "1\t\t49\t50\n"
-                                 "2\t\t47\t\n"
-                                 "7\t40\t\t48\n"));
+                  QStringLiteral("Время, с\tФайл\tS-регулятор\n"
+                                 "0\t50\t50\n"
+                                 "1\t\t49\n"
+                                 "2\t\t47\n"
+                                 "7\t40\t\n"));
         expect_true("guides omitted", !text.contains(QStringLiteral("hor-line")) && !text.contains(QStringLiteral("ver-line")));
-        expect_true("hidden curve kept", text.contains(QStringLiteral("РИМ")));
+        expect_true("hidden curve omitted", !text.contains(QStringLiteral("РИМ")));
     }
 
     {

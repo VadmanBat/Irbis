@@ -39,6 +39,7 @@ void RimTab::showRegulator(const numina::ControlLaw law, const numina::RelayPidS
     ui->tdSpin->setValue(settings.td);
     ui->travelSpin->setValue(settings.travel_time);
     ui->pulseSpin->setValue(settings.pulse_time);
+    ui->pauseSpin->setValue(settings.pause_time);
     ui->filterSpin->setValue(settings.filter_time);
     ui->deadzoneSpin->setValue(settings.deadzone);
     ui->diffSpin->setValue(settings.diff_time);
