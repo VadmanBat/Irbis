@@ -112,9 +112,9 @@ enum class PolyOrder { LowFirst, HighFirst };
 [[nodiscard]] inline QString joinPolyTerms(const QStringList& terms) {
     if (terms.isEmpty())
         return QStringLiteral("0");
-    QString out       = terms.front();
-    const int n_terms = terms.size();
-    for (int i = 1; i < n_terms; ++i) {
+    QString out             = terms.front();
+    const qsizetype n_terms = terms.size();
+    for (qsizetype i = 1; i < n_terms; ++i) {
         const QString& t = terms[i];
         if (t.startsWith(QLatin1Char('-')) || t.startsWith(QStringLiteral("−")))
             out += QStringLiteral(" ") + t;

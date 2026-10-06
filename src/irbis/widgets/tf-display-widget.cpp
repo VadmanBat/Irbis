@@ -168,9 +168,9 @@ void TfDisplayWidget::copyToClipboard() {
 }
 
 bool TfDisplayWidget::importText(const QString& text) {
-    const auto data = tf_clipboard::parse(text);
-    if (!data.ok || !tf_builder::validInput(data.num, data.den))
+    const auto parsed = tf_clipboard::parse(text);
+    if (!parsed.ok || !tf_builder::validInput(parsed.num, parsed.den))
         return false;
-    setTransferFunction(tf_builder::plant(data.num, data.den), data.tau);
+    setTransferFunction(tf_builder::plant(parsed.num, parsed.den), parsed.tau);
     return true;
 }

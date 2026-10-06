@@ -15,28 +15,28 @@ void ResponseChartBank::push_batch(Batch b, bool replace_last) {
         return (is_tran && has_tran_overlay_ && n > 0) ? n - 1 : n;
     };
 
-    auto push_real = [&](bool visible, ChartPanel* panel, BoundsSet& bounds, const tf_builder::VecPair& data,
+    auto push_real = [&](bool visible, ChartPanel* panel, BoundsSet& bounds, const tf_builder::VecPair& samples,
                          bool has_data, bool replace, bool is_tran) {
         if (visible && has_data) {
             if (replace && hist_count(panel, is_tran) > 0)
-                bounds.push_back(panel->replaceLastRealCurve(data, b.name));
+                bounds.push_back(panel->replaceLastRealCurve(samples, b.name));
             else
-                bounds.push_back(panel->addRealCurve(data, b.name));
+                bounds.push_back(panel->addRealCurve(samples, b.name));
         }
         else {
-            bounds.push_back(has_data ? boundsOfReal(data) : AxisBounds{});
+            bounds.push_back(has_data ? boundsOfReal(samples) : AxisBounds{});
         }
     };
-    auto push_cx = [&](bool visible, ChartPanel* panel, BoundsSet& bounds, const tf_builder::VecComp& data,
+    auto push_cx = [&](bool visible, ChartPanel* panel, BoundsSet& bounds, const tf_builder::VecComp& samples,
                        bool has_data, bool replace) {
         if (visible && has_data) {
             if (replace && panel->curveCount() > 0)
-                bounds.push_back(panel->replaceLastComplexCurve(data, b.name));
+                bounds.push_back(panel->replaceLastComplexCurve(samples, b.name));
             else
-                bounds.push_back(panel->addComplexCurve(data, b.name));
+                bounds.push_back(panel->addComplexCurve(samples, b.name));
         }
         else {
-            bounds.push_back(has_data ? boundsOfComplex(data) : AxisBounds{});
+            bounds.push_back(has_data ? boundsOfComplex(samples) : AxisBounds{});
         }
     };
 

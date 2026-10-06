@@ -32,9 +32,9 @@ inline void apply(QLabel* label) {
     const QColor c = colorFor(label->palette());
     QString font_rule;
     const QString ss = label->styleSheet();
-    const int idx    = ss.indexOf(QStringLiteral("font-size"));
+    const qsizetype idx = ss.indexOf(QStringLiteral("font-size"));
     if (idx >= 0) {
-        const int end = ss.indexOf(QLatin1Char(';'), idx);
+        const qsizetype end = ss.indexOf(QLatin1Char(';'), idx);
         font_rule     = QLatin1Char(' ') + (end >= 0 ? ss.mid(idx, end - idx + 1) : ss.mid(idx));
     }
     label->setStyleSheet(QStringLiteral("color: %1;%2").arg(c.name(), font_rule));

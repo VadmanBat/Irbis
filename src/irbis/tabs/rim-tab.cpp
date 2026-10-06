@@ -173,14 +173,14 @@ void RimTab::editPlant() {
 }
 
 void RimTab::pastePlant() {
-    const auto data = tf_clipboard::parse(QApplication::clipboard()->text());
-    if (!data.ok) {
+    const auto parsed = tf_clipboard::parse(QApplication::clipboard()->text());
+    if (!parsed.ok) {
         QMessageBox::information(this, tr("Вставка ПФ"),
                                  tr("В буфере нет передаточной функции.\n"
                                     "Скопируйте ПФ кнопкой «Копировать»."));
         return;
     }
-    apply_plant(data.num, data.den, data.tau);
+    apply_plant(parsed.num, parsed.den, parsed.tau);
 }
 
 numina::RelayPidSettings RimTab::read_pid_settings() const {

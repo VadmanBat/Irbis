@@ -167,7 +167,7 @@ void ChartDialog::applyChanges() {
         ax->setTitleText(ui->xAxisLabelEdit->text());
     if (auto* ax = axis(Qt::Vertical))
         ax->setTitleText(ui->yAxisLabelEdit->text());
-    const int n = line_series_.size();
+    const int n = static_cast<int>(line_series_.size());
     for (int i = 0; i < n; ++i) {
         QString name = series_name_edits_[i]->text().trimmed();
         // Reserved guide ids — must not collide with origin crosshair series.
@@ -180,7 +180,7 @@ void ChartDialog::applyChanges() {
 }
 
 void ChartDialog::restoreChart() {
-    const int n = line_series_.size();
+    const int n = static_cast<int>(line_series_.size());
     for (int i = 0; i < n; ++i) {
         line_series_[i]->setPen(init_pens_[i]);
         set_series_active(i, init_visible_[i]);
