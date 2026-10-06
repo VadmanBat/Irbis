@@ -3,8 +3,6 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <vector>
-
 #include <QFile>
 #include <QList>
 #include <QLocale>
@@ -13,6 +11,7 @@
 #include <QTextStream>
 #include <QValueAxis>
 #include <QXYSeries>
+#include <vector>
 
 namespace chart_utils {
 namespace {
@@ -184,9 +183,8 @@ bool saveChartToFile(const QString& fileName, QChart* chart) {
         return true;
 
     const QString x_title = abscissa_title(chart);
-    const bool functional = std::all_of(columns.cbegin(), columns.cend(), [](const Column& column) {
-        return monotonic_unique(column.points);
-    });
+    const bool functional = std::all_of(columns.cbegin(), columns.cend(),
+                                        [](const Column& column) { return monotonic_unique(column.points); });
     if (!functional) {
         write_paired(out, x_title, columns);
         return true;

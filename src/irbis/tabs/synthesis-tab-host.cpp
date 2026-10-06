@@ -1,5 +1,4 @@
 #include "irbis/tabs/synthesis-tab.h"
-
 #include "ui_synthesis-tab.h"
 
 #include <QComboBox>
@@ -27,9 +26,9 @@ int law_index(const numina::ControllerLaw law) noexcept {
 
 void channels(const numina::ControllerLaw law, bool& p, bool& i, bool& d) noexcept {
     using L = numina::ControllerLaw;
-    p = law == L::P || law == L::Pd || law == L::Pi || law == L::Pid;
-    i = law == L::I || law == L::Pi || law == L::Pid;
-    d = law == L::Pd || law == L::Pid;
+    p       = law == L::P || law == L::Pd || law == L::Pi || law == L::Pid;
+    i       = law == L::I || law == L::Pi || law == L::Pid;
+    d       = law == L::Pd || law == L::Pid;
 }
 }
 

@@ -2,7 +2,6 @@
 
 #include <cstdio>
 #include <cstdlib>
-
 #include <QApplication>
 #include <QChart>
 #include <QDir>
@@ -83,7 +82,8 @@ int main(int argc, char** argv) {
                                  "1\t\t49\n"
                                  "2\t\t47\n"
                                  "7\t40\t\n"));
-        expect_true("guides omitted", !text.contains(QStringLiteral("hor-line")) && !text.contains(QStringLiteral("ver-line")));
+        expect_true("guides omitted",
+                    !text.contains(QStringLiteral("hor-line")) && !text.contains(QStringLiteral("ver-line")));
         expect_true("hidden curve omitted", !text.contains(QStringLiteral("РИМ")));
     }
 

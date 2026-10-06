@@ -52,7 +52,7 @@ inline constexpr double FULL_SCALE_PERCENT = 100.0;
 /// numina хранит μ в долях, поэтому коэффициент закона делится на 100.
 /// Закон И без Kп: Tи умножается на 100.
 [[nodiscard]] inline numina::RelayPidSettings fractionSettings(const numina::ControlLaw law,
-                                                          const numina::RelayPidSettings& settings) {
+                                                               const numina::RelayPidSettings& settings) {
     numina::RelayPidSettings scaled = settings;
     if (hasP(law))
         scaled.kp /= FULL_SCALE_PERCENT;

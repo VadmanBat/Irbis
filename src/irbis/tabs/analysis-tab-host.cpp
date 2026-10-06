@@ -1,5 +1,4 @@
 #include "irbis/tabs/analysis-tab.h"
-
 #include "irbis/util/tf-builder.hpp"
 #include "ui_analysis-tab.h"
 

@@ -1,5 +1,4 @@
 #include "irbis/tabs/rim-tab.h"
-
 #include "ui_rim-tab.h"
 
 #include <algorithm>
@@ -28,8 +27,8 @@ bool RimTab::showPlant(std::vector<double> num, std::vector<double> den, const d
     return apply_plant(std::move(num), std::move(den), tau);
 }
 
-void RimTab::showRegulator(const numina::ControlLaw law, const numina::RelayPidSettings& settings, const double setpoint,
-                           const double horizon, const double dt) {
+void RimTab::showRegulator(const numina::ControlLaw law, const numina::RelayPidSettings& settings,
+                           const double setpoint, const double horizon, const double dt) {
     {
         const QSignalBlocker block(ui->lawCombo);
         ui->lawCombo->setCurrentIndex(law_index(law));

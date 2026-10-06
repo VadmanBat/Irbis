@@ -1,5 +1,4 @@
 #include "irbis/tabs/id-tab.h"
-
 #include "irbis/util/tf-builder.hpp"
 #include "ui_id-tab.h"
 
