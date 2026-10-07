@@ -6,6 +6,8 @@
 #include <QChart>
 #include <QDir>
 #include <QFile>
+#include <QLegend>
+#include <QLegendMarker>
 #include <QLineSeries>
 #include <QString>
 
@@ -85,6 +87,63 @@ int main(int argc, char** argv) {
         expect_true("guides omitted",
                     !text.contains(QStringLiteral("hor-line")) && !text.contains(QStringLiteral("ver-line")));
         expect_true("hidden curve omitted", !text.contains(QStringLiteral("РИМ")));
+    }
+
+    {
+        QChart chart;
+        prepare(&chart);
+        add_curve(&chart, QStringLiteral("Файл"), {{0.0, 50.0}, {1.0, 40.0}});
+        add_curve(&chart, QStringLiteral("РИМ"), {{0.0, 50.0}, {1.0, 48.0}});
+        add_curve(&chart, QStringLiteral("Идеальный"), {{0.0, 50.0}, {1.0, 55.0}});
+        auto hide = [](QChart* host, const QString& name) {
+            for (QAbstractSeries* series : host->series()) {
+                if (series->name() != name)
+                    continue;
+                series->setVisible(false);
+                if (QLegend* legend = host->legend()) {
+                    for (QLegendMarker* marker : legend->markers(series))
+                        marker->setVisible(false);
+                }
+            }
+        };
+        hide(&chart, QStringLiteral("РИМ"));
+        hide(&chart, QStringLiteral("Идеальный"));
+        chart_utils::updateAxes(&chart, {0.0, 10.0}, {0.0, 100.0}, chart_utils::GridMode::Tab, false, false);
+
+        QChart* copy = chart_utils::cloneChart(&chart);
+        auto find = [](QChart* host, const QString& name) -> QAbstractSeries* {
+            for (QAbstractSeries* series : host->series()) {
+                if (series->name() == name)
+                    return series;
+            }
+            return nullptr;
+        };
+        QAbstractSeries* file  = find(copy, QStringLiteral("Файл"));
+        QAbstractSeries* rim   = find(copy, QStringLiteral("РИМ"));
+        QAbstractSeries* ideal = find(copy, QStringLiteral("Идеальный"));
+        expect_true("clone keeps file visible", file != nullptr && file->isVisible());
+        expect_true("clone hides RIM", rim != nullptr && !rim->isVisible());
+        expect_true("clone hides ideal", ideal != nullptr && !ideal->isVisible());
+        bool markers_hidden = copy->legend() != nullptr;
+        if (QLegend* legend = copy->legend()) {
+            for (QAbstractSeries* series : {rim, ideal}) {
+                if (series == nullptr) {
+                    markers_hidden = false;
+                    continue;
+                }
+                const auto markers = legend->markers(series);
+                if (markers.isEmpty())
+                    markers_hidden = false;
+                for (QLegendMarker* marker : markers)
+                    markers_hidden = markers_hidden && !marker->isVisible();
+            }
+        }
+        expect_true("clone hides hidden markers", markers_hidden);
+        expect_eq("clone export omits hidden curves", exported(copy),
+                  QStringLiteral("Время, с\tФайл\n"
+                                 "0\t50\n"
+                                 "1\t40\n"));
+        delete copy;
     }
 
     {
