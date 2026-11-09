@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 14.08.2026.
+// Created by Vadim on 14.08.2026.
 
 #include "irbis/charts/response-chart-bank.h"
 #include "irbis/dialogs/chart-vis-dialog.h"

@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 02.08.2026.
+// Created by Vadim on 02.08.2026.
 
 #include <QDoubleSpinBox>
 #include <QLocale>

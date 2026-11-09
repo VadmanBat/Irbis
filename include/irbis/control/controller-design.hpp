@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 14.08.2026.
+// Created by Vadim on 14.08.2026.
 
 #include "numina/classes/control/design/controller-designer.h"
 

@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 05.08.2026.
+// Created by Vadim on 05.08.2026.
 
 #include <QApplication>
 #include <QColor>

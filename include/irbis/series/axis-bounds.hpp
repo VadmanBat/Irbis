@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 30.07.2026.
+// Created by Vadim on 30.07.2026.
 
 #include <complex>
 #include <utility>

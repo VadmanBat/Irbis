@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 25.07.2026.
+// Created by Vadim on 25.07.2026.
 
 #include "irbis/model/model-param.hpp"
 #include "numina/classes/control/models/delayed-plant.h"

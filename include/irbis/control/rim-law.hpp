@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 27.08.2026.
+// Created by Vadim on 27.08.2026.
 
 #include "numina/classes/control/discrete/relay-pid-controller.h"
 #include "numina/classes/control/models/transfer-function.h"

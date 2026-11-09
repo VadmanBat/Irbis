@@ -1,5 +1,5 @@
 #pragma once
-// Created by Vadim 08.09.2026.
+// Created by Vadim on 08.09.2026.
 
 #include "irbis/style.hpp"
 #include "irbis/tabs/analysis-tab.h"
