@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 27.08.2026.
 
 #include "numina/classes/control/models/transfer-function.h"
 #include "numina/classes/polynomial/polynomial.h"

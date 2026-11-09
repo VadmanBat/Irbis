@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 10.09.2026.
 
 #include "irbis/util/format.hxx"
 

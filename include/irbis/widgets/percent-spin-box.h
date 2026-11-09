@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 14.08.2026.
 
 #include <algorithm>
 #include <cmath>

@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 30.07.2026.
 
 #include "irbis/control/rim-law.hpp"
 #include "irbis/util/tf-stepper.hpp"

@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 26.07.2026.
 
 #include <cstdlib>
 #include <optional>

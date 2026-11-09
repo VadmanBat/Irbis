@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 25.07.2026.
 
 /// Simulation / frequency-sweep settings shared by all tabs.
 struct ModelParam {

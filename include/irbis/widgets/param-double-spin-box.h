@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 16.08.2026.
 
 #include <QAbstractSpinBox>
 #include <QDoubleSpinBox>

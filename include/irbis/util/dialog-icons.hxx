@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 02.08.2026.
 
 #include <QAbstractButton>
 #include <QColor>

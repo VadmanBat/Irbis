@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 01.08.2026.
 
 #include "irbis/charts/interactive-chart-view.h"
 #include "irbis/charts/utils/chart-utils.hpp"

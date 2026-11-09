@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 05.08.2026.
 
 #include "irbis/charts/utils/chart-utils.hpp"
 #include "irbis/charts/utils/nice-axis.hpp"

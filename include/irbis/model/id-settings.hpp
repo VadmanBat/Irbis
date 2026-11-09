@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 30.07.2026.
 
 /// Identification options (sidebar on IdTab).
 struct IdSettings {

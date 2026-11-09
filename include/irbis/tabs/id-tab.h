@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 30.07.2026.
 
 #include "irbis/model/id-settings.hpp"
 #include "irbis/widgets/tf-formula-panel.h"

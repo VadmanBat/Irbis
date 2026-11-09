@@ -1,4 +1,5 @@
 #pragma once
+// Created by Vadim 08.09.2026.
 
 #include "irbis/style.hpp"
 #include "irbis/tabs/analysis-tab.h"
