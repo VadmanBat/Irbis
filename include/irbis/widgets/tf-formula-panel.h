@@ -1,5 +1,5 @@
-#pragma once
 // Created by Vadim on 10.09.2026.
+#pragma once
 
 #include "irbis/widgets/tf-display-widget.h"
 #include "numina/classes/control/models/transfer-function.h"

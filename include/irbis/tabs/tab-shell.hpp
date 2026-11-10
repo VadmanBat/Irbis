@@ -1,5 +1,5 @@
-#pragma once
 // Created by Vadim on 14.08.2026.
+#pragma once
 
 #include "irbis/charts/response-chart-bank.h"
 #include "irbis/dialogs/chart-vis-dialog.h"

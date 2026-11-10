@@ -1,5 +1,5 @@
-#pragma once
 // Created by Vadim on 01.08.2026.
+#pragma once
 
 #include "irbis/charts/utils/chart-utils.hpp"
 #include "irbis/series/axis-bounds.hpp"

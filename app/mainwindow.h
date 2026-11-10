@@ -1,5 +1,5 @@
-#pragma once
 // Created by Vadim on 25.07.2026.
+#pragma once
 
 #include <QWidget>
 

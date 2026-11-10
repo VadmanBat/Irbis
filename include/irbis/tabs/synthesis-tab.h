@@ -1,5 +1,5 @@
-#pragma once
 // Created by Vadim on 25.07.2026.
+#pragma once
 
 #include "irbis/charts/c0-c1-chart.h"
 #include "irbis/model/model-param.hpp"

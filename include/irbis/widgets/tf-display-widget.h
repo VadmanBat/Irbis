@@ -1,5 +1,5 @@
-#pragma once
 // Created by Vadim on 26.07.2026.
+#pragma once
 
 #include "numina/classes/control/models/transfer-function.h"
 
